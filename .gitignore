@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Editor / OS noise
+*.swp
+Thumbs.db
+
+# Private project notes — not for public publishing
+CLAUDE.md
+
+# Design-system build artifacts & working files
+_ds_*
+_adherence*
+.thumbnail
+scraps/

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>designMe — feel prototype</title>
+<style>
+  /* ============================================================
+     FEEL PROTOTYPE — warm & handcrafted base
+       · editorial pride-spark (serif title, gallery framing)
+       · apple-minimal discipline (space, legibility, soft depth)
+     Paradigm: the avatar IS the menu. Tap a region → contextual
+     tray → live swap. No category tree.
+     ============================================================ */
+  :root{
+    --bg:    #efe7d9;
+    --bg-2:  #e7dccb;
+    --mat:   #fbf6ec;
+    --mat-2: #f3ebdb;
+    --ink:   #2c2520;
+    --soft:  #786a5c;
+    --line:  #e3d8c4;
+    --line-2:#d4c6ad;
+    --accent:#6f8f6a;
+    --accent-deep:#3f5c3b;
+    --terra: #bd7a4f;
+    --rose:  #cf9f93;
+    --radius:    28px;
+    --radius-sm: 18px;
+    --tap: 56px;
+    --ease: cubic-bezier(.22,.61,.36,1);
+    --shadow:   0 22px 60px -26px rgba(62,42,22,.45), 0 6px 18px -8px rgba(62,42,22,.22);
+    --shadow-sm:0 8px 22px -12px rgba(62,42,22,.35);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; height:100%; }
+  body{
+    min-height:100%;
+    color:var(--ink);
+    font-family: ui-rounded,"SF Pro Rounded","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #f6f0e4 0%, var(--bg) 46%, var(--bg-2) 100%);
+    -webkit-font-smoothing:antialiased;
+    display:grid; place-items:center;
+    overflow:hidden;
+  }
+  .app{
+    position:relative;
+    width:min(1200px, 100vw);
+    height:min(840px, 100vh);
+    overflow:hidden;
+  }
+
+  /* ---- editorial brand (the pride-spark seasoning) ---- */
+  .brand{ position:absolute; top:28px; left:34px; z-index:5; }
+  .brand h1{
+    margin:0; font-weight:500; letter-spacing:.2px;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size:30px; color:var(--ink);
+  }
+  .brand h1 b{ font-weight:600; font-style:italic; }
+  .brand p{ margin:2px 0 0; font-size:13px; letter-spacing:.4px; color:var(--soft); font-weight:600; }
+
+  /* ---- saved gallery (a small personal gallery, not a list) ---- */
+  .gallery{ position:absolute; top:94px; left:34px; z-index:5; display:none; }
+  .gallery.show{ display:block; }
+  .gallery .lab{ font-size:11px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:var(--soft); margin:0 0 8px 2px; }
+  .gallery .cards{ display:flex; gap:10px; }
+  .gcard{
+    width:62px; height:78px; border-radius:16px; border:none; padding:0; cursor:pointer;
+    background:linear-gradient(180deg,#fff,var(--mat-2));
+    box-shadow:var(--shadow-sm);
+    overflow:hidden; transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+    animation:pop .42s var(--ease) both;
+  }
+  .gcard:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .gcard svg{ width:100%; height:100%; display:block; }
+
+  /* ---- top-right actions ---- */
+  .actions{ position:absolute; top:26px; right:30px; z-index:5; display:flex; gap:12px; }
+  .iconbtn{
+    width:var(--tap); height:var(--tap); border-radius:50%; cursor:pointer;
+    border:1px solid var(--line);
+    background:linear-gradient(180deg,#fff,var(--mat-2));
+    color:var(--ink); box-shadow:var(--shadow-sm);
+    display:grid; place-items:center;
+    transition:transform .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .iconbtn:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+  .iconbtn:active{ transform:translateY(0) scale(.96); }
+  .iconbtn svg{ width:24px; height:24px; }
+
+  /* ---- the stage ---- */
+  .stage{
+    position:absolute; inset:0; display:grid; place-items:center;
+  }
+  .mat{
+    position:relative;
+    width:min(430px, 86vw);
+    aspect-ratio: 43/52;
+    border-radius:36px;
+    background:
+      radial-gradient(86% 70% at 50% 14%, #fffaf1 0%, var(--mat) 52%, var(--mat-2) 100%);
+    box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.7);
+    display:grid; place-items:center;
+    transition:transform .3s var(--ease);
+  }
+  .avatarWrap{ width:96%; will-change:transform; }
+  .avatarWrap svg{ width:100%; height:auto; display:block; overflow:visible; }
+  .avatarWrap.settle{ animation:settle .42s var(--ease); }
+  @keyframes settle{ 0%{transform:scale(.992)} 40%{transform:scale(1.012)} 100%{transform:scale(1)} }
+  @keyframes pop{ 0%{transform:scale(.6); opacity:0} 100%{transform:scale(1); opacity:1} }
+
+  /* tappable regions on the avatar */
+  .hit{ fill:transparent; cursor:pointer; transition:stroke-opacity .25s var(--ease); outline:none; stroke:var(--accent); stroke-opacity:0; stroke-width:2.5; }
+  .hit:focus-visible{ stroke:var(--accent-deep); stroke-opacity:1; stroke-dasharray:7 7; }
+  .hits.hint .hit{ stroke-opacity:.55; stroke-dasharray:7 10; animation:breathe 2.6s ease-in-out infinite; }
+  @keyframes breathe{ 0%,100%{stroke-opacity:.22} 50%{stroke-opacity:.6} }
+
+  .hintchip{
+    position:absolute; left:50%; bottom:30px; transform:translateX(-50%);
+    z-index:4; background:rgba(255,255,255,.78); backdrop-filter:blur(6px);
+    border:1px solid var(--line); color:var(--soft); font-weight:700; font-size:13.5px;
+    padding:9px 16px; border-radius:999px; box-shadow:var(--shadow-sm);
+    display:flex; align-items:center; gap:8px; transition:opacity .4s var(--ease);
+  }
+  .hintchip .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
+
+  /* ---- contextual tray (bottom sheet) ---- */
+  .scrim{
+    position:absolute; inset:0; z-index:8; background:rgba(54,38,20,.16);
+    opacity:0; pointer-events:none; transition:opacity .3s var(--ease);
+  }
+  .scrim.show{ opacity:1; pointer-events:auto; }
+  .sheet{
+    position:absolute; left:50%; bottom:0; z-index:9;
+    width:min(700px, 96vw); transform:translate(-50%, 112%);
+    background:linear-gradient(180deg,#fff,var(--mat));
+    border:1px solid var(--line); border-bottom:none;
+    border-radius:30px 30px 0 0; box-shadow:var(--shadow);
+    padding:10px 22px 26px; transition:transform .42s var(--ease);
+  }
+  .sheet.show{ transform:translate(-50%, 0); }
+  .grip{ width:46px; height:5px; border-radius:3px; background:var(--line-2); margin:6px auto 12px; }
+  .sheetHead{ display:flex; align-items:center; gap:10px; margin:0 2px 14px; }
+  .sheetHead .ttl{ font-size:18px; font-weight:800; letter-spacing:.2px; }
+  .sheetHead .ic{ width:30px; height:30px; display:grid; place-items:center; color:var(--accent-deep); }
+  .sheetHead .close{
+    margin-left:auto; width:40px; height:40px; border-radius:50%; border:1px solid var(--line);
+    background:var(--mat-2); color:var(--soft); cursor:pointer; font-size:18px; display:grid; place-items:center;
+  }
+  .rowlab{ font-size:11px; font-weight:800; letter-spacing:1.3px; text-transform:uppercase; color:var(--soft); margin:14px 2px 9px; }
+  .row{ display:flex; gap:12px; overflow-x:auto; padding:4px 2px 6px; scrollbar-width:none; }
+  .row::-webkit-scrollbar{ display:none; }
+
+  .styleBtn{
+    flex:0 0 auto; width:92px; border-radius:20px; cursor:pointer; padding:8px 8px 9px;
+    border:2px solid var(--line); background:linear-gradient(180deg,#fff,var(--mat-2));
+    display:grid; gap:5px; justify-items:center;
+    transition:transform .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .styleBtn:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+  .styleBtn[aria-pressed="true"]{ border-color:var(--accent); box-shadow:0 0 0 3px rgba(111,143,106,.18); }
+  .styleBtn svg{ width:74px; height:64px; display:block; border-radius:14px; background:radial-gradient(80% 70% at 50% 16%,#fffaf1,var(--mat-2)); }
+  .styleBtn .nm{ font-size:12px; font-weight:750; color:var(--ink); }
+
+  .swatch{
+    flex:0 0 auto; width:var(--tap); height:var(--tap); border-radius:50%; cursor:pointer;
+    border:2px solid rgba(255,255,255,.85); box-shadow:var(--shadow-sm), inset 0 0 0 1px rgba(0,0,0,.06);
+    transition:transform .18s var(--ease);
+  }
+  .swatch:hover{ transform:scale(1.06); }
+  .swatch[aria-pressed="true"]{ box-shadow:0 0 0 3px var(--accent), var(--shadow-sm); transform:scale(1.04); }
+
+  /* toast */
+  .toast{
+    position:absolute; left:50%; top:30px; transform:translate(-50%,-16px);
+    z-index:20; background:var(--ink); color:#fff; font-weight:750; font-size:14px;
+    padding:11px 20px; border-radius:999px; box-shadow:var(--shadow);
+    opacity:0; pointer-events:none; transition:opacity .3s var(--ease), transform .3s var(--ease);
+    display:flex; align-items:center; gap:8px;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+
+  :focus-visible{ outline:3px solid var(--accent-deep); outline-offset:2px; }
+
+  @media (max-width:560px){
+    .brand h1{ font-size:25px; }
+    .mat{ width:90vw; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="brand">
+      <h1>design<b>Me</b></h1>
+      <p>make a you</p>
+    </div>
+
+    <div class="gallery" id="gallery" aria-label="Saved looks">
+      <p class="lab">Saved</p>
+      <div class="cards" id="galleryCards"></div>
+    </div>
+
+    <div class="actions">
+      <button class="iconbtn" id="shuffleBtn" aria-label="Surprise me">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>
+        </svg>
+      </button>
+      <button class="iconbtn" id="saveBtn" aria-label="Save this look">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1Z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="stage">
+      <div class="mat" id="mat">
+        <div class="avatarWrap" id="avatarWrap"></div>
+      </div>
+    </div>
+
+    <div class="hintchip" id="hintchip"><span class="dot"></span> Tap your hair, face, or top</div>
+
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Choose options">
+      <div class="grip"></div>
+      <div class="sheetHead">
+        <span class="ic" id="sheetIc"></span>
+        <span class="ttl" id="sheetTtl">Hair</span>
+        <button class="close" id="sheetClose" aria-label="Close">&#x2715;</button>
+      </div>
+      <div id="sheetBody"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const SKINS = ['#f4d4ba','#ecbf9c','#e0a877','#cf9460','#b87a48','#9a5f37','#7c4a2b','#5e3720'];
+const HAIRCOLORS = ['#211c1a','#2e221b','#4a3220','#74502e','#b48a4e','#c9a86a','#9a4530','#6f4a72','#3f6f8a','#cfcac3'];
+const TOPCOLORS = ['#e7dcc6','#6f8f6a','#bd7a4f','#5a6f8c','#84647f','#b23b43','#cda14e','#2f2823'];
+
+const HAIRS = [
+  { id:'waves',  label:'Waves'  },
+  { id:'curls',  label:'Curls'  },
+  { id:'coily',  label:'Coily'  },
+  { id:'bun',    label:'Bun'    },
+  { id:'crop',   label:'Crop'   },
+  { id:'braids', label:'Braids' },
+];
+const TOPS = [
+  { id:'tee',    label:'Tee'    },
+  { id:'knit',   label:'Knit'   },
+  { id:'hoodie', label:'Hoodie' },
+  { id:'shirt',  label:'Shirt'  },
+  { id:'tank',   label:'Tank'   },
+];
+
+const ICONS = {
+  hair:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14c0-5 3.5-9 8-9s8 4 8 9"/><path d="M4 14c0 2 1 4 3 4M20 14c0 2-1 4-3 4"/></svg>',
+  face:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9 15c1 1 5 1 6 0"/></svg>',
+  top:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4 4 7l2 3 2-1v9h8V9l2 1 2-3-4-3-2 2H10Z"/></svg>',
+};
+
+/* ============================================================
+   COLOR HELPER
+   ============================================================ */
+function shade(hex, amt){ // amt -100..100 ; + toward white, - toward black
+  const n = parseInt(hex.slice(1),16);
+  let r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  const t = amt<0?0:255, p=Math.abs(amt)/100;
+  r=Math.round((t-r)*p+r); g=Math.round((t-g)*p+g); b=Math.round((t-b)*p+b);
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+
+/* ============================================================
+   AVATAR PARTS  (coordinate space: 0 0 400 470)
+   Each render context gets a namespace `ns` so gradient ids
+   never collide between the main avatar, minis and gallery.
+   ============================================================ */
+let UID=0; const ns=()=> 'n'+(++UID);
+
+function defs(s,id){
+  const sk=s.skin, hc=s.hairColor, tc=s.topColor;
+  return `<defs>
+    <linearGradient id="skin_${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${shade(sk,16)}"/>
+      <stop offset=".55" stop-color="${sk}"/>
+      <stop offset="1" stop-color="${shade(sk,-15)}"/>
+    </linearGradient>
+    <linearGradient id="hair_${id}" x1="0" y1="0" x2=".25" y2="1">
+      <stop offset="0" stop-color="${shade(hc,28)}"/>
+      <stop offset=".5" stop-color="${hc}"/>
+      <stop offset="1" stop-color="${shade(hc,-16)}"/>
+    </linearGradient>
+    <linearGradient id="top_${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${shade(tc,14)}"/>
+      <stop offset="1" stop-color="${shade(tc,-18)}"/>
+    </linearGradient>
+    <radialGradient id="blush_${id}" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="${shade('#d98b76',6)}" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#d98b76" stop-opacity="0"/>
+    </radialGradient>
+  </defs>`;
+}
+
+// volume that frames the head — drawn WIDER than the head so it peeks around the
+// face silhouette instead of hiding behind it.
+function pHairBack(s,id){
+  const f=`fill="url(#hair_${id})"`;
+  if(s.hair==='crop') return '';
+  const frame=`<path ${f} d="M200,70 C148,70 102,104 99,170 C96,214 104,252 120,286 C110,250 114,206 120,176 C126,150 154,128 200,127 C246,128 274,150 280,176 C286,206 290,250 280,286 C296,252 304,214 301,170 C298,104 252,70 200,70 Z"/>`;
+  switch(s.hair){
+    case 'curls': { let c=`<g ${f}>`; const pts=[[110,124,48],[150,86,50],[200,72,54],[250,86,50],[290,124,48],[96,186,44],[304,186,44],[104,248,38],[296,248,38]]; pts.forEach(p=>c+=`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}"/>`); return c+`</g>`; }
+    case 'coily': { let c=`<g ${f}>`; const pts=[[110,120,52],[150,82,52],[200,68,58],[250,82,52],[290,120,52],[92,184,48],[308,184,48],[100,248,42],[300,248,42],[120,300,34],[280,300,34]]; pts.forEach(p=>c+=`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}"/>`); return c+`</g>`; }
+    case 'bun': return `<path ${f} d="M200,96 C158,96 122,122 120,168 C142,150 162,140 200,140 C238,140 258,150 280,168 C278,122 242,96 200,96 Z"/>`;
+    default: return frame; // waves, braids share the framing mass; length is drawn in pHairSide
+  }
+}
+
+// long hair that drapes in front of the shoulders (drawn over the shirt)
+function pHairSide(s,id){
+  const f=`fill="url(#hair_${id})"`;
+  if(s.hair==='waves'){
+    return `<path ${f} d="M122,166 C92,236 84,344 104,442 C118,392 108,300 130,238 C140,206 146,184 122,166 Z"/>
+            <path ${f} d="M278,166 C308,236 316,344 296,442 C282,392 292,300 270,238 C260,206 254,184 278,166 Z"/>`;
+  }
+  if(s.hair==='braids'){
+    let c=`<g ${f}>`; const xs=[104,296];
+    xs.forEach(x=>{ c+=`<rect x="${x-10}" y="150" width="20" height="294" rx="10"/>`;
+      for(let y=180;y<434;y+=28){ c+=`<ellipse cx="${x}" cy="${y}" rx="12" ry="7" fill="${shade(s.hairColor,-20)}" opacity=".45"/>`; }
+      c+=`<circle cx="${x}" cy="440" r="7" fill="${shade(s.hairColor,-20)}"/>`; });
+    return c+`</g>`;
+  }
+  if(s.hair==='coily'){
+    return `<g ${f}><circle cx="96" cy="304" r="30"/><circle cx="304" cy="304" r="30"/></g>`;
+  }
+  return '';
+}
+
+function pHairFront(s,id){
+  const f=`fill="url(#hair_${id})"`;
+  const hl=`<path d="M140,150 Q172,118 214,116" stroke="${shade(s.hairColor,32)}" stroke-width="7" fill="none" stroke-linecap="round" opacity=".5"/>`;
+  const cap=`<path ${f} d="M112,186 C106,118 150,92 200,92 C250,92 294,118 288,186 C280,150 256,126 200,124 C144,126 120,150 112,186 Z"/>`;
+  switch(s.hair){
+    case 'crop': return `<path ${f} d="M108,198 C100,116 150,88 200,88 C250,88 300,116 292,198 C289,208 281,208 278,198 C272,150 248,132 200,132 C152,132 128,150 122,198 C119,208 111,208 108,198 Z"/>`+hl;
+    case 'bun':  return cap+`<ellipse ${f} cx="200" cy="70" rx="30" ry="28"/>`+hl;
+    case 'coily':
+    case 'curls': return `<path ${f} d="M118,188 C112,150 124,120 150,108 C140,128 142,140 150,150 C156,124 178,112 200,112 C222,112 244,124 250,150 C258,140 260,128 250,108 C276,120 288,150 282,188 C268,162 240,150 200,150 C160,150 132,162 118,188 Z"/>`+hl;
+    default: return cap+hl;
+  }
+}
+
+function pSkin(s,id){
+  // upper-chest fill (tucked at the shirt line so scoop/tank reveal skin, not background)
+  // + a tapered, rounded neck
+  return `<path d="M172,322 C152,338 146,362 146,398 C146,428 156,452 166,466 L234,466 C244,452 254,428 254,398 C254,362 248,338 228,322 Z" fill="url(#skin_${id})"/>
+    <path d="M182,266 C181,290 179,306 172,330 L228,330 C221,306 219,290 218,266 Q200,286 182,266 Z" fill="url(#skin_${id})"/>
+    <path d="M183,270 Q200,286 217,270 Q200,300 183,270 Z" fill="${shade(s.skin,-22)}" opacity=".4"/>`;
+}
+
+function pHead(s,id){
+  return `<g>
+    <ellipse cx="116" cy="196" rx="14" ry="19" fill="url(#skin_${id})"/>
+    <ellipse cx="284" cy="196" rx="14" ry="19" fill="url(#skin_${id})"/>
+    <ellipse cx="200" cy="185" rx="86" ry="98" fill="url(#skin_${id})"/>
+    <ellipse cx="166" cy="158" rx="26" ry="20" fill="#fff" opacity=".07"/>
+  </g>`;
+}
+
+function pFace(s,id){
+  const brow=shade(s.hairColor,-4);
+  return `<g>
+    <path d="M150,174 Q166,165 183,174" stroke="${brow}" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M217,174 Q234,165 250,174" stroke="${brow}" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M151,199 Q167,187 182,199 Q167,209 151,199 Z" fill="#3a2c24"/>
+    <path d="M218,199 Q234,187 249,199 Q234,209 218,199 Z" fill="#3a2c24"/>
+    <circle cx="170" cy="196" r="2.4" fill="#fff" opacity=".85"/>
+    <circle cx="237" cy="196" r="2.4" fill="#fff" opacity=".85"/>
+    <ellipse cx="159" cy="226" rx="17" ry="11" fill="url(#blush_${id})"/>
+    <ellipse cx="241" cy="226" rx="17" ry="11" fill="url(#blush_${id})"/>
+    <path d="M196,210 Q190,227 199,232 Q207,230 203,213" stroke="${shade(s.skin,-18)}" stroke-width="3" fill="none" stroke-linecap="round" opacity=".45"/>
+    <path d="M181,247 Q200,261 219,247" stroke="#b56a60" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>`;
+}
+
+function pTop(s,id){
+  const tc=s.topColor;
+  const shoulders=`<path d="M86,470 C86,374 140,322 200,322 C260,322 314,374 314,470 Z" fill="url(#top_${id})"/>`;
+  const fold=`<path d="M200,326 C178,362 178,420 190,470" stroke="${shade(tc,-20)}" stroke-width="3" fill="none" opacity=".22"/>
+              <path d="M200,326 C222,362 222,420 210,470" stroke="${shade(tc,-20)}" stroke-width="3" fill="none" opacity=".18"/>`;
+  let extra='';
+  switch(s.top){
+    case 'tee':
+      extra=`<path d="M170,323 Q200,349 230,323 Q200,333 170,323 Z" fill="url(#skin_${id})"/>`; break;
+    case 'knit':{
+      let rib=''; for(let x=110;x<=290;x+=24){ rib+=`<line x1="${x}" y1="356" x2="${x}" y2="470" stroke="${shade(tc,-16)}" stroke-width="2" opacity=".22"/>`; }
+      extra=`<path d="M166,322 Q200,352 234,322 Q200,334 166,322 Z" fill="url(#skin_${id})"/>`+rib;
+      break; }
+    case 'hoodie':{
+      const hood=`<path d="M150,300 C150,338 250,338 250,300 C250,318 244,332 232,340 L168,340 C156,332 150,318 150,300 Z" fill="${shade(tc,-12)}"/>`;
+      const neck=`<path d="M172,330 Q200,352 228,330 Q200,340 172,330 Z" fill="url(#skin_${id})"/>`;
+      const strings=`<line x1="188" y1="346" x2="186" y2="404" stroke="${shade(tc,-22)}" stroke-width="4" stroke-linecap="round"/>
+                     <line x1="212" y1="346" x2="214" y2="404" stroke="${shade(tc,-22)}" stroke-width="4" stroke-linecap="round"/>
+                     <circle cx="186" cy="406" r="4" fill="${shade(tc,-22)}"/><circle cx="214" cy="406" r="4" fill="${shade(tc,-22)}"/>`;
+      const pocket=`<path d="M156,418 H244 V452 H156 Z" fill="none" stroke="${shade(tc,-18)}" stroke-width="3" opacity=".4"/>`;
+      return hood+shoulders+fold+neck+strings+pocket;
+    }
+    case 'shirt':{
+      const v=`<path d="M178,322 L200,376 L222,322 Q200,332 178,322 Z" fill="url(#skin_${id})"/>`;
+      const colL=`<path d="M168,318 L201,352 L182,322 Z" fill="${shade(tc,12)}"/>`;
+      const colR=`<path d="M232,318 L199,352 L218,322 Z" fill="${shade(tc,12)}"/>`;
+      const plk=`<line x1="200" y1="376" x2="200" y2="470" stroke="${shade(tc,-18)}" stroke-width="2" opacity=".4"/>`;
+      let btn=''; [398,428,458].forEach(y=>btn+=`<circle cx="200" cy="${y}" r="3.2" fill="${shade(tc,-22)}" opacity=".55"/>`);
+      return shoulders+fold+v+colL+colR+plk+btn;
+    }
+    case 'tank':{
+      const body=`<path d="M120,470 C120,392 158,350 200,350 C242,350 280,392 280,470 Z" fill="url(#top_${id})"/>`;
+      const strapL=`<path d="M150,322 Q150,360 162,392" stroke="url(#top_${id})" stroke-width="16" fill="none" stroke-linecap="round"/>`;
+      const strapR=`<path d="M250,322 Q250,360 238,392" stroke="url(#top_${id})" stroke-width="16" fill="none" stroke-linecap="round"/>`;
+      return strapL+strapR+body;
+    }
+  }
+  return shoulders+fold+extra;
+}
+
+/* ============================================================
+   COMPOSE
+   ============================================================ */
+function avatar(s, withHits){
+  const id=ns();
+  const hits = withHits ? `
+    <g class="hits" id="hits">
+      <rect class="hit" data-region="hair" role="button" tabindex="0" aria-label="Change hair" x="74" y="40" width="252" height="172" rx="22"/>
+      <rect class="hit" data-region="top"  role="button" tabindex="0" aria-label="Change top"  x="74" y="332" width="252" height="138" rx="22"/>
+      <ellipse class="hit" data-region="face" role="button" tabindex="0" aria-label="Change skin tone" cx="200" cy="202" rx="72" ry="80"/>
+    </g>` : '';
+  return `<svg viewBox="0 0 400 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Your avatar">
+    ${defs(s,id)}
+    ${pHairBack(s,id)}
+    ${pSkin(s,id)}
+    ${pTop(s,id)}
+    ${pHairSide(s,id)}
+    ${pHead(s,id)}
+    ${pFace(s,id)}
+    ${pHairFront(s,id)}
+    ${hits}
+  </svg>`;
+}
+
+/* focused mini previews (true recognition — show the actual shape) */
+function miniHair(style){
+  const s=Object.assign({},S,{hair:style}); const id=ns();
+  return `<svg viewBox="84 54 232 206" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    ${defs(s,id)}${pHairBack(s,id)}${pHead(s,id)}${pFace(s,id)}${pHairFront(s,id)}</svg>`;
+}
+function miniTop(style){
+  const s=Object.assign({},S,{top:style}); const id=ns();
+  return `<svg viewBox="70 250 260 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    ${defs(s,id)}${pSkin(s,id)}${pTop(s,id)}${pHead(s,id)}</svg>`;
+}
+function miniFull(s){
+  const id=ns();
+  return `<svg viewBox="58 40 284 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    ${defs(s,id)}${pHairBack(s,id)}${pSkin(s,id)}${pTop(s,id)}${pHead(s,id)}${pFace(s,id)}${pHairFront(s,id)}</svg>`;
+}
+
+/* ============================================================
+   STATE + RENDER
+   ============================================================ */
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const S = {
+  skin: rnd(SKINS),
+  hair: rnd(HAIRS).id,
+  hairColor: rnd(HAIRCOLORS),
+  top: rnd(TOPS).id,
+  topColor: rnd(TOPCOLORS),
+};
+const saved = [];
+
+const wrap = document.getElementById('avatarWrap');
+function render(animate){
+  wrap.innerHTML = avatar(S, true);
+  if(animate){
+    wrap.classList.remove('settle'); void wrap.offsetWidth; wrap.classList.add('settle');
+  }
+}
+
+/* ============================================================
+   CONTEXTUAL TRAY
+   ============================================================ */
+const sheet=document.getElementById('sheet');
+const scrim=document.getElementById('scrim');
+const sheetTtl=document.getElementById('sheetTtl');
+const sheetIc=document.getElementById('sheetIc');
+const sheetBody=document.getElementById('sheetBody');
+const hintchip=document.getElementById('hintchip');
+let openRegion=null;
+
+function styleTile(kind, opt, selected){
+  const mini = kind==='hair' ? miniHair(opt.id) : miniTop(opt.id);
+  return `<button class="styleBtn" data-kind="${kind}" data-val="${opt.id}" aria-pressed="${selected}">
+    ${mini}<span class="nm">${opt.label}</span></button>`;
+}
+function swatchRow(kind, colors, current){
+  return `<div class="row">`+colors.map(c=>
+    `<button class="swatch" data-kind="${kind}" data-val="${c}" aria-pressed="${c===current}" style="background:${c}" aria-label="color"></button>`
+  ).join('')+`</div>`;
+}
+
+function trayContent(region){
+  if(region==='hair'){
+    return `<div class="rowlab">Style</div><div class="row">${HAIRS.map(h=>styleTile('hair',h,h.id===S.hair)).join('')}</div>
+            <div class="rowlab">Color</div>${swatchRow('hairColor',HAIRCOLORS,S.hairColor)}`;
+  }
+  if(region==='top'){
+    return `<div class="rowlab">Style</div><div class="row">${TOPS.map(t=>styleTile('top',t,t.id===S.top)).join('')}</div>
+            <div class="rowlab">Color</div>${swatchRow('topColor',TOPCOLORS,S.topColor)}`;
+  }
+  // face → skin tone
+  return `<div class="rowlab">Skin tone</div>${swatchRow('skin',SKINS,S.skin)}`;
+}
+
+function openTray(region){
+  openRegion=region;
+  sheetTtl.textContent = region==='hair'?'Hair' : region==='top'?'Top' : 'Skin tone';
+  sheetIc.innerHTML = ICONS[region];
+  sheetBody.innerHTML = trayContent(region);
+  sheet.classList.add('show'); scrim.classList.add('show');
+  // first interaction: retire the breathing hints + hint chip
+  document.getElementById('hits')?.parentElement.querySelector('.hits')?.classList.remove('hint');
+  document.querySelectorAll('.hits').forEach(h=>h.classList.remove('hint'));
+  hintchip.style.opacity='0';
+}
+function closeTray(){
+  openRegion=null; sheet.classList.remove('show'); scrim.classList.remove('show');
+}
+function refreshTraySelection(){
+  if(!openRegion) return;
+  sheetBody.querySelectorAll('[data-kind]').forEach(el=>{
+    const k=el.dataset.kind, v=el.dataset.val;
+    el.setAttribute('aria-pressed', String(S[k]===v));
+  });
+}
+
+/* tray choices */
+sheetBody.addEventListener('click', e=>{
+  const el=e.target.closest('[data-kind]'); if(!el) return;
+  const k=el.dataset.kind, v=el.dataset.val;
+  if(S[k]===v) return;
+  S[k]=v;
+  render(true);
+  // restyle hair/top minis to reflect new colors live
+  if(openRegion) sheetBody.innerHTML=trayContent(openRegion);
+});
+
+/* ============================================================
+   AVATAR REGION TAPS
+   ============================================================ */
+wrap.addEventListener('click', e=>{
+  const hit=e.target.closest('[data-region]'); if(!hit) return;
+  openTray(hit.dataset.region);
+});
+wrap.addEventListener('keydown', e=>{
+  const hit=e.target.closest('[data-region]'); if(!hit) return;
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openTray(hit.dataset.region); }
+});
+scrim.addEventListener('click', closeTray);
+document.getElementById('sheetClose').addEventListener('click', closeTray);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeTray(); });
+
+/* ============================================================
+   ACTIONS — shuffle + save
+   ============================================================ */
+document.getElementById('shuffleBtn').addEventListener('click', ()=>{
+  S.skin=rnd(SKINS); S.hair=rnd(HAIRS).id; S.hairColor=rnd(HAIRCOLORS);
+  S.top=rnd(TOPS).id; S.topColor=rnd(TOPCOLORS);
+  render(true);
+  if(openRegion) sheetBody.innerHTML=trayContent(openRegion);
+});
+
+const gallery=document.getElementById('gallery');
+const galleryCards=document.getElementById('galleryCards');
+const toast=document.getElementById('toast');
+let toastT;
+function showToast(msg){
+  toast.innerHTML=`<span>&#x2764;</span> ${msg}`;
+  toast.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>toast.classList.remove('show'),1600);
+}
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  const snap=Object.assign({},S); saved.unshift(snap);
+  const card=document.createElement('button');
+  card.className='gcard'; card.setAttribute('aria-label','Saved look — tap to wear');
+  card.innerHTML=miniFull(snap);
+  card.addEventListener('click', ()=>{ Object.assign(S,snap); render(true); if(openRegion) sheetBody.innerHTML=trayContent(openRegion); });
+  galleryCards.prepend(card);
+  gallery.classList.add('show');
+  showToast('Saved');
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+render(false);
+document.querySelector('.hits')?.classList.add('hint');
+</script>
+</body>
+</html>
