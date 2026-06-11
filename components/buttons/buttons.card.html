@@ -1,0 +1,56 @@
+<!-- @dsCard group="Components" viewport="700x230" name="Buttons" subtitle="Pill actions & icon buttons — primary / secondary / ghost" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 22px; background: var(--bg); }
+  .row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+  .row:last-child { margin-bottom: 0; }
+  .lab { font-family: var(--font-rounded); font-size: var(--text-2xs); font-weight: 800;
+         letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--ink-soft);
+         width: 64px; flex: 0 0 64px; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel">
+    const { Button, IconButton } = window.DesignMeDesignSystem_157aab;
+    const S = (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">{p}</svg>;
+    const Heart = () => <S><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></S>;
+    const Shuffle = () => <S><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/><path d="M21 16v5h-5"/><path d="M14 14l7 7"/></S>;
+    const Back = () => <S><path d="M15 18l-6-6 6-6"/></S>;
+    function Demo() {
+      return (
+        <div>
+          <div className="row">
+            <span className="lab">Buttons</span>
+            <Button variant="primary" icon={<Heart />}>Save look</Button>
+            <Button icon={<Back />}>Back</Button>
+            <Button variant="ghost">Undo</Button>
+            <Button variant="secondary" disabled>Disabled</Button>
+          </div>
+          <div className="row">
+            <span className="lab">Sizes</span>
+            <Button size="sm">Small</Button>
+            <Button size="md">Medium</Button>
+            <Button size="lg" variant="primary">Large</Button>
+          </div>
+          <div className="row">
+            <span className="lab">Icon</span>
+            <IconButton label="Shuffle"><Shuffle /></IconButton>
+            <IconButton label="Save" variant="primary"><Heart /></IconButton>
+            <IconButton label="Back" shape="rounded"><Back /></IconButton>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+  </script>
+</body>
+</html>

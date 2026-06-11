@@ -1,0 +1,28 @@
+<!-- @dsCard group="Spacing" viewport="700x150" name="Spacing scale" subtitle="4px base — the rhythm of gaps & padding" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; align-items: flex-end; gap: 16px; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar { background: var(--sage); border-radius: 4px 4px 0 0; width: 26px; }
+  .nm { font-size: var(--text-2xs); font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="cell"><span class="bar" style="height:4px"></span><span class="nm">1·4</span></div>
+    <div class="cell"><span class="bar" style="height:8px"></span><span class="nm">3·8</span></div>
+    <div class="cell"><span class="bar" style="height:12px"></span><span class="nm">5·12</span></div>
+    <div class="cell"><span class="bar" style="height:14px"></span><span class="nm">6·14</span></div>
+    <div class="cell"><span class="bar" style="height:18px"></span><span class="nm">7·18</span></div>
+    <div class="cell"><span class="bar" style="height:22px"></span><span class="nm">8·22</span></div>
+    <div class="cell"><span class="bar" style="height:26px"></span><span class="nm">9·26</span></div>
+    <div class="cell"><span class="bar" style="height:34px"></span><span class="nm">10·34</span></div>
+    <div class="cell"><span class="bar" style="height:48px"></span><span class="nm">12·48</span></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!-- @dsCard group="Outfits" viewport="700x320" name="Outfit vibes" subtitle="One tap sets a whole look — top, bottom, colors, shoes, hair" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 14px; flex-wrap: nowrap; overflow-x: auto; }
+  .cell { flex: 0 0 auto; width: 150px; border-radius: 22px; padding: 8px;
+          background: radial-gradient(78% 72% at 50% 12%, rgba(255,255,255,.6), rgba(255,255,255,0) 64%), linear-gradient(145deg, rgba(255,255,255,.74), rgba(242,236,225,.74)), var(--surface-2);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.72), var(--shadow-sm); }
+  .fig { width: 100%; height: 196px; border-radius: 16px; overflow: hidden;
+         background: radial-gradient(80% 64% at 50% 14%, rgba(255,255,255,.82), rgba(255,255,255,0)), linear-gradient(180deg, rgba(255,255,255,.55), rgba(205,191,176,.22));
+         display: flex; align-items: flex-end; justify-content: center; }
+  .fig svg { height: 100%; width: auto; }
+  .tag { display: inline-block; margin-top: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(41,35,31,.08);
+         color: var(--ink-soft); font-size: var(--text-2xs); font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+  .nm { font-weight: 900; font-size: var(--text-md); color: var(--ink); margin: 4px 0 0; }
+  .chips { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
+  .chips i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,.12); }
+  .note { color: var(--ink-soft); font-size: var(--text-2xs); font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="row" id="r"></div>
+  <script src="../assets/figure.js"></script>
+  <script>
+    const base = { skin: "#a87c58", hairColor: "#2e221b", body: "balanced", height: "medium" };
+    const vibes = [
+      { nm: "Soft Street", tag: "oversized", note: "hoodie · barrel · sneakers", hair: "curly",
+        top: { sleeve: "long", len: "long", neck: "crew", fit: "oversized", hood: true, pocket: true }, topColor: "#3c3a38", bottom: { type: "barrel" }, bottomColor: "#5a6f8c", shoes: "sneaker" },
+      { nm: "Soft Romantic", tag: "romantic", note: "cardigan · pleated skirt", hair: "long",
+        top: { sleeve: "long", len: "hip", neck: "v", fit: "relaxed", placket: true, chunky: true }, topColor: "#d39aa3", bottom: { type: "skirt", midi: true, pleated: true }, bottomColor: "#f1e9d8", shoes: "loafer" },
+      { nm: "Utility Street", tag: "utility", note: "bomber · cargo · boots", hair: "braids",
+        top: { sleeve: "long", len: "boxy", neck: "crew", fit: "oversized", zip: true, rib: true }, topColor: "#46604b", bottom: { type: "cargo" }, bottomColor: "#3c3a38", shoes: "boot" },
+      { nm: "Quiet Tailoring", tag: "refined", note: "turtleneck · wide trouser", hair: "buzz",
+        top: { sleeve: "long", len: "hip", neck: "high", fit: "fitted", chunky: true }, topColor: "#5a6f8c", bottom: { type: "wide" }, bottomColor: "#3c3a38", shoes: "loafer" },
+      { nm: "Satin Evening", tag: "evening", note: "slip dress · heels", hair: "long",
+        top: { sleeve: "strap", len: "dress", neck: "scoop", fit: "drape", satin: true }, topColor: "#bd6f4f", bottom: { type: "skirt", maxi: true }, bottomColor: "#bd6f4f", shoes: "heel" },
+    ];
+    document.getElementById('r').innerHTML = vibes.map(v =>
+      `<div class="cell"><div class="fig">${window.dmFigure({ ...base, ...v })}</div>
+        <span class="tag">${v.tag}</span><div class="nm">${v.nm}</div>
+        <div class="chips"><i style="background:${v.topColor}"></i><i style="background:${v.bottomColor}"></i><span class="note">${v.note}</span></div></div>`
+    ).join('');
+  </script>
+</body>
+</html>

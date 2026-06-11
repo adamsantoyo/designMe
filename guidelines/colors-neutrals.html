@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Warm neutrals" subtitle="The paper base — page, surfaces & ink" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 10px; }
+  .sw { flex: 1; border-radius: var(--radius-sm); border: 1px solid var(--line); padding: 10px; height: 104px;
+        display: flex; flex-direction: column; justify-content: flex-end; }
+  .nm { font-size: var(--text-sm); font-weight: 800; }
+  .vr { font-size: var(--text-2xs); font-weight: 700; opacity: .7; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw" style="background:var(--bg)"><span class="nm" style="color:var(--ink)">Page</span><span class="vr" style="color:var(--ink)">--bg #ece7dc</span></div>
+    <div class="sw" style="background:var(--bg-2)"><span class="nm" style="color:var(--ink)">Edge</span><span class="vr" style="color:var(--ink)">--bg-2 #dcd4c5</span></div>
+    <div class="sw" style="background:var(--surface)"><span class="nm" style="color:var(--ink)">Surface</span><span class="vr" style="color:var(--ink)">--surface #fbf8f2</span></div>
+    <div class="sw" style="background:var(--surface-2)"><span class="nm" style="color:var(--ink)">Inset</span><span class="vr" style="color:var(--ink)">--surface-2 #f4eee4</span></div>
+    <div class="sw" style="background:var(--ink)"><span class="nm" style="color:#fff">Ink</span><span class="vr" style="color:#fff">--ink #2f2823</span></div>
+    <div class="sw" style="background:var(--ink-soft)"><span class="nm" style="color:#fff">Ink soft</span><span class="vr" style="color:#fff">--ink-soft #6b5f53</span></div>
+  </div>
+</body>
+</html>

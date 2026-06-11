@@ -1,0 +1,54 @@
+/* ============================================================
+   designMe — Typography tokens
+   Two families:
+     · Rounded sans (Nunito ≈ SF Pro Rounded) — all UI & body.
+       Friendly, soft terminals, high x-height = high legibility,
+       which serves the recognition-first / AAC audience.
+     · Editorial serif (Newsreader ≈ Georgia) — used sparingly as
+       the "pride-spark": the designMe wordmark (italic) and the
+       occasional gallery/editorial headline. Never body copy.
+   ============================================================ */
+:root {
+  /* ---- Families ---- */
+  --font-rounded: "Nunito", ui-rounded, "SF Pro Rounded", "Segoe UI",
+                  system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-serif:   "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
+
+  --font-sans:    var(--font-rounded); /* default body family */
+
+  /* ---- Weights ---- */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-extra:    800;
+  --weight-black:    900;
+
+  /* ---- Type scale (rem @ 16px root) ---- */
+  --text-2xs: 0.66rem;  /* 10.5px — tags, badges, eyebrows */
+  --text-xs:  0.74rem;  /* 12px   — captions, chips */
+  --text-sm:  0.82rem;  /* 13px   — secondary, hints */
+  --text-md:  0.92rem;  /* 15px   — controls, labels */
+  --text-base:1rem;     /* 16px   — body */
+  --text-lg:  1.12rem;  /* 18px   — emphasized */
+  --text-xl:  1.55rem;  /* 25px   — section title */
+  --text-2xl: 1.9rem;   /* 30px   — wordmark / display */
+  --text-3xl: 2.6rem;   /* 42px   — hero display */
+
+  /* ---- Line heights ---- */
+  --leading-tight:  1.15;
+  --leading-snug:   1.25;
+  --leading-normal: 1.35;
+  --leading-relaxed:1.5;
+
+  /* ---- Letter spacing ---- */
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;
+  --tracking-eyebrow:0.07em;  /* uppercase tags / labels */
+
+  /* ---- Semantic roles ---- */
+  --display-family: var(--font-serif);   /* wordmark / editorial */
+  --heading-family: var(--font-rounded);
+  --body-family:    var(--font-rounded);
+}

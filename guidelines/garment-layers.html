@@ -1,0 +1,40 @@
+<!-- @dsCard group="Outfits" viewport="700x300" name="Layers, patterns & extras" subtitle="Open outerwear, clipped prints, bags & jewelry — all attribute-driven" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 12px; flex-wrap: nowrap; overflow-x: auto; }
+  .cell { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .fig { width: 116px; height: 222px; border-radius: 18px; overflow: hidden;
+         background: radial-gradient(80% 60% at 50% 10%, rgba(255,255,255,.8), rgba(255,255,255,0)), linear-gradient(180deg, rgba(255,255,255,.5), rgba(205,191,176,.2));
+         box-shadow: var(--shadow-sm); display: flex; align-items: flex-end; justify-content: center; }
+  .fig svg { height: 100%; width: auto; }
+  .nm { font-size: var(--text-2xs); font-weight: 800; color: var(--ink-soft); text-align: center; white-space: nowrap; }
+</style>
+</head>
+<body>
+  <div class="row" id="r"></div>
+  <script src="../assets/figure.js"></script>
+  <script>
+    const base = { skin: "#a87c58", hair: "waves", hairColor: "#2e221b", body: "balanced", height: "medium",
+      top: { sleeve: "short", len: "hip", neck: "crew", fit: "relaxed" }, topColor: "#f1e9d8",
+      bottom: { type: "wide" }, bottomColor: "#3c3a38", shoes: "sneaker" };
+    const looks = [
+      { nm: "Denim jacket", layer: { style: "denim" }, layerColor: "#5a6f8c" },
+      { nm: "Puffer", layer: { style: "puffer" }, layerColor: "#46604b", hair: "braids" },
+      { nm: "Relaxed blazer", layer: { style: "blazer" }, layerColor: "#5e4334", hair: "buzz" },
+      { nm: "Open overshirt", layer: { style: "overshirt" }, layerColor: "#7d8254", hair: "coily" },
+      { nm: "Stripes", top: { sleeve: "short", len: "boxy", neck: "crew", fit: "oversized", pattern: "stripe" }, bottom: { type: "barrel", denim: true }, bottomColor: "#5a6f8c" },
+      { nm: "Plaid", top: { sleeve: "long", len: "hip", neck: "crew", fit: "fitted", pattern: "plaid" }, topColor: "#cda14e", hair: "bun" },
+      { nm: "Tote + necklace", carry: "tote", jewelry: "necklace", topColor: "#d39aa3", hair: "long" },
+      { nm: "Crossbody", carry: "crossbody", topColor: "#8aa382" },
+    ];
+    document.getElementById('r').innerHTML = looks.map(l =>
+      `<div class="cell"><div class="fig">${window.dmFigure({ ...base, ...l })}</div><div class="nm">${l.nm}</div></div>`
+    ).join('');
+  </script>
+</body>
+</html>

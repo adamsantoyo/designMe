@@ -1,0 +1,36 @@
+<!-- @dsCard group="Colors" viewport="700x140" name="Garment palette" subtitle="The earthy coordinated outfit colors — all available to every look" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--bg); font-family: var(--font-rounded); }
+  .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .dot { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 1px solid rgba(0,0,0,.10);
+         box-shadow: inset 0 -3px 6px rgba(0,0,0,.10); }
+  .nm { font-size: var(--text-2xs); font-weight: 800; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="cell"><span class="dot" style="background:var(--c-oat)"></span><span class="nm">Oat</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-cream)"></span><span class="nm">Cream</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-clay)"></span><span class="nm">Clay</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-rust)"></span><span class="nm">Rust</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-terracotta)"></span><span class="nm">Terracotta</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-olive)"></span><span class="nm">Olive</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-sage-soft)"></span><span class="nm">Sage</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-pine)"></span><span class="nm">Pine</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-teal)"></span><span class="nm">Teal</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-sky)"></span><span class="nm">Sky</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-denim)"></span><span class="nm">Denim</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-plum)"></span><span class="nm">Plum</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-rose)"></span><span class="nm">Rose</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-mustard)"></span><span class="nm">Mustard</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-cocoa)"></span><span class="nm">Cocoa</span></div>
+    <div class="cell"><span class="dot" style="background:var(--c-charcoal)"></span><span class="nm">Charcoal</span></div>
+  </div>
+</body>
+</html>

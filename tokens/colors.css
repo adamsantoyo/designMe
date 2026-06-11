@@ -1,0 +1,76 @@
+/* ============================================================
+   designMe — Color tokens
+   Warm, handcrafted, premium-calm. A warm-neutral paper base,
+   sage-green primary accent, terracotta warm action, and a small
+   set of human, earthy support hues. Never a cold/clinical palette.
+   ============================================================ */
+:root {
+  /* ---- Base neutrals (warm paper) ---- */
+  --bg:        #ece7dc;   /* page background — warm oat */
+  --bg-2:      #dcd4c5;   /* deeper neutral, edges & insets */
+  --surface:   #fbf8f2;   /* card / panel surface */
+  --surface-2: #f4eee4;   /* inset / secondary surface */
+  --surface-3: #efe7d9;   /* alt warm wash (prototype mat) */
+
+  /* ---- Ink (text) ---- */
+  --ink:       #2f2823;   /* primary text — AA on surfaces */
+  --ink-soft:  #6b5f53;   /* secondary text / captions */
+  --ink-faint: #978a7b;   /* tertiary / disabled label */
+  --on-accent: #ffffff;   /* text on filled accents */
+
+  /* ---- Hairlines & dividers ---- */
+  --line:      #ddd0bd;   /* hairline border */
+  --line-2:    #cabfa9;   /* stronger border */
+
+  /* ---- Brand accents ---- */
+  --sage:        #6f8f6a; /* primary accent (selection, brand) */
+  --sage-deep:   #3f5c3b; /* accent text / on-light (AA) */
+  --sage-wash:   #eef3ea; /* tinted selected background */
+  --terra:       #bd7a4f; /* warm primary action (save) */
+  --terra-deep:  #8a5430; /* terra hover / pressed (AA) */
+  --wood:        #a9764f; /* warm wood accent */
+  --sky:         #6f8a9b; /* cool support accent */
+  --stone:       #cdbfb0; /* muted warm gray */
+
+  /* ---- State ---- */
+  --selected:  #355c39;   /* selected ring */
+  --focus:     #1f4d2c;   /* keyboard focus ring (high contrast) */
+  --danger:    #b23b43;   /* destructive / alert */
+
+  /* ---- Semantic aliases ---- */
+  --text-primary:    var(--ink);
+  --text-secondary:  var(--ink-soft);
+  --text-on-accent:  var(--on-accent);
+  --surface-page:    var(--bg);
+  --surface-card:    var(--surface);
+  --surface-inset:   var(--surface-2);
+  --border-hairline: var(--line);
+  --border-strong:   var(--line-2);
+  --accent-primary:  var(--sage);
+  --accent-action:   var(--terra);
+  --ring-selected:   var(--selected);
+  --ring-focus:      var(--focus);
+}
+
+/* ============================================================
+   Garment / catalog palette — the coordinated outfit colors used
+   across avatars & looks. Earthy, all available to every look.
+   ============================================================ */
+:root {
+  --c-oat:        #e6dcc6;
+  --c-cream:      #f1e9d8;
+  --c-clay:       #c08457;
+  --c-rust:       #a8553a;
+  --c-terracotta: #bd6f4f;
+  --c-olive:      #7d8254;
+  --c-sage-soft:  #8aa382;
+  --c-pine:       #46604b;
+  --c-teal:       #3f8a86;
+  --c-sky:        #8aa7bd;
+  --c-denim:      #5a6f8c;
+  --c-plum:       #7a5570;
+  --c-rose:       #d39aa3;
+  --c-mustard:    #cda14e;
+  --c-cocoa:      #5e4334;
+  --c-charcoal:   #3c3a38;
+}

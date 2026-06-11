@@ -1,0 +1,13 @@
+/* ============================================================
+   designMe — Webfonts
+   The product ships with the system rounded + serif stacks:
+     sans  : ui-rounded / "SF Pro Rounded"  (friendly, legible)
+     serif : ui-serif / Georgia (editorial wordmark, italic)
+   No binary fonts exist in the codebase. For cross-platform parity
+   we substitute the closest Google Fonts:
+     · Nunito      → rounded, high-legibility sans (SF Pro Rounded)
+     · Newsreader  → warm editorial serif w/ expressive italic (Georgia)
+   ⚠ SUBSTITUTION — see README "Typography". Swap these @imports for
+   licensed binaries (`@font-face`) if you have the originals.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500;1,6..72,600&display=swap');

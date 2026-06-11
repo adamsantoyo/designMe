@@ -1,0 +1,36 @@
+<!-- @dsCard group="Avatar Studio" viewport="1180x760" name="Avatar Studio" subtitle="The designMe avatar creator — pick a vibe, dress your avatar, save looks" -->
+<!-- @startingPoint section="Avatar Studio" subtitle="Full designMe avatar-studio screen" viewport="1180x760" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>designMe — Avatar Studio</title>
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: radial-gradient(120% 90% at 50% -8%, #f6f0e4 0%, var(--bg) 46%, var(--bg-2) 100%); }
+  #root { min-height: 100%; }
+  /* Fit any inline figure SVG to its box by height (shows the whole body) */
+  .figfit { display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+  .figfit svg { height: 100% !important; width: auto !important; max-width: 100% !important; }
+  .bustfit { display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+  .bustfit svg { height: 100% !important; width: auto !important; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="../../assets/avatar.js"></script>
+  <script src="../../assets/figure.js"></script>
+  <script src="catalog.js"></script>
+  <script type="text/babel" src="icons.jsx"></script>
+  <script type="text/babel" src="AvatarStudio.jsx"></script>
+  <script type="text/babel">
+    ReactDOM.createRoot(document.getElementById('root')).render(<AvatarStudio />);
+  </script>
+</body>
+</html>

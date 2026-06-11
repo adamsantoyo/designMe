@@ -1,0 +1,38 @@
+<!-- @dsCard group="Outfits" viewport="700x300" name="Bottoms & shoes" subtitle="Bottoms by type (pants · skirt · shorts · cargo) and the shoe set" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 12px; flex-wrap: nowrap; overflow-x: auto; }
+  .cell { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .fig { width: 112px; height: 220px; border-radius: 18px; overflow: hidden;
+         background: radial-gradient(80% 60% at 50% 10%, rgba(255,255,255,.8), rgba(255,255,255,0)), linear-gradient(180deg, rgba(255,255,255,.5), rgba(205,191,176,.2));
+         box-shadow: var(--shadow-sm); display: flex; align-items: flex-end; justify-content: center; }
+  .fig svg { height: 100%; width: auto; }
+  .nm { font-size: var(--text-2xs); font-weight: 800; color: var(--ink-soft); text-align: center; white-space: nowrap; }
+</style>
+</head>
+<body>
+  <div class="row" id="r"></div>
+  <script src="../assets/figure.js"></script>
+  <script>
+    const base = { skin: "#bd8a5f", hair: "bun", hairColor: "#3f2b1f", body: "balanced", height: "medium",
+      top: { sleeve: "short", len: "boxy", neck: "crew", fit: "relaxed" }, topColor: "#e6dcc6" };
+    const bottoms = [
+      { nm: "Barrel denim", shoes: "sneaker", bottomColor: "#5a6f8c", bottom: { type: "barrel" } },
+      { nm: "Wide trouser", shoes: "loafer", bottomColor: "#3c3a38", bottom: { type: "wide" } },
+      { nm: "Cargo pant", shoes: "boot", bottomColor: "#7d8254", bottom: { type: "cargo" } },
+      { nm: "Track pant", shoes: "sneaker", bottomColor: "#3c3a38", bottom: { type: "track" } },
+      { nm: "Relaxed shorts", shoes: "slide", bottomColor: "#c08457", bottom: { type: "shorts" } },
+      { nm: "Pleated skirt", shoes: "loafer", bottomColor: "#cfc7bb", bottom: { type: "skirt", midi: true, pleated: true } },
+      { nm: "Cargo maxi", shoes: "heel", bottomColor: "#5e4334", bottom: { type: "skirt", maxi: true, cargo: true } },
+    ];
+    document.getElementById('r').innerHTML = bottoms.map(b =>
+      `<div class="cell"><div class="fig">${window.dmFigure({ ...base, ...b })}</div><div class="nm">${b.nm}</div></div>`
+    ).join('');
+  </script>
+</body>
+</html>

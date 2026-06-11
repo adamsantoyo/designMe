@@ -1,0 +1,29 @@
+<!-- @dsCard group="Brand" viewport="700x160" name="Iconography" subtitle="Lucide-style line icons — 1.8–2.2 stroke, round caps & joins" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 22px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .ic { width: 60px; height: 60px; border-radius: var(--radius-md); background: var(--surface);
+        border: 1.5px solid var(--line); box-shadow: var(--shadow-md); display: grid; place-items: center; color: var(--ink); }
+  .ic svg { width: 26px; height: 26px; }
+  .note { margin-top: 16px; font-size: var(--text-sm); color: var(--ink-soft); font-weight: 650; max-width: 620px; }
+  .note b { color: var(--ink); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/><path d="M21 16v5h-5"/><path d="M14 14l7 7"/></svg></span>
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a7 7 0 0 1 14 0"/><path d="M5 13v4M19 13v4M12 6v3"/></svg></span>
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="9.5" cy="11" r="1"/><circle cx="14.5" cy="11" r="1"/><path d="M9 15c1.5 1.2 4.5 1.2 6 0"/></svg></span>
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.6L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.8-.4z"/></svg></span>
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7.7L3 8"/></svg></span>
+    <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+  </div>
+  <p class="note">The product draws its own inline line icons in the <b>Lucide</b> idiom — even stroke, round caps, no fills. For new work, link <b>Lucide</b> from CDN to match exactly. Emoji is used only as a tiny playful spark on the “Find my vibe” CTA — never as data icons.</p>
+</body>
+</html>

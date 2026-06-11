@@ -1,0 +1,33 @@
+<!-- @dsCard group="Brand" viewport="700x300" name="Material & mat" subtitle="Soft paper depth — the calm canvas the avatar sits on" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 22px; background: radial-gradient(120% 90% at 50% -10%, #f6f0e4 0%, var(--bg) 46%, var(--bg-2) 100%); font-family: var(--font-rounded); }
+  .stage { display: flex; gap: 22px; align-items: center; }
+  .mat { width: 200px; aspect-ratio: 43/52; border-radius: 30px;
+         background: radial-gradient(86% 70% at 50% 14%, #fffaf1 0%, var(--surface) 52%, var(--surface-2) 100%);
+         box-shadow: var(--shadow-xl), var(--shadow-inset-hi); display: grid; place-items: end center; overflow: hidden; }
+  .copy { max-width: 320px; }
+  .h { font-family: var(--font-serif); font-size: 26px; font-weight: 500; color: var(--ink); margin: 0 0 8px; }
+  .h i { font-style: italic; }
+  .p { font-size: var(--text-sm); color: var(--ink-soft); font-weight: 650; line-height: 1.45; margin: 0; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="mat" id="mat"></div>
+    <div class="copy">
+      <p class="h">Premium-calm, <i>handcrafted</i></p>
+      <p class="p">A warm paper base with soft radial highlights and gentle warm-brown shadow. Generous whitespace and large rounding keep it un-clinical — dignity through desirability, never busy or loud.</p>
+    </div>
+  </div>
+  <script src="../assets/avatar.js"></script>
+  <script>
+    document.getElementById('mat').innerHTML =
+      '<div style="width:90%">' + window.dmAvatar({skin:'#cf9460', hairColor:'#2e221b', topColor:'#6f8f6a', hair:'curls', height:210}) + '</div>';
+  </script>
+</body>
+</html>

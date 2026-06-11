@@ -1,0 +1,25 @@
+<!-- @dsCard group="Spacing" viewport="700x150" name="Touch targets" subtitle="Large by design — recognition-first, AAC & switch-friendly" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 20px; align-items: center; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .t { display: grid; place-items: center; border-radius: var(--radius-md); border: 2px dashed var(--line-2);
+       background: var(--sage-wash); color: var(--sage-deep); font-weight: 800; font-size: var(--text-xs); }
+  .nm { font-size: var(--text-xs); font-weight: 800; color: var(--ink); }
+  .vr { font-size: var(--text-2xs); font-weight: 700; color: var(--ink-soft); }
+  .note { font-size: var(--text-sm); font-weight: 700; color: var(--ink-soft); max-width: 300px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="cell"><span class="t" style="width:48px;height:48px">48</span><span class="nm">--tap</span><span class="vr">minimum</span></div>
+    <div class="cell"><span class="t" style="width:66px;height:66px">66</span><span class="nm">--tap-lg</span><span class="vr">primary choices</span></div>
+    <p class="note">Targets never dip below 48px; the most-frequent choices get 66px. No time pressure, no per-tap latency, no tiny controls.</p>
+  </div>
+</body>
+</html>

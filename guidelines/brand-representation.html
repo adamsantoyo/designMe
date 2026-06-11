@@ -1,0 +1,36 @@
+<!-- @dsCard group="Brand" viewport="700x260" name="Representation" subtitle="Assistive tech & skin features as ordinary options — never an afterthought" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 22px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .c { width: 116px; height: 138px; border-radius: 20px; overflow: hidden;
+       background: radial-gradient(80% 64% at 50% 14%, rgba(255,255,255,.82), rgba(255,255,255,0)), linear-gradient(180deg, rgba(255,255,255,.55), rgba(205,191,176,.22));
+       box-shadow: var(--shadow-sm); display: flex; align-items: flex-end; justify-content: center; }
+  .nm { font-size: var(--text-2xs); font-weight: 800; color: var(--ink-soft); }
+  .note { margin-top: 14px; font-size: var(--text-sm); color: var(--ink-soft); font-weight: 650; max-width: 640px; }
+  .note b { color: var(--ink); }
+</style>
+</head>
+<body>
+  <div class="row" id="r"></div>
+  <p class="note">Glasses, hearing aids, cochlear implants, freckles and vitiligo are offered as <b>everyday choices</b>, in the same trays as hair and color — available to every avatar, never gated or flagged. Representation is a <b>requirement</b>, not a setting.</p>
+  <script src="../assets/avatar.js"></script>
+  <script>
+    const looks = [
+      { label: 'Round glasses', skin:'#e0a877', hairColor:'#74502e', topColor:'#6f8f6a', hair:'waves', glasses:'round' },
+      { label: 'Cochlear', skin:'#7c4a2b', hairColor:'#211c1a', topColor:'#46604b', hair:'crop', hearing:'cochlear' },
+      { label: 'Hearing aid', skin:'#cf9460', hairColor:'#2e221b', topColor:'#cda14e', hair:'coily', hearing:'aid' },
+      { label: 'Freckles', skin:'#f4d4ba', hairColor:'#b48a4e', topColor:'#bd6f4f', hair:'bun', feature:'freckles' },
+      { label: 'Vitiligo', skin:'#7c4a2b', hairColor:'#2e221b', topColor:'#8aa382', hair:'braids', feature:'vitiligo' },
+    ];
+    document.getElementById('r').innerHTML = looks.map(l =>
+      `<div class="cell"><div class="c">${window.dmAvatar({ ...l, height: 138 })}</div><div class="nm">${l.label}</div></div>`
+    ).join('');
+  </script>
+</body>
+</html>

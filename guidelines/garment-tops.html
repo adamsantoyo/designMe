@@ -1,0 +1,38 @@
+<!-- @dsCard group="Outfits" viewport="700x300" name="Tops — the garment language" subtitle="One vocabulary: sleeve · length · neckline · fit · flags → any top renders" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 20px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 12px; flex-wrap: nowrap; overflow-x: auto; }
+  .cell { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .fig { width: 116px; height: 220px; border-radius: 18px; overflow: hidden;
+         background: radial-gradient(80% 60% at 50% 10%, rgba(255,255,255,.8), rgba(255,255,255,0)), linear-gradient(180deg, rgba(255,255,255,.5), rgba(205,191,176,.2));
+         box-shadow: var(--shadow-sm); display: flex; align-items: flex-end; justify-content: center; }
+  .fig svg { height: 100%; width: auto; }
+  .nm { font-size: var(--text-2xs); font-weight: 800; color: var(--ink-soft); text-align: center; white-space: nowrap; }
+</style>
+</head>
+<body>
+  <div class="row" id="r"></div>
+  <script src="../assets/figure.js"></script>
+  <script>
+    const base = { skin: "#a87c58", hair: "waves", hairColor: "#2e221b", body: "balanced", height: "medium", bottom: { type: "wide" }, bottomColor: "#5a6f8c", shoes: "sneaker" };
+    const tops = [
+      { nm: "Boxy tee", topColor: "#e6dcc6", top: { sleeve: "short", len: "boxy", neck: "crew", fit: "oversized", graphic: true } },
+      { nm: "Rib tank", topColor: "#8aa382", top: { sleeve: "tank", len: "crop", neck: "scoop", fit: "fitted", rib: true } },
+      { nm: "Hoodie", topColor: "#3c3a38", top: { sleeve: "long", len: "long", neck: "crew", fit: "oversized", hood: true, pocket: true } },
+      { nm: "Cardigan", topColor: "#d39aa3", top: { sleeve: "long", len: "hip", neck: "v", fit: "relaxed", placket: true, chunky: true } },
+      { nm: "Turtleneck", topColor: "#5a6f8c", top: { sleeve: "long", len: "hip", neck: "high", fit: "fitted", chunky: true } },
+      { nm: "Shirt", topColor: "#f1e9d8", top: { sleeve: "long", len: "long", neck: "collar", fit: "relaxed", placket: true } },
+      { nm: "Corset", topColor: "#84647f", top: { sleeve: "tank", len: "crop", neck: "scoop", fit: "fitted", corset: true } },
+      { nm: "Slip dress", topColor: "#bd6f4f", bottomColor: "#bd6f4f", top: { sleeve: "strap", len: "dress", neck: "scoop", fit: "drape", satin: true } },
+    ];
+    document.getElementById('r').innerHTML = tops.map(t =>
+      `<div class="cell"><div class="fig">${window.dmFigure({ ...base, ...t })}</div><div class="nm">${t.nm}</div></div>`
+    ).join('');
+  </script>
+</body>
+</html>

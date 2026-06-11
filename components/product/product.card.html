@@ -1,0 +1,49 @@
+<!-- @dsCard group="Components" viewport="700x360" name="Vibe card & discover" subtitle="The signature look card + Find-my-vibe CTA" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; padding: 22px; background: var(--bg); }
+  .wrap { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+  .heroCol { flex: 1 1 260px; min-width: 240px; display: flex; flex-direction: column; gap: 14px; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="../../assets/figure.js"></script>
+  <script type="text/babel">
+    const { VibeCard, DiscoverHero } = window.DesignMeDesignSystem_157aab;
+    const Look = (opts) => (
+      <span className="figfit" style={{display:'flex',alignItems:'flex-end',justifyContent:'center',width:'100%',height:188,overflow:'hidden'}}
+            dangerouslySetInnerHTML={{__html: window.dmFigure(opts)}} />
+    );
+    function Demo() {
+      return (
+        <div className="wrap">
+          <VibeCard name="Soft Street" tag="oversized" note="hoodie, barrel denim, sneakers"
+                    colors={["#3c3a38","#5a6f8c"]} selected
+                    preview={Look({skin:"#cf9460", hairColor:"#2e221b", hair:"curly", body:"balanced",
+                      top:{sleeve:"long",len:"long",neck:"crew",fit:"oversized",hood:true,pocket:true}, topColor:"#3c3a38",
+                      bottom:{type:"barrel"}, bottomColor:"#5a6f8c", shoes:"sneaker"})} />
+          <VibeCard name="Linen Calm" tag="linen ease" note="relaxed shirt, soft shorts"
+                    colors={["#f1e9d8","#c08457"]}
+                    preview={Look({skin:"#e0a877", hairColor:"#74502e", hair:"long", body:"balanced",
+                      top:{sleeve:"long",len:"long",neck:"collar",fit:"relaxed",placket:true}, topColor:"#f1e9d8",
+                      bottom:{type:"shorts"}, bottomColor:"#c08457", shoes:"slide"})} />
+          <div className="heroCol">
+            <DiscoverHero />
+            <DiscoverHero title="Surprise me" subtitle="One tap, a whole new look" icon="🎲" />
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+  </script>
+</body>
+</html>

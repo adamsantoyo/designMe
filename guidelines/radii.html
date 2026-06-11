@@ -1,0 +1,26 @@
+<!-- @dsCard group="Spacing" viewport="700x150" name="Corner radii" subtitle="Soft, generous rounding — sm 12 → pill 999" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; padding: 18px; background: var(--bg); font-family: var(--font-rounded); }
+  .row { display: flex; gap: 14px; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .box { width: 84px; height: 64px; background: var(--surface); border: 1.5px solid var(--line-2); box-shadow: var(--shadow-md); }
+  .nm { font-size: var(--text-xs); font-weight: 800; color: var(--ink); }
+  .vr { font-size: var(--text-2xs); font-weight: 700; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="cell"><span class="box" style="border-radius:var(--radius-sm)"></span><span class="nm">sm</span><span class="vr">12px</span></div>
+    <div class="cell"><span class="box" style="border-radius:var(--radius-md)"></span><span class="nm">md</span><span class="vr">18px</span></div>
+    <div class="cell"><span class="box" style="border-radius:var(--radius-lg)"></span><span class="nm">lg</span><span class="vr">22px</span></div>
+    <div class="cell"><span class="box" style="border-radius:var(--radius-xl)"></span><span class="nm">xl</span><span class="vr">26px</span></div>
+    <div class="cell"><span class="box" style="border-radius:var(--radius-2xl)"></span><span class="nm">2xl</span><span class="vr">30px</span></div>
+    <div class="cell"><span class="box" style="border-radius:var(--radius-pill);width:100px"></span><span class="nm">pill</span><span class="vr">999px</span></div>
+  </div>
+</body>
+</html>
