@@ -674,7 +674,7 @@
     return `<svg viewBox="0 0 240 ${Math.round(K.floor + 8)}" width="100%" preserveAspectRatio="xMidYMax meet" style="display:block;overflow:visible" role="img" aria-label="avatar">
   <defs>
     ${grad(`sk_${id}`, skin)}${grad(`tp_${id}`, topC)}${grad(`bt_${id}`, botC)}${grad(`hr_${id}`, hairC, 0.24, 0.15)}
-    ${grad(`sh_${id}`, "#473b30", 0.12, 0.2)}${grad(`ly_${id}`, o.layerColor || "#5a6f8c")}${grad(`cr_${id}`, o.carryColor || "#8a5a3f", 0.12, 0.18)}
+    ${grad(`sh_${id}`, o.shoeColor || "#473b30", 0.12, 0.2)}${grad(`ly_${id}`, o.layerColor || "#5a6f8c")}${grad(`cr_${id}`, o.carryColor || "#8a5a3f", 0.12, 0.18)}
     <linearGradient id="sx_${id}" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#2c2118" stop-opacity=".14"/><stop offset=".28" stop-color="#2c2118" stop-opacity="0"/>
       <stop offset=".78" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".10"/>
