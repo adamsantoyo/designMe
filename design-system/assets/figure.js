@@ -395,6 +395,15 @@
           const d = subTube(pts, ws, fr);
           sleeveDs.push(d);
           s += `<path d="${d}" fill="${fTop}"/>`;
+          // rounded shoulder cap: a soft deltoid over the bodice→sleeve seam removes the
+          // flat tube-cap step so the shoulder reads as one continuous curve.
+          const a0x = pts[0][0], a0y = pts[0][1], w0 = ws[0];
+          const tipX = cx + sd * shTipX, tipY = K.shoulder + 1;
+          const outX = a0x + sd * w0 * 0.96, outY = a0y - w0 * 0.12;
+          const lowX = a0x + sd * w0 * 0.7, lowY = a0y + w0 * 0.9;
+          const inX = cx + sd * (K.ch * 0.9), inY = K.chest - 6;
+          const capD = `M${R(tipX)} ${R(tipY)} Q${R(tipX + sd * w0 * 0.5)} ${R(tipY - 1)} ${R(outX)} ${R(outY)} Q${R(a0x + sd * w0 * 1.04)} ${R(a0y + w0 * 0.35)} ${R(lowX)} ${R(lowY)} L${R(inX)} ${R(inY)} Z`;
+          s += `<path d="${capD}" fill="${fTop}"/>`;
           const end = along(pts, ws, fr);
           if (sleeve === "long") {
             const cuff = subTube(pts, ws.map((w) => w - 0.4), fr);
@@ -409,6 +418,7 @@
           }
         });
       }
+
 
       /* ---- shared top details ---- */
       // neck finishes

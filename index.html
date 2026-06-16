@@ -2522,19 +2522,13 @@ const App = {
   panelHistory: [],     // stack of prior categories (Back)
   faceTab: 'eye',
   outfitTab: 'tops',
-  looks: [],            // saved snapshots — persisted to localStorage
+  looks: [],            // saved snapshots — in memory only (cleared on reload)
 };
 
-/* ---- localStorage helpers (safe: fails silently in private browsing) ----
-   Key 'dm_looks' : array of saved look state objects (max 24)
-   Key 'dm_state' : current avatar state object                             */
-const LS_LOOKS = 'dm_looks', LS_STATE = 'dm_state';
-function lsSave(key, val){
-  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
-}
-function lsLoad(key){
-  try{ const v=localStorage.getItem(key); return v?JSON.parse(v):null; }catch(e){ return null; }
-}
+/* State is intentionally MEMORY-ONLY — no localStorage, no cookies, no network.
+   A core constraint: on a shared iPad (classroom, clinic, family device) nothing
+   about one person's avatar should persist or leak to the next user. Reloading
+   the page is a clean slate, by design. */
 
 /* ============================================================================
    FIND MY VIBE — recognition-first "this or that" style discovery.
@@ -2754,7 +2748,6 @@ function setKey(key, val, label){
   App.history.push(Object.assign({}, App.state));
   if(App.history.length > 60) App.history.shift();
   App.state[key] = val;
-  lsSave(LS_STATE, App.state);
   paintAvatar();
   renderPanel();
   updateToolbar();
@@ -2763,7 +2756,6 @@ function setKey(key, val, label){
 function setMany(obj, label){
   App.history.push(Object.assign({}, App.state));
   Object.assign(App.state, obj);
-  lsSave(LS_STATE, App.state);
   paintAvatar();
   renderPanel();
   updateToolbar();
@@ -2982,7 +2974,6 @@ function renderLooks(){
 function saveLook(){
   App.looks.unshift(Object.assign({}, App.state));
   if(App.looks.length>24) App.looks.pop();
-  lsSave(LS_LOOKS, App.looks);
   renderLooks();
   // gentle confirmation (reduced-motion safe via CSS)
   avatarCard.classList.remove('saved'); void avatarCard.offsetWidth; avatarCard.classList.add('saved');
@@ -3070,11 +3061,6 @@ document.addEventListener('keydown', (e)=>{
    STARTUP + dev self-checks (counts / determinism)
    ============================================================================ */
 function init(){
-  // Restore persisted state — falls back to defaults if nothing saved yet
-  const savedState = lsLoad(LS_STATE);
-  if(savedState) App.state = fixColors(Object.assign(fixColors(latinoFirstState()), savedState));
-  const savedLooks = lsLoad(LS_LOOKS);
-  if(savedLooks && Array.isArray(savedLooks)) App.looks = savedLooks.slice(0, 24);
   renderCats();
   paintAvatar();
   renderPanel();

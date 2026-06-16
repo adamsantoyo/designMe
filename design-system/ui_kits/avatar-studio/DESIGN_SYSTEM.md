@@ -1,6 +1,11 @@
-# Avatar Studio — UI kit
+# Avatar Studio — UI kit (MOCKUP, not the product)
 
-An interactive, high-fidelity recreation of the **designMe** avatar studio (the `index.html` product view), built from the system's own components.
+> **This is a cosmetic React mockup for design exploration — NOT the shipping app.**
+> The product is the repo-root `index.html` (self-contained, full catalog). This kit uses a
+> *subset* catalog and a CDN-React + in-browser-Babel stack that violates the product's hard
+> constraints. Judge look & layout here; ship from `index.html`.
+
+An interactive, high-fidelity recreation of the **designMe** avatar studio (the root `index.html` product view), built from the system's own components.
 
 Open `index.html`. You can:
 

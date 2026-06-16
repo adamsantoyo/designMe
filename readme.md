@@ -20,21 +20,28 @@ People who benefit from recognition-over-recall interaction — AAC users, multi
 
 ## Running locally
 
-No build step. Open `index.html` directly in a browser:
+No build step, no dependencies. Open the product directly:
 
 ```
 open index.html
 ```
 
-Or serve it:
+`index.html` is fully self-contained — it runs from `file://` with no server, no network, and no install.
 
-```
-python3 -m http.server 8080
-```
+## What's in this repo
 
-## Architecture
+| Path | What it is |
+|---|---|
+| **`index.html`** | **The product.** One self-contained file — open it and you're running the app. |
+| `feel-prototype.html` | A throwaway experiment testing a different interaction paradigm. Not the product. |
+| `design-system/` | Design reference from a later design pass — tokens, guidelines, React components, and a React **mockup** of this screen (`ui_kits/avatar-studio/`). A style spec; **not** what ships. See `design-system/SKILL.md`. |
+| `CLAUDE.md` | Project brief, north star, and hard constraints. |
 
-Single self-contained HTML file. Three layers:
+> The product is `index.html` and nothing else. Everything under `design-system/` is reference material — the app loads none of it.
+
+## Architecture (the product)
+
+`index.html`, three layers:
 
 | Layer | What it does |
 |---|---|
@@ -42,7 +49,7 @@ Single self-contained HTML file. Three layers:
 | **Render engine** | `renderAvatar(state)` → deterministic inline SVG |
 | **UI shell** | Thin DOM layer — pinned avatar, tappable panels, history/undo |
 
-No external dependencies, no network requests, no storage, no frameworks.
+No external dependencies, no network requests, **no storage** (state is memory-only by design — a clean slate on every reload, safe for shared devices), no frameworks.
 
 ## Deploying updates
 
