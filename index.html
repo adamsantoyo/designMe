@@ -711,6 +711,52 @@
     .vibeCard svg.mini { height: 174px; }
   }
 
+  /* Fit tiles need readable garment previews, not tiny cropped fragments. */
+  .fitGrid {
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  }
+  .fitSwatch {
+    min-height: 214px;
+    gap: 8px;
+    overflow: hidden;
+    justify-content: flex-start;
+  }
+  .fitPreview {
+    width: 100%;
+    height: 152px;
+    flex: 0 0 152px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 16px;
+    background:
+      radial-gradient(78% 62% at 50% 16%, rgba(255,255,255,.86), rgba(255,255,255,0)),
+      linear-gradient(180deg, rgba(255,255,255,.5), rgba(205,191,176,.18));
+  }
+  .fitPreview svg.fitMini {
+    width: 100%;
+    height: 100%;
+    flex: none;
+    display: block;
+    overflow: hidden !important;
+  }
+  .fitSwatch .nm {
+    min-height: 2.2em;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px 2px;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 520px) {
+    .fitGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fitSwatch { min-height: 198px; }
+    .fitPreview { height: 138px; flex-basis: 138px; }
+  }
+
   /* ============================================================
      "FIND MY VIBE" — this-or-that discovery
      ============================================================ */
@@ -1083,18 +1129,27 @@
           return `<path d="M${ax - 8} ${K.ankle - 2} q8 -3 16 0 l6 18 q1 4 -3 4 h-8 l-4 -8 -3 8 h-8 q-3 0 -2 -4 z" fill="url(#sh_${id})"/>
                   <rect x="${ax + 7}" y="${fl - 12}" width="3.4" height="12" rx="1.4" fill="${dk}"/>
                   ${line(`M${ax - 8} ${K.ankle + 1} q8 -3 16 0`, shade(dk, 0.3), 1.2, .7)}`;
+        if (shoes === "runner")
+          return `<path d="M${ax - 12} ${K.ankle - 8} q12 -5 24 0 l2 16 h-28 z" fill="url(#sh_${id})"/>
+                  <path d="M${ax - 15} ${K.ankle + 7} h30 q7 0 8 5 l0 3 q0 6 -8 6 h-30 q-8 0 -8 -6 l0 -2 q0 -5 8 -6 z" fill="#f7f2e8" stroke="#d8cfc0" stroke-width="1"/>
+                  ${line(`M${ax - 8} ${K.ankle - 1} q8 -3 16 0`, "#fff", 1.8, .9)}
+                  ${line(`M${ax - 8} ${K.ankle + 3.5} q8 -3 16 0`, "#fff", 1.8, .75)}`;
         if (shoes === "loafer")
           return footSkin(s) + `<path d="M${ax - 10} ${fl - 16} q10 -5 20 0 l1 8 q0 8 -8 8 h-12 q-7 0 -7 -7 q0 -5 6 -9 z" fill="url(#sh_${id})"/>
                   <path d="M${ax - 5} ${fl - 14} q5 -2.6 10 0 l-1 4 q-4 -2 -8 0 z" fill="${shade("#473b30", 0.18)}"/>
+                  <path d="M${ax - 12} ${fl - 4} h25 q3 0 3 2 t-3 2 h-25 q-3 0 -3 -2 t3 -2 z" fill="${dk}"/>`;
+        if (shoes === "mary")
+          return footSkin(s) + `<path d="M${ax - 10} ${fl - 16} q10 -5 20 0 l1 8 q0 8 -8 8 h-12 q-7 0 -7 -7 q0 -5 6 -9 z" fill="url(#sh_${id})"/>
+                  ${line(`M${ax - 8} ${fl - 13} q8 -8 17 0`, dk, 2.1, .9)}
                   <path d="M${ax - 12} ${fl - 4} h25 q3 0 3 2 t-3 2 h-25 q-3 0 -3 -2 t3 -2 z" fill="${dk}"/>`;
         if (shoes === "slide")
           return footSkin(s) + `<path d="M${ax - 12} ${fl - 15} q12 6 24 0 l-2 7 h-20 z" fill="${shade(botC, -0.18)}"/>
                   <path d="M${ax - 13} ${fl - 6} h26 q3 0 3 3 t-3 3 h-26 q-3 0 -3 -3 t3 -3 z" fill="#cdbfae"/>`;
         // sneaker
-        return `<path d="M${ax - 11} ${K.ankle - 6} q11 -4 22 0 l1 16 h-24 z" fill="${crm}"/>
+        return `<path d="M${ax - 11} ${K.ankle - 6} q11 -4 22 0 l1 16 h-24 z" fill="url(#sh_${id})"/>
                 <path d="M${ax - 12} ${K.ankle + 8} h25 q5 0 6 4 l0 2 q0 5 -6 5 h-25 q-6 0 -6 -5 l0 -1 q0 -4 6 -5 z" fill="#fff" stroke="#d8cfc0" stroke-width="1"/>
-                ${line(`M${ax - 8} ${K.ankle - 1} q8 -3 16 0`, "#bfb4a4", 1.4, .9)}
-                ${line(`M${ax - 8} ${K.ankle + 3.5} q8 -3 16 0`, "#bfb4a4", 1.4, .9)}
+                ${line(`M${ax - 8} ${K.ankle - 1} q8 -3 16 0`, crm, 1.4, .9)}
+                ${line(`M${ax - 8} ${K.ankle + 3.5} q8 -3 16 0`, crm, 1.4, .9)}
                 <path d="M${ax + s * 4 - 4} ${K.ankle - 7} l8 3" stroke="#8a8178" stroke-width="2.2" stroke-linecap="round"/>`;
       };
       return one(-1) + one(1);
@@ -1551,14 +1606,55 @@
 
     function hairBack() {
       const hx = cx, t = K.headCy - K.headRy, longEnd = K.chest + 10;
+      const cap = () => `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 7} ${hx} ${t - 8} Q${hx + K.headRx + 3} ${t - 7} ${hx + K.headRx + 2} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 15} ${hx} ${K.headCy - 17} Q${hx - K.headRx + 4} ${K.headCy - 15} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>`;
+      const longShape = (extra = 6, end = longEnd, wave = 0) => {
+        let s = `<path d="M${hx - K.headRx - extra} ${K.headCy} Q${hx - K.headRx - extra - 2} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + extra + 2} ${t - 8} ${hx + K.headRx + extra} ${K.headCy} L${hx + K.headRx + extra + wave} ${end} Q${hx + K.headRx - 2} ${end + 10} ${hx + K.headRx - 9} ${end} L${hx + K.headRx - 8} ${K.headCy + 10} Q${hx} ${K.headCy - 22} ${hx - K.headRx + 8} ${K.headCy + 10} L${hx - K.headRx + 9} ${end} Q${hx - K.headRx + 2} ${end + 10} ${hx - K.headRx - extra - wave} ${end} Z" fill="${fHair}"/>`;
+        for (let i = -2; i <= 2; i++) {
+          const x = hx + i * 9;
+          s += line(`M${x} ${K.headCy - 19} q${wave} 38 ${i * 2} ${end - K.headCy + 6}`, shade(hairC, i % 2 ? -0.2 : 0.14), 1.1, .34);
+        }
+        return s;
+      };
       switch (hair) {
         case "bald": return "";
         case "buzz": case "shaved":
           return `<path d="M${hx - K.headRx - 1} ${K.headCy - 2} Q${hx - K.headRx - 2} ${t - 6} ${hx} ${t - 7} Q${hx + K.headRx + 2} ${t - 6} ${hx + K.headRx + 1} ${K.headCy - 2} Q${hx + K.headRx - 4} ${K.headCy - 14} ${hx} ${K.headCy - 16} Q${hx - K.headRx + 4} ${K.headCy - 14} ${hx - K.headRx - 1} ${K.headCy - 2} Z" fill="${fHair}" opacity="${hair === "shaved" ? 0.75 : 1}"/>`;
-        case "long": case "waves": case "straight":
-          return `<path d="M${hx - K.headRx - 4} ${K.headCy} Q${hx - K.headRx - 5} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 5} ${t - 8} ${hx + K.headRx + 4} ${K.headCy} L${hx + K.headRx + 6} ${longEnd} Q${hx + K.headRx - 2} ${longEnd + 10} ${hx + K.headRx - 7} ${longEnd} L${hx + K.headRx - 8} ${K.headCy + 10} Q${hx} ${K.headCy - 22} ${hx - K.headRx + 8} ${K.headCy + 10} L${hx - K.headRx + 7} ${longEnd} Q${hx - K.headRx + 2} ${longEnd + 10} ${hx - K.headRx - 6} ${longEnd} Z" fill="${fHair}"/>`;
+        case "straightL": case "straight":
+          return longShape(3, longEnd + 4, 0);
+        case "wavyM": case "waves":
+          return longShape(7, longEnd - 6, 7);
+        case "layers": case "long":
+          return longShape(8, longEnd + 10, 5) + line(`M${hx + 10} ${K.headCy - 7} q23 43 -3 ${longEnd + 12 - K.headCy}`, shade(hairC, -0.18), 1.4, .45);
+        case "blowout":
+          return longShape(14, longEnd + 8, 10) + `<ellipse cx="${hx}" cy="${t + 13}" rx="${K.headRx + 16}" ry="23" fill="${fHair}" opacity=".92"/>`;
+        case "curtain":
+          return longShape(6, longEnd - 2, 4);
+        case "halfUp":
+          return longShape(7, longEnd, 5) + `<ellipse cx="${hx}" cy="${t - 5}" rx="13" ry="9" fill="${fHair}" stroke="${shade(hairC, -0.22)}" stroke-width="1"/>`;
+        case "highPony":
+          return `<path d="M${hx - 10} ${t - 13} C${hx - 38} ${K.headCy + 15} ${hx - 28} ${longEnd + 18} ${hx + 3} ${longEnd + 24} C${hx + 36} ${longEnd - 12} ${hx + 35} ${K.headCy + 1} ${hx + 10} ${t - 13} Z" fill="${fHair}"/>`+
+            `<ellipse cx="${hx}" cy="${t - 12}" rx="15" ry="10" fill="${fHair}" stroke="${shade(hairC, -0.22)}" stroke-width="1"/>` + cap();
+        case "lowBun":
+          return `<ellipse cx="${hx}" cy="${K.headCy + K.headRy - 2}" rx="17" ry="12" fill="${fHair}" stroke="${shade(hairC, -0.2)}" stroke-width="1"/>` + cap();
+        case "sleekBun":
+          return `<ellipse cx="${hx}" cy="${K.headCy + K.headRy - 4}" rx="14" ry="10" fill="${fHair}" stroke="${shade(hairC, -0.24)}" stroke-width="1"/>` + cap();
+        case "clawClip":
+          return `<path d="M${hx - K.headRx - 4} ${K.headCy - 2} Q${hx - K.headRx - 6} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 6} ${t - 8} ${hx + K.headRx + 4} ${K.headCy - 2} Q${hx + 18} ${K.headCy + 28} ${hx + 6} ${longEnd - 8} Q${hx} ${longEnd + 8} ${hx - 6} ${longEnd - 8} Q${hx - 18} ${K.headCy + 28} ${hx - K.headRx - 4} ${K.headCy - 2} Z" fill="${fHair}"/>`+
+            `<rect x="${hx - 12}" y="${K.headCy - 26}" width="24" height="17" rx="6" fill="#cda14e" stroke="${shade("#cda14e", -0.28)}" stroke-width="1"/>`;
+        case "sideBraid": {
+          let s = cap();
+          const bx = hx + K.headRx + 5;
+          s += `<path d="M${bx - 5} ${K.headCy - 4} q13 44 2 ${longEnd + 28 - K.headCy} q4 6 9 0 q8 -41 -2 -${longEnd + 30 - K.headCy} z" fill="${fHair}" stroke="${shade(hairC, -0.2)}" stroke-width=".8"/>`;
+          for (let y = K.headCy + 8; y < longEnd + 22; y += 10) s += `<path d="M${bx - 4} ${y} l12 6 M${bx + 8} ${y} l-12 6" stroke="${shade(hairC, 0.12)}" stroke-width="1" opacity=".55"/>`;
+          return s;
+        }
         case "bun":
           return `<circle cx="${hx}" cy="${t - 8}" r="11" fill="${fHair}"/><path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 7} ${hx} ${t - 8} Q${hx + K.headRx + 3} ${t - 7} ${hx + K.headRx + 2} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 16} ${hx} ${K.headCy - 18} Q${hx - K.headRx + 4} ${K.headCy - 16} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>`;
+        case "cornrows": {
+          let s = cap();
+          for (let i = -3; i <= 3; i++) s += line(`M${hx + i * 6} ${t - 6} q${i * 1.3} 26 ${i * 2} 54`, shade(hairC, -0.24), 1.4, .65);
+          return s;
+        }
         case "braids":
           return `<path d="M${hx - K.headRx - 3} ${K.headCy} Q${hx - K.headRx - 4} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 4} ${t - 8} ${hx + K.headRx + 3} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 16} ${hx} ${K.headCy - 18} Q${hx - K.headRx + 4} ${K.headCy - 16} ${hx - K.headRx - 3} ${K.headCy} Z" fill="${fHair}"/>` +
             [-1, 1].map((sd) => {
@@ -1578,13 +1674,37 @@
           return `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 3} ${t - 8} ${hx + K.headRx + 2} ${K.headCy} Q${hx} ${K.headCy - 20} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>` +
             [-26, -19, 19, 26].map((dx) => `<path d="M${hx + dx} ${K.headCy - 4} q${dx < 0 ? -2 : 2} ${(K.chest - K.headCy) / 2} 0 ${K.chest - K.headCy} q3.5 5 7 0" fill="none" stroke="${fHair}" stroke-width="7" stroke-linecap="round"/>`).join("");
         default:
-          return `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 7} ${hx} ${t - 8} Q${hx + K.headRx + 3} ${t - 7} ${hx + K.headRx + 2} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 15} ${hx} ${K.headCy - 17} Q${hx - K.headRx + 4} ${K.headCy - 15} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>`;
+          return cap();
       }
     }
     function hairFront() {
       if (hair === "bald" || hair === "buzz" || hair === "shaved") return "";
       const hx = cx, t = K.headCy - K.headRy;
-      return `<path d="M${hx - K.headRx + 1} ${K.headCy - 8} Q${hx - K.headRx + 3} ${t - 2} ${hx} ${t - 1} Q${hx + K.headRx - 3} ${t - 2} ${hx + K.headRx - 1} ${K.headCy - 8} Q${hx + K.headRx - 8} ${K.headCy - 15} ${hx} ${K.headCy - 16} Q${hx - K.headRx + 8} ${K.headCy - 15} ${hx - K.headRx + 1} ${K.headCy - 8} Z" fill="${fHair}"/>`;
+      const base = `<path d="M${hx - K.headRx + 1} ${K.headCy - 8} Q${hx - K.headRx + 3} ${t - 2} ${hx} ${t - 1} Q${hx + K.headRx - 3} ${t - 2} ${hx + K.headRx - 1} ${K.headCy - 8} Q${hx + K.headRx - 8} ${K.headCy - 15} ${hx} ${K.headCy - 16} Q${hx - K.headRx + 8} ${K.headCy - 15} ${hx - K.headRx + 1} ${K.headCy - 8} Z" fill="${fHair}"/>`;
+      if (hair === "curtain")
+        return base + `<path d="M${hx - 2} ${t - 3} q-15 10 -16 36 q9 -1 14 -12 q4 12 14 12 q-1 -26 -12 -36 z" fill="${shade(hairC, -0.08)}"/>`;
+      if (hair === "layers")
+        return base + line(`M${hx - 18} ${K.headCy - 9} q20 -18 38 -2`, shade(hairC, 0.16), 3, .45);
+      if (hair === "blowout")
+        return `<path d="M${hx - K.headRx - 9} ${K.headCy - 6} Q${hx - K.headRx - 6} ${t - 12} ${hx} ${t - 14} Q${hx + K.headRx + 8} ${t - 12} ${hx + K.headRx + 9} ${K.headCy - 6} Q${hx + 12} ${K.headCy - 23} ${hx} ${K.headCy - 22} Q${hx - 13} ${K.headCy - 23} ${hx - K.headRx - 9} ${K.headCy - 6} Z" fill="${fHair}"/>`;
+      if (hair === "halfUp")
+        return base + `<circle cx="${hx}" cy="${t - 6}" r="7" fill="${shade(hairC, 0.08)}"/>`;
+      if (hair === "highPony")
+        return `<path d="M${hx - K.headRx + 1} ${K.headCy - 7} Q${hx - 11} ${t - 15} ${hx} ${t - 16} Q${hx + 11} ${t - 15} ${hx + K.headRx - 1} ${K.headCy - 7} Q${hx + 8} ${K.headCy - 18} ${hx} ${t - 12} Q${hx - 8} ${K.headCy - 18} ${hx - K.headRx + 1} ${K.headCy - 7} Z" fill="${fHair}"/>`;
+      if (hair === "lowBun" || hair === "sleekBun")
+        return `<path d="M${hx - K.headRx + 1} ${K.headCy - 7} Q${hx - 6} ${t - 11} ${hx} ${t - 7} Q${hx + 6} ${t - 11} ${hx + K.headRx - 1} ${K.headCy - 7} Q${hx} ${K.headCy - 24} ${hx - K.headRx + 1} ${K.headCy - 7} Z" fill="${fHair}"/>` + line(`M${hx} ${t - 6} v35`, shade(hairC, -0.22), 1.2, .5);
+      if (hair === "clawClip")
+        return base + `<rect x="${hx - 9}" y="${t - 4}" width="18" height="11" rx="5" fill="#cda14e" stroke="${shade("#cda14e", -0.3)}" stroke-width="1"/>`;
+      if (hair === "sideBraid")
+        return `<path d="M${hx - K.headRx + 1} ${K.headCy - 7} Q${hx + 4} ${t - 14} ${hx + K.headRx + 2} ${K.headCy - 1} Q${hx + 5} ${K.headCy - 24} ${hx - K.headRx + 1} ${K.headCy - 7} Z" fill="${fHair}"/>`;
+      if (hair === "cornrows") {
+        let s = base;
+        for (let i = -3; i <= 3; i++) s += line(`M${hx + i * 5} ${t - 5} q${i * .8} 17 ${i * 1.8} 34`, shade(hairC, 0.14), 1, .55);
+        return s;
+      }
+      if (hair === "straightL")
+        return base + `<path d="M${hx - 7} ${t - 1} q-9 12 -7 31 M${hx + 7} ${t - 1} q9 12 7 31" stroke="${shade(hairC, -0.18)}" stroke-width="1.2" fill="none" opacity=".42"/>`;
+      return base;
     }
 
     /* ---------------- assemble ---------------- */
@@ -3424,16 +3544,9 @@ function announce(msg){ liveEl.textContent = ''; liveEl.textContent = msg; }
 
 /* ---- map App.state → dmFigure opts ---- */
 function stateToFigureOpts(s) {
-  const hairMap = {
-    layers:'waves', blowout:'waves', curtain:'waves', halfUp:'waves',
-    highPony:'bun', lowBun:'bun', clawClip:'bun', sleekBun:'bun', bun:'bun',
-    straightL:'straight', wavyM:'waves',
-    curly:'curly', braids:'braids', sideBraid:'braids', locs:'locs',
-    cornrows:'braids', buzz:'buzz', shaved:'shaved', bald:'bald',
-  };
   const bodyMap = { slim:'lean', average:'balanced', athletic:'broad', curvy:'curvy', plus:'full' };
   const heightMap = { h0:'shorter', h1:'short', h2:'medium', h3:'tall', h4:'taller' };
-  const shoeMap = { runner:'sneaker', boot:'boot', loafer:'loafer', mary:'loafer', slide:'slide', sneaker:'sneaker' };
+  const shoeMap = { runner:'runner', boot:'boot', loafer:'loafer', mary:'mary', slide:'slide', sneaker:'sneaker' };
   const jewelryMap = { none:'none', studs:'earrings', hoops:'earrings', chain:'chain', pearl:'pearl' };
   const hearingMap = { none:'none', ha_r:'ha', ha_l:'ha', ci_both:'cochlear' };
 
@@ -3444,7 +3557,7 @@ function stateToFigureOpts(s) {
 
   return {
     skin:        byId(CAT.skin, s.skin).base,
-    hair:        hairMap[s.hair] || 'waves',
+    hair:        s.hair || 'layers',
     hairColor:   byId(CAT.hairColor, s.hairColor).v,
     body:        bodyMap[s.body]   || 'balanced',
     height:      heightMap[s.height] || 'medium',
@@ -3551,12 +3664,15 @@ function miniHead(stateOverride){
   return renderAvatar(s, { parts: HEAD_PARTS, viewBox: HEAD_VB, class:'mini' });
 }
 /* renders a small dmFigure SVG with a crop viewBox — used for vibe cards and body swatches */
-function miniDmFigure(stateObj, cropVb) {
+function miniDmFigure(stateObj, cropVb, cls) {
   const opts = stateToFigureOpts(stateObj);
   let svg = dmFigure(opts);
   const vb = cropVb || '0 0 240 390';
   svg = svg.replace(/viewBox="[^"]*"/, `viewBox="${vb}"`);
-  svg = svg.replace('<svg ', '<svg class="mini" ');
+  svg = svg.replace('<svg ', `<svg class="${cls || 'mini'}" `);
+  if((cls || '').includes('fitMini')){
+    svg = svg.replace('overflow:visible', 'overflow:hidden');
+  }
   return svg;
 }
 function miniBody(stateOverride, crop){
@@ -3570,6 +3686,28 @@ function miniBody(stateOverride, crop){
     carry:  '20 105 200 230',  // shoulder area + bag
   };
   return miniDmFigure(s, cropVbs[crop] || '0 0 240 390');
+}
+
+function miniFit(stateOverride, crop){
+  const s = Object.assign({}, App.state, stateOverride);
+  // Fit tiles should preview the garment/accessory, not a cropped blank face.
+  // Use the fashion figure renderer because its proportions read cleaner at card size.
+  const topItem = byId(CAT.top, s.top);
+  const cropVbs = {
+    top:    topItem && topItem.len === 'dress' ? '22 108 196 270' : '22 112 196 205',
+    bottom: '18 184 204 306',
+    shoe:   '24 368 192 124',
+    carry:  '10 122 220 210',
+  };
+  return miniDmFigure(s, cropVbs[crop] || '0 0 240 390', 'mini fitMini');
+}
+function fitSwatch(action, key, val, selected, label, inner){
+  return `<button class="swatch fitSwatch" data-action="${action}" data-key="${key}" data-val="${val}"
+            aria-pressed="${selected}" aria-label="${label}">
+            <span class="check" aria-hidden="true">✓</span>
+            <span class="fitPreview" aria-hidden="true">${inner}</span>
+            <span class="nm">${label}</span>
+          </button>`;
 }
 
 /* ---- panels ---- */
@@ -3665,30 +3803,30 @@ function panelOutfit(){
   const tabBar = tabs.map(([k,l])=>`<button class="subtab" data-action="outfittab" data-tab="${k}" aria-pressed="${App.outfitTab===k}">${l}</button>`).join('');
 
   if(App.outfitTab==='tops'){
-    const tops = CAT.top.map(o=> swatch('set','top',o.id, App.state.top===o.id, o.label, miniBody({top:o.id}, 'top')) ).join('');
+    const tops = CAT.top.map(o=> fitSwatch('set','top',o.id, App.state.top===o.id, o.label, miniFit({top:o.id, bottom:'barrelJean', bottomColor:'#5a6f8c', carry:'none'}, 'top')) ).join('');
     const topsColors = CAT.garmentColor.map(o=> swatch('set','topColor',o.v, App.state.topColor===o.v, o.label, `<span class="dot" style="background:${o.v}"></span>`) ).join('');
     return `<div class="subtabs" role="tablist">${tabBar}</div>
-            <div class="group"><h3>Top</h3><div class="grid big">${tops}</div></div>
+            <div class="group"><h3>Top</h3><div class="grid big fitGrid">${tops}</div></div>
             <div class="group"><h3>Color</h3><div class="grid colors">${topsColors}</div></div>`;
   }
   if(App.outfitTab==='bottoms'){
-    const bottoms = CAT.bottom.map(o=> swatch('set','bottom',o.id, App.state.bottom===o.id, o.label, miniBody({bottom:o.id}, 'bottom')) ).join('');
+    const bottoms = CAT.bottom.map(o=> fitSwatch('set','bottom',o.id, App.state.bottom===o.id, o.label, miniFit({top:'ribTank', topColor:'#f1e9d8', bottom:o.id, carry:'none'}, 'bottom')) ).join('');
     const botsColors = CAT.garmentColor.map(o=> swatch('set','bottomColor',o.v, App.state.bottomColor===o.v, o.label, `<span class="dot" style="background:${o.v}"></span>`) ).join('');
     const tex = CAT.texture.map(o=>{
       const inner = `<span class="dot" style="position:relative; overflow:hidden;"><svg width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="#cdbfb0"/><rect width="40" height="40" fill="url(#${o.pat})"/></svg></span>`;
       return swatch('set','texture',o.id, App.state.texture===o.id, o.label, inner);
     }).join('');
     return `<div class="subtabs" role="tablist">${tabBar}</div>
-            <div class="group"><h3>Bottoms</h3><div class="grid big">${bottoms}</div></div>
+            <div class="group"><h3>Bottoms</h3><div class="grid big fitGrid">${bottoms}</div></div>
             <div class="group"><h3>Color</h3><div class="grid colors">${botsColors}</div></div>
             <div class="group"><h3>Feel / texture</h3><div class="grid">${tex}</div></div>`;
   }
   // shoes & carry tab
-  const shoes = CAT.shoe.map(o=> swatch('set','shoe',o.id, App.state.shoe===o.id, o.label, miniBody({shoe:o.id}, 'shoe')) ).join('');
-  const carry = CAT.carry.map(o=> swatch('set','carry',o.id, App.state.carry===o.id, o.label, miniBody({carry:o.id}, 'carry')) ).join('');
+  const shoes = CAT.shoe.map(o=> fitSwatch('set','shoe',o.id, App.state.shoe===o.id, o.label, miniFit({top:'boxyTee', bottom:'leggings', bottomColor:'#3c3a38', shoe:o.id, carry:'none'}, 'shoe')) ).join('');
+  const carry = CAT.carry.map(o=> fitSwatch('set','carry',o.id, App.state.carry===o.id, o.label, miniFit({top:'boxyTee', topColor:'#f1e9d8', bottom:'barrelJean', bottomColor:'#5a6f8c', carry:o.id}, 'carry')) ).join('');
   return `<div class="subtabs" role="tablist">${tabBar}</div>
-          <div class="group"><h3>Shoes</h3><div class="grid big">${shoes}</div></div>
-          <div class="group"><h3>Carry</h3><div class="grid big">${carry}</div></div>`;
+          <div class="group"><h3>Shoes</h3><div class="grid big fitGrid">${shoes}</div></div>
+          <div class="group"><h3>Carry</h3><div class="grid big fitGrid">${carry}</div></div>`;
 }
 
 function panelColor(){

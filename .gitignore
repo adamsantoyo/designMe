@@ -5,6 +5,9 @@
 *.swp
 Thumbs.db
 
+# Local development dependencies
+node_modules/
+
 # Private project notes — not for public publishing
 CLAUDE.md
 
