@@ -1562,30 +1562,37 @@
     }
 
     /* ---------------- head & hair ---------------- */
+    /* Face features reuse Engine B's tested builders (eye/brow/nose/lip/makeup/
+       piercing/feature shapes), rendered in Engine-B head space and mapped onto
+       dmFigure's smaller head by one affine — eyes/mouth land on the existing
+       face anchors. Same delegate pattern as the shared hair engine. */
+    function faceFeatures() {
+      const fst = o.face;
+      if (!fst) return "";
+      const P = `ff_${id}_`;
+      const gB = {
+        cx: 160, headCY: 96, headRX: 49, headRY: 61, fs: byId(CAT.faceShape, "oval").m,
+        eyeY: 104, eyeDX: 19, browY: 89, noseY: 120, mouthY: 138,
+        neckTopY: 150, shoulderY: 190, chestY: 235,
+      };
+      const T = "translate(35.79 4.06) scale(0.5263 0.4706)";
+      const inner =
+        faceClip(gB, P) +
+        buildBrows(gB, fst, P) +
+        buildEyes(gB, fst, P) +
+        buildNose(gB, fst, P) +
+        buildLips(gB, fst, P) +
+        buildMakeup(gB, fst, P) +
+        buildFeatures(gB, fst, P); /* includes piercings */
+      return `<g transform="${T}">${inner}</g>`;
+    }
+
     function head() {
       const eyeY = K.headCy - 3, hx = cx;
-      const mouth = expr === "calm"
-        ? line(`M${hx - 7} ${K.headCy + 14} h14`, shade(skin, -0.3), 2.2)
-        : expr === "soft"
-        ? line(`M${hx - 7} ${K.headCy + 13} q7 4 14 0`, shade(skin, -0.3), 2.2)
-        : line(`M${hx - 8} ${K.headCy + 12} q8 7.5 16 0`, shade(skin, -0.32), 2.5);
       let f = `<ellipse cx="${hx}" cy="${K.headCy}" rx="${K.headRx}" ry="${K.headRy}" fill="${fSkin}"/>
         <ellipse cx="${hx - K.headRx}" cy="${K.headCy + 4}" rx="5" ry="6" fill="${fSkin}"/>
         <ellipse cx="${hx + K.headRx}" cy="${K.headCy + 4}" rx="5" ry="6" fill="${fSkin}"/>
-        <ellipse cx="${hx - 12}" cy="${K.headCy + 9}" rx="6.5" ry="4" fill="#d98b76" opacity=".3"/>
-        <ellipse cx="${hx + 12}" cy="${K.headCy + 9}" rx="6.5" ry="4" fill="#d98b76" opacity=".3"/>
-        <circle cx="${hx - 10}" cy="${eyeY}" r="3.1" fill="#372a20"/><circle cx="${hx + 10}" cy="${eyeY}" r="3.1" fill="#372a20"/>
-        <circle cx="${hx - 9}" cy="${eyeY - 1}" r="1" fill="#fff" opacity=".85"/><circle cx="${hx + 11}" cy="${eyeY - 1}" r="1" fill="#fff" opacity=".85"/>
-        ${line(`M${hx - 15} ${eyeY - 8} q5 -3 10 -0.5`, shade(hairC, -0.05), 2)}
-        ${line(`M${hx + 5} ${eyeY - 8.5} q5 -2.5 10 0.5`, shade(hairC, -0.05), 2)}
-        ${line(`M${hx} ${K.headCy + 1} q2.5 5 -1 7.5`, shade(skin, -0.2), 1.8)}
-        ${mouth}`;
-      /* identity extras carried over from the bust language */
-      if (o.feature === "freckles") {
-        f += `<g fill="${shade(skin, -0.2)}" opacity=".5">` +
-          [[-13, 8], [-9, 11], [-5, 8.5], [5, 8.5], [9, 11], [13, 8], [0, 13]].map((p) => `<circle cx="${hx + p[0]}" cy="${K.headCy + p[1]}" r="1.1"/>`).join("") + `</g>`;
-      }
-      if (o.feature === "vitiligo") f += `<g fill="${shade(skin, 0.55)}" opacity=".85"><path d="M${hx - 16} ${K.headCy + 6} q6 -2 5 6 q-5 4 -8 -1 q-1 -3 3 -5 z"/><circle cx="${hx + 13}" cy="${K.headCy + 13}" r="4"/></g>`;
+        ${faceFeatures()}`;
       if (o.glasses && o.glasses !== "none") {
         const gs = "#3a3330";
         const lens = (gx) => o.glasses === "rect"
@@ -1633,6 +1640,72 @@
       return sharedHairFront(geo, hair);
     }
 
+    /* ---------------- aura (calm background glow) ---------------- */
+    const auraC = (o.face && o.face.aura && o.face.aura !== "none")
+      ? ((byId(CAT.aura, o.face.aura) || {}).c || null) : null;
+    function auraBg() {
+      if (!auraC) return "";
+      return `<ellipse cx="${cx}" cy="${R(K.chest + 10)}" rx="150" ry="150" fill="url(#au_${id})"/>`;
+    }
+
+    /* ---------------- mobility: cane (standing) ---------------- */
+    function drawCane() {
+      if (o.mobility !== "cane") return "";
+      const x = cx + K.hp + K.arm + 9, wood = "#7a5a3a";
+      const topY = K.waist + 4, botY = K.floor - 2;
+      return `<line x1="${x}" y1="${R(topY)}" x2="${x}" y2="${R(botY)}" stroke="${wood}" stroke-width="4" stroke-linecap="round"/>`
+        + `<path d="M${x} ${R(topY)} q -9 0 -9 8" stroke="${wood}" stroke-width="4" fill="none" stroke-linecap="round"/>`
+        + `<line x1="${x - 4}" y1="${R(botY)}" x2="${x + 4}" y2="${R(botY)}" stroke="${shade(wood, -0.3)}" stroke-width="3" stroke-linecap="round"/>`;
+    }
+
+    /* ---------------- AAC: communication device held at the torso ---------------- */
+    function drawAAC() {
+      if (!o.aac || o.aac === "none") return "";
+      const w = Math.round(Math.min(2.1 * K.wa, 60)), h = Math.round(w * 0.68);
+      const x = cx - w / 2, y = K.waist + 2;
+      const handR = Math.max(6, K.arm * 0.7);
+      const hands = `<circle cx="${R(x - 1)}" cy="${R(y + h - 5)}" r="${R(handR)}" fill="${fSkin}"/>`
+        + `<circle cx="${R(x + w + 1)}" cy="${R(y + h - 5)}" r="${R(handR)}" fill="${fSkin}"/>`;
+      // iPad — sleek consumer tablet, bright screen, app tiles
+      if (o.aac === "ipad") {
+        let dev = `<rect x="${R(x)}" y="${R(y)}" width="${w}" height="${h}" rx="7" fill="#d9dde2" stroke="#a7adb5" stroke-width="2"/>`;
+        const sx = x + 4, sy = y + 4, sw = w - 8, sh2 = h - 8;
+        dev += `<rect x="${R(sx)}" y="${R(sy)}" width="${R(sw)}" height="${R(sh2)}" rx="4" fill="#eef3f8"/>`;
+        const cols = ["#5aa9e6", "#7ed09b", "#f4c75a", "#ef8e8e", "#b89af0", "#5ec8c0", "#f3a05a", "#9ec96b"];
+        const ac = 4, ar = 2, ais = Math.min(7, sw / 6);
+        const gx = (sw - ac * ais) / (ac + 1), gy = (sh2 - ar * ais) / (ar + 1);
+        let i = 0;
+        for (let r0 = 0; r0 < ar; r0++) for (let c0 = 0; c0 < ac; c0++) {
+          dev += `<rect x="${R(sx + gx + c0 * (ais + gx))}" y="${R(sy + gy + r0 * (ais + gy))}" width="${R(ais)}" height="${R(ais)}" rx="2" fill="${cols[i++ % cols.length]}"/>`;
+        }
+        return dev + hands;
+      }
+      // Letter board — low-tech alphabet spelling board
+      if (o.aac === "letterboard") {
+        let dev = `<rect x="${R(x)}" y="${R(y)}" width="${w}" height="${h}" rx="5" fill="#efe4cf" stroke="#b59c74" stroke-width="2"/>`;
+        dev += `<rect x="${R(x + 3)}" y="${R(y + 3)}" width="${R(w - 6)}" height="${R(h - 6)}" rx="3" fill="#f6efe0" stroke="#cdb79a" stroke-width="1"/>`;
+        const rows = ["ABCDEFG", "HIJKLMN", "OPQRSTU", "VWXYZ"], padX = 6, padY = 8, usableH = h - padY * 2, stepX = (w - padX * 2) / 7;
+        rows.forEach((row, ri) => {
+          const ly = y + padY + (ri + 0.5) * (usableH / rows.length);
+          for (let ci = 0; ci < row.length; ci++) {
+            dev += `<text x="${R(x + padX + (ci + 0.5) * stepX)}" y="${R(ly + 2)}" font-size="5" font-weight="700" font-family="system-ui" text-anchor="middle" fill="#4a3f30">${row[ci]}</text>`;
+          }
+        });
+        return dev + hands;
+      }
+      // tablet / board — picture-symbol communication grid
+      const cells = ["#d98b6a", "#e3c36a", "#8fb37e", "#7ba7c4", "#b58fc0", "#e0a3b0"];
+      const cols = 3, rows = 2, pad = 5, cw = (w - pad * 2) / cols, chh = (h - pad * 2) / rows;
+      let grid = "", idx = 0;
+      for (let r0 = 0; r0 < rows; r0++) for (let c0 = 0; c0 < cols; c0++) {
+        grid += `<rect x="${R(x + pad + c0 * cw + 1.5)}" y="${R(y + pad + r0 * chh + 1.5)}" width="${R(cw - 3)}" height="${R(chh - 3)}" rx="3" fill="${cells[idx++ % cells.length]}"/>`;
+      }
+      let dev = (o.aac === "tablet")
+        ? `<rect x="${R(x)}" y="${R(y)}" width="${w}" height="${h}" rx="7" fill="#2f3338" stroke="#1d2024" stroke-width="2"/><rect x="${R(x + 3)}" y="${R(y + 3)}" width="${w - 6}" height="${h - 6}" rx="4" fill="#11324a"/>`
+        : `<rect x="${R(x)}" y="${R(y)}" width="${w}" height="${h}" rx="7" fill="#e9dcc4" stroke="#b59c74" stroke-width="2"/>`;
+      return dev + grid + `<circle cx="${R(x + w - 6)}" cy="${R(y + h - 5)}" r="1.8" fill="#cfcfcf"/>` + hands;
+    }
+
     /* ---------------- assemble ---------------- */
     const legSkinL = tube(K.legPts(-1), K.legWs), legSkinR = tube(K.legPts(1), K.legWs);
     const armL = tube(K.armPts(-1), K.armWs), armR = tube(K.armPts(1), K.armWs);
@@ -1646,7 +1719,9 @@
       <stop offset="0" stop-color="#2c2118" stop-opacity=".14"/><stop offset=".28" stop-color="#2c2118" stop-opacity="0"/>
       <stop offset=".78" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".10"/>
     </linearGradient>
+    ${auraC ? `<radialGradient id="au_${id}" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="${auraC}" stop-opacity=".85"/><stop offset=".65" stop-color="${auraC}" stop-opacity=".25"/><stop offset="1" stop-color="${auraC}" stop-opacity="0"/></radialGradient>` : ""}
   </defs>
+  ${auraBg()}
   ${hairBack()}
   <path d="M${P(-1, K.neckW, K.chin - 6)} L${P(-1, K.neckW + 0.5, K.neckBot + 2)} L${P(1, K.neckW + 0.5, K.neckBot + 2)} L${P(1, K.neckW, K.chin - 6)} Z" fill="${shade(skin, -0.07)}"/>
   <path d="${legSkinL}" fill="${fSkin}"/><path d="${legSkinR}" fill="${fSkin}"/>
@@ -1661,6 +1736,8 @@
   ${drawCarry("crossbody")}
   ${drawOuter()}
   ${drawCarry("tote")}
+  ${drawCane()}
+  ${drawAAC()}
   ${head()}
   ${hairFront()}
   ${drawJewelry()}
@@ -3561,6 +3638,14 @@ function stateToFigureOpts(s) {
     carry:       s.carry !== 'none' ? s.carry : 'none',
     carryColor:  carryItem ? carryItem.color : '#8a5a3f',
     jewelry:     jewelryMap[s.jewelry] || 'none',
+    // raw catalog ids consumed by the shared face builders (Engine B) inside dmFigure
+    face: {
+      skin: s.skin, hairColor: s.hairColor, feature: s.feature,
+      brow: s.brow, eye: s.eye, eyeColor: s.eyeColor, nose: s.nose, lip: s.lip,
+      piercing: s.piercing, makeup: s.makeup, makeupColor: s.makeupColor, aura: s.aura,
+    },
+    mobility:    s.mobility,
+    aac:         s.aac,
   };
 }
 
