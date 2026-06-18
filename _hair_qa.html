@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hair QA — designMe</title>
+<!--
+  Throwaway dev harness. Renders every CAT.hair style across hair colors using
+  the LIVE engine loaded from index.html (hidden iframe), so it can never drift
+  out of sync with the real avatar code. Serve over http (same origin), e.g.
+  `node .claude/serve.js` then open /_hair_qa.html.
+-->
+<style>
+*{box-sizing:border-box}
+body{background:#efe7da;font-family:system-ui,sans-serif;padding:16px;margin:0;color:#2a2422}
+h1{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin:0 0 4px}
+.sub{font-size:12px;color:#7a6f63;margin-bottom:14px}
+.controls{display:flex;gap:14px;align-items:center;margin-bottom:14px;font-size:13px}
+select{font-size:13px;padding:3px 6px;border-radius:6px;border:1px solid #cabfae;background:#fff}
+.grid{display:flex;flex-wrap:wrap;gap:8px}
+.cell{width:120px;background:#fff;border-radius:10px;padding:6px 6px 8px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.cell .art{height:152px;overflow:hidden;display:flex;justify-content:center}
+.cell .art svg{height:200px;width:auto;margin-top:-8px}
+.cell .lbl{font-size:11px;font-weight:600;margin-top:4px}
+.cell .id{color:#a59a8c;font-size:10px}
+#app{position:absolute;left:-9999px;width:1px;height:1px;border:0}
+</style>
+</head>
+<body>
+<h1>Hair QA — designMe</h1>
+<div class="sub">Every hairstyle, rendered with the live engine from <code>index.html</code>. Pick a hair color / skin tone to spot-check alignment and recoloring.</div>
+<div class="controls">
+  <label>Hair color <select id="color"></select></label>
+  <label>Skin <select id="skin"></select></label>
+</div>
+<div class="grid" id="grid">loading engine from index.html…</div>
+<iframe id="app" src="index.html"></iframe>
+<script>
+const frame = document.getElementById('app');
+let W, CAT;
+// CAT/App are top-level `const` in index.html (global lexical bindings, NOT
+// window properties), so we reach the engine through the iframe's own eval,
+// which runs in that global scope.
+const ready = () => {
+  try { return W && W.eval('typeof renderAvatar==="function" && typeof CAT!=="undefined" && !!(App&&App.state)'); }
+  catch (e) { return false; }
+};
+function loadCatalog(){
+  CAT = JSON.parse(W.eval('JSON.stringify({hairColor:CAT.hairColor,skin:CAT.skin,hair:CAT.hair,curSkin:App.state.skin})'));
+  const cs = document.getElementById('color');
+  cs.innerHTML = CAT.hairColor.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+  cs.value = 'h1';
+  const ss = document.getElementById('skin');
+  ss.innerHTML = CAT.skin.map(s => `<option value="${s.id}">${s.label || s.id}</option>`).join('');
+  ss.value = CAT.curSkin;
+  cs.onchange = render; ss.onchange = render;
+}
+function render(){
+  const grid = document.getElementById('grid');
+  const color = document.getElementById('color').value;
+  const skin = document.getElementById('skin').value;
+  grid.innerHTML = '';
+  CAT.hair.forEach(h => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const patch = JSON.stringify({ hair: h.id, hairColor: color, skin });
+    let svg;
+    try { svg = W.eval('renderAvatar(Object.assign({}, App.state, ' + patch + '))'); }
+    catch (e) { svg = '<div style="color:red;font-size:10px">' + e + '</div>'; }
+    cell.innerHTML = `<div class="art">${svg}</div><div class="lbl">${h.label}</div><div class="id">${h.id}</div>`;
+    grid.appendChild(cell);
+  });
+}
+function boot(tries){
+  if (ready()) { loadCatalog(); render(); return; }
+  if (tries <= 0) { document.getElementById('grid').textContent = 'Could not access the engine from index.html.'; return; }
+  setTimeout(() => boot(tries - 1), 150);
+}
+frame.addEventListener('load', () => { W = frame.contentWindow; boot(40); });
+</script>
+</body>
+</html>

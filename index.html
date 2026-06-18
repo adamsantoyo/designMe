@@ -1605,106 +1605,32 @@
     }
 
     function hairBack() {
-      const hx = cx, t = K.headCy - K.headRy, longEnd = K.chest + 10;
-      const cap = () => `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 7} ${hx} ${t - 8} Q${hx + K.headRx + 3} ${t - 7} ${hx + K.headRx + 2} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 15} ${hx} ${K.headCy - 17} Q${hx - K.headRx + 4} ${K.headCy - 15} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>`;
-      const longShape = (extra = 6, end = longEnd, wave = 0) => {
-        let s = `<path d="M${hx - K.headRx - extra} ${K.headCy} Q${hx - K.headRx - extra - 2} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + extra + 2} ${t - 8} ${hx + K.headRx + extra} ${K.headCy} L${hx + K.headRx + extra + wave} ${end} Q${hx + K.headRx - 2} ${end + 10} ${hx + K.headRx - 9} ${end} L${hx + K.headRx - 8} ${K.headCy + 10} Q${hx} ${K.headCy - 22} ${hx - K.headRx + 8} ${K.headCy + 10} L${hx - K.headRx + 9} ${end} Q${hx - K.headRx + 2} ${end + 10} ${hx - K.headRx - extra - wave} ${end} Z" fill="${fHair}"/>`;
-        for (let i = -2; i <= 2; i++) {
-          const x = hx + i * 9;
-          s += line(`M${x} ${K.headCy - 19} q${wave} 38 ${i * 2} ${end - K.headCy + 6}`, shade(hairC, i % 2 ? -0.2 : 0.14), 1.1, .34);
-        }
-        return s;
+      const geo = {
+        cx, headCy: K.headCy, headRx: K.headRx, headRy: K.headRy,
+        topY: K.headCy - K.headRy,
+        crownY: K.headCy - K.headRy * 0.55,
+        hairlineY: K.headCy - K.headRy * 0.42,
+        napeY: K.headCy + K.headRy + 6,
+        fallTo: K.chest + 10,
+        fill: fHair,
+        dark: shade(hairC, -0.26), mid: shade(hairC, -0.12), lite: shade(hairC, 0.18),
+        R,
       };
-      switch (hair) {
-        case "bald": return "";
-        case "buzz": case "shaved":
-          return `<path d="M${hx - K.headRx - 1} ${K.headCy - 2} Q${hx - K.headRx - 2} ${t - 6} ${hx} ${t - 7} Q${hx + K.headRx + 2} ${t - 6} ${hx + K.headRx + 1} ${K.headCy - 2} Q${hx + K.headRx - 4} ${K.headCy - 14} ${hx} ${K.headCy - 16} Q${hx - K.headRx + 4} ${K.headCy - 14} ${hx - K.headRx - 1} ${K.headCy - 2} Z" fill="${fHair}" opacity="${hair === "shaved" ? 0.75 : 1}"/>`;
-        case "straightL": case "straight":
-          return longShape(3, longEnd + 4, 0);
-        case "wavyM": case "waves":
-          return longShape(7, longEnd - 6, 7);
-        case "layers": case "long":
-          return longShape(8, longEnd + 10, 5) + line(`M${hx + 10} ${K.headCy - 7} q23 43 -3 ${longEnd + 12 - K.headCy}`, shade(hairC, -0.18), 1.4, .45);
-        case "blowout":
-          return longShape(14, longEnd + 8, 10) + `<ellipse cx="${hx}" cy="${t + 13}" rx="${K.headRx + 16}" ry="23" fill="${fHair}" opacity=".92"/>`;
-        case "curtain":
-          return longShape(6, longEnd - 2, 4);
-        case "halfUp":
-          return longShape(7, longEnd, 5) + `<ellipse cx="${hx}" cy="${t - 5}" rx="13" ry="9" fill="${fHair}" stroke="${shade(hairC, -0.22)}" stroke-width="1"/>`;
-        case "highPony":
-          return `<path d="M${hx - 10} ${t - 13} C${hx - 38} ${K.headCy + 15} ${hx - 28} ${longEnd + 18} ${hx + 3} ${longEnd + 24} C${hx + 36} ${longEnd - 12} ${hx + 35} ${K.headCy + 1} ${hx + 10} ${t - 13} Z" fill="${fHair}"/>`+
-            `<ellipse cx="${hx}" cy="${t - 12}" rx="15" ry="10" fill="${fHair}" stroke="${shade(hairC, -0.22)}" stroke-width="1"/>` + cap();
-        case "lowBun":
-          return `<ellipse cx="${hx}" cy="${K.headCy + K.headRy - 2}" rx="17" ry="12" fill="${fHair}" stroke="${shade(hairC, -0.2)}" stroke-width="1"/>` + cap();
-        case "sleekBun":
-          return `<ellipse cx="${hx}" cy="${K.headCy + K.headRy - 4}" rx="14" ry="10" fill="${fHair}" stroke="${shade(hairC, -0.24)}" stroke-width="1"/>` + cap();
-        case "clawClip":
-          return `<path d="M${hx - K.headRx - 4} ${K.headCy - 2} Q${hx - K.headRx - 6} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 6} ${t - 8} ${hx + K.headRx + 4} ${K.headCy - 2} Q${hx + 18} ${K.headCy + 28} ${hx + 6} ${longEnd - 8} Q${hx} ${longEnd + 8} ${hx - 6} ${longEnd - 8} Q${hx - 18} ${K.headCy + 28} ${hx - K.headRx - 4} ${K.headCy - 2} Z" fill="${fHair}"/>`+
-            `<rect x="${hx - 12}" y="${K.headCy - 26}" width="24" height="17" rx="6" fill="#cda14e" stroke="${shade("#cda14e", -0.28)}" stroke-width="1"/>`;
-        case "sideBraid": {
-          let s = cap();
-          const bx = hx + K.headRx + 5;
-          s += `<path d="M${bx - 5} ${K.headCy - 4} q13 44 2 ${longEnd + 28 - K.headCy} q4 6 9 0 q8 -41 -2 -${longEnd + 30 - K.headCy} z" fill="${fHair}" stroke="${shade(hairC, -0.2)}" stroke-width=".8"/>`;
-          for (let y = K.headCy + 8; y < longEnd + 22; y += 10) s += `<path d="M${bx - 4} ${y} l12 6 M${bx + 8} ${y} l-12 6" stroke="${shade(hairC, 0.12)}" stroke-width="1" opacity=".55"/>`;
-          return s;
-        }
-        case "bun":
-          return `<circle cx="${hx}" cy="${t - 8}" r="11" fill="${fHair}"/><path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 7} ${hx} ${t - 8} Q${hx + K.headRx + 3} ${t - 7} ${hx + K.headRx + 2} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 16} ${hx} ${K.headCy - 18} Q${hx - K.headRx + 4} ${K.headCy - 16} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>`;
-        case "cornrows": {
-          let s = cap();
-          for (let i = -3; i <= 3; i++) s += line(`M${hx + i * 6} ${t - 6} q${i * 1.3} 26 ${i * 2} 54`, shade(hairC, -0.24), 1.4, .65);
-          return s;
-        }
-        case "braids":
-          return `<path d="M${hx - K.headRx - 3} ${K.headCy} Q${hx - K.headRx - 4} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 4} ${t - 8} ${hx + K.headRx + 3} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 16} ${hx} ${K.headCy - 18} Q${hx - K.headRx + 4} ${K.headCy - 16} ${hx - K.headRx - 3} ${K.headCy} Z" fill="${fHair}"/>` +
-            [-1, 1].map((sd) => {
-              const bx = hx + sd * (K.headRx + 4);
-              let d = `<path d="M${bx - 4} ${K.headCy - 2} q-2 ${(longEnd - K.headCy) / 2} 0 ${longEnd - K.headCy + 14} q4 6 8 0 q2 -${(longEnd - K.headCy) / 2} 0 -${longEnd - K.headCy + 14} z" fill="${fHair}"/>`;
-              for (let y = K.headCy + 10; y < longEnd + 6; y += 11) d += `<ellipse cx="${bx}" cy="${y}" rx="4.6" ry="3.4" fill="${shade(hairC, 0.12)}" opacity=".5"/>`;
-              return d;
-            }).join("");
-        case "coily": case "curly": {
-          let s = `<g fill="${fHair}">`;
-          const rr = hair === "coily" ? 15 : 13;
-          [[-17, -22, rr], [0, -27, rr + 2], [17, -22, rr], [-25, -6, rr - 2], [25, -6, rr - 2], [-21, 9, rr - 4], [21, 9, rr - 4]]
-            .forEach((p) => s += `<circle cx="${hx + p[0]}" cy="${K.headCy + p[1]}" r="${p[2]}"/>`);
-          return s + "</g>";
-        }
-        case "locs":
-          return `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 3} ${t - 8} ${hx + K.headRx + 2} ${K.headCy} Q${hx} ${K.headCy - 20} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>` +
-            [-26, -19, 19, 26].map((dx) => `<path d="M${hx + dx} ${K.headCy - 4} q${dx < 0 ? -2 : 2} ${(K.chest - K.headCy) / 2} 0 ${K.chest - K.headCy} q3.5 5 7 0" fill="none" stroke="${fHair}" stroke-width="7" stroke-linecap="round"/>`).join("");
-        default:
-          return cap();
-      }
+      return sharedHairBack(geo, hair);
     }
     function hairFront() {
-      if (hair === "bald" || hair === "buzz" || hair === "shaved") return "";
-      const hx = cx, t = K.headCy - K.headRy;
-      const base = `<path d="M${hx - K.headRx + 1} ${K.headCy - 8} Q${hx - K.headRx + 3} ${t - 2} ${hx} ${t - 1} Q${hx + K.headRx - 3} ${t - 2} ${hx + K.headRx - 1} ${K.headCy - 8} Q${hx + K.headRx - 8} ${K.headCy - 15} ${hx} ${K.headCy - 16} Q${hx - K.headRx + 8} ${K.headCy - 15} ${hx - K.headRx + 1} ${K.headCy - 8} Z" fill="${fHair}"/>`;
-      if (hair === "curtain")
-        return base + `<path d="M${hx - 2} ${t - 3} q-15 10 -16 36 q9 -1 14 -12 q4 12 14 12 q-1 -26 -12 -36 z" fill="${shade(hairC, -0.08)}"/>`;
-      if (hair === "layers")
-        return base + line(`M${hx - 18} ${K.headCy - 9} q20 -18 38 -2`, shade(hairC, 0.16), 3, .45);
-      if (hair === "blowout")
-        return `<path d="M${hx - K.headRx - 9} ${K.headCy - 6} Q${hx - K.headRx - 6} ${t - 12} ${hx} ${t - 14} Q${hx + K.headRx + 8} ${t - 12} ${hx + K.headRx + 9} ${K.headCy - 6} Q${hx + 12} ${K.headCy - 23} ${hx} ${K.headCy - 22} Q${hx - 13} ${K.headCy - 23} ${hx - K.headRx - 9} ${K.headCy - 6} Z" fill="${fHair}"/>`;
-      if (hair === "halfUp")
-        return base + `<circle cx="${hx}" cy="${t - 6}" r="7" fill="${shade(hairC, 0.08)}"/>`;
-      if (hair === "highPony")
-        return `<path d="M${hx - K.headRx + 1} ${K.headCy - 7} Q${hx - 11} ${t - 15} ${hx} ${t - 16} Q${hx + 11} ${t - 15} ${hx + K.headRx - 1} ${K.headCy - 7} Q${hx + 8} ${K.headCy - 18} ${hx} ${t - 12} Q${hx - 8} ${K.headCy - 18} ${hx - K.headRx + 1} ${K.headCy - 7} Z" fill="${fHair}"/>`;
-      if (hair === "lowBun" || hair === "sleekBun")
-        return `<path d="M${hx - K.headRx + 1} ${K.headCy - 7} Q${hx - 6} ${t - 11} ${hx} ${t - 7} Q${hx + 6} ${t - 11} ${hx + K.headRx - 1} ${K.headCy - 7} Q${hx} ${K.headCy - 24} ${hx - K.headRx + 1} ${K.headCy - 7} Z" fill="${fHair}"/>` + line(`M${hx} ${t - 6} v35`, shade(hairC, -0.22), 1.2, .5);
-      if (hair === "clawClip")
-        return base + `<rect x="${hx - 9}" y="${t - 4}" width="18" height="11" rx="5" fill="#cda14e" stroke="${shade("#cda14e", -0.3)}" stroke-width="1"/>`;
-      if (hair === "sideBraid")
-        return `<path d="M${hx - K.headRx + 1} ${K.headCy - 7} Q${hx + 4} ${t - 14} ${hx + K.headRx + 2} ${K.headCy - 1} Q${hx + 5} ${K.headCy - 24} ${hx - K.headRx + 1} ${K.headCy - 7} Z" fill="${fHair}"/>`;
-      if (hair === "cornrows") {
-        let s = base;
-        for (let i = -3; i <= 3; i++) s += line(`M${hx + i * 5} ${t - 5} q${i * .8} 17 ${i * 1.8} 34`, shade(hairC, 0.14), 1, .55);
-        return s;
-      }
-      if (hair === "straightL")
-        return base + `<path d="M${hx - 7} ${t - 1} q-9 12 -7 31 M${hx + 7} ${t - 1} q9 12 7 31" stroke="${shade(hairC, -0.18)}" stroke-width="1.2" fill="none" opacity=".42"/>`;
-      return base;
+      const geo = {
+        cx, headCy: K.headCy, headRx: K.headRx, headRy: K.headRy,
+        topY: K.headCy - K.headRy,
+        crownY: K.headCy - K.headRy * 0.55,
+        hairlineY: K.headCy - K.headRy * 0.42,
+        napeY: K.headCy + K.headRy + 6,
+        fallTo: K.chest + 10,
+        fill: fHair,
+        dark: shade(hairC, -0.26), mid: shade(hairC, -0.12), lite: shade(hairC, 0.18),
+        R,
+      };
+      return sharedHairFront(geo, hair);
     }
 
     /* ---------------- assemble ---------------- */
@@ -1882,26 +1808,26 @@ CAT.makeupColor = [
 ];
 
 /* ---- Hair: 6+ textures + shaved + bald, with back/front layers ---- */
+/* Current hair renderer set: sleek down-styles plus styled updos / braids /
+   ponytails. Down-styles come from Avataaars (AVA_HAIR); updos / braids /
+   ponytails are hand-built (HAIR_HC). Additional textured/coily/protective
+   styles are tracked in catalog metadata before renderer work. */
 CAT.hair = [
-  { id:'layers',    label:'Long layers',     texture:'wavy'   },
-  { id:'blowout',   label:'Big blowout',     texture:'wavy'   },
-  { id:'curtain',   label:'Curtain bangs',   texture:'wavy'   },
-  { id:'halfUp',    label:'Half-up waves',   texture:'wavy'   },
-  { id:'highPony',  label:'High ponytail',   texture:'straight' },
-  { id:'lowBun',    label:'Low bun',         texture:'straight' },
-  { id:'sideBraid', label:'Side braid',      texture:'braids' },
-  { id:'clawClip',  label:'Claw clip',       texture:'straight' },
-  { id:'sleekBun',  label:'Sleek bun',       texture:'straight' },
-  { id:'straightL', label:'Straight long',   texture:'straight' },
-  { id:'wavyM',     label:'Loose waves',     texture:'wavy'   },
-  { id:'curly',     label:'Defined curls',   texture:'curly'  },
-  { id:'bald',      label:'Bald',            texture:'none'   },
-  { id:'shaved',    label:'Shaved',          texture:'shaved' },
-  { id:'buzz',      label:'Short crop',      texture:'short'  },
-  { id:'braids',    label:'Box braids',      texture:'braids' },
-  { id:'locs',      label:'Locs',            texture:'locs'   },
-  { id:'cornrows',  label:'Cornrows',        texture:'cornrows' },
-  { id:'bun',       label:'Top bun',         texture:'straight' },
+  { id:'straightL',  label:'Straight long', texture:'straight' },
+  { id:'wavyM',      label:'Loose waves',   texture:'wavy'     },
+  { id:'layers',     label:'Long layers',   texture:'wavy'     },
+  { id:'bob',        label:'French bob',    texture:'straight' },
+  { id:'curtain',    label:'Curtain bangs', texture:'straight' },
+  { id:'halfUp',     label:'Half-up waves', texture:'wavy'     },
+  { id:'highPony',   label:'High ponytail', texture:'straight' },
+  { id:'lowPony',    label:'Low ponytail',  texture:'straight' },
+  { id:'highBun',    label:'Top bun',       texture:'straight' },
+  { id:'lowBun',     label:'Low bun',       texture:'straight' },
+  { id:'crownBraid', label:'Crown braid',   texture:'braid'    },
+  { id:'braid',      label:'Side braid',    texture:'braid'    },
+  { id:'pigtails',   label:'Twin braids',   texture:'braid'    },
+  { id:'shaved',     label:'Shaved',        texture:'shaved'   },
+  { id:'bald',       label:'Bald',          texture:'none'     },
 ];
 
 CAT.hairColor = [
@@ -1944,7 +1870,7 @@ CAT.height = [
 /* ---- Outfit pieces (sleeve / length drive how they fit the body) ---- */
 CAT.top = [
   { id:'cropCorset', label:'Crop corset',    sleeve:'tank',  len:'crop',  neck:'scoop',  fit:'fitted',    corset:true },
-  { id:'asymKnit',  label:'Asym knit',      sleeve:'short', len:'hip',   neck:'asym',   fit:'fitted',    rib:true },
+  { id:'asymKnit',  label:'Asymmetric knit',sleeve:'short', len:'hip',   neck:'asym',   fit:'fitted',    rib:true },
   { id:'jersey',    label:'Graphic jersey', sleeve:'short', len:'boxy',  neck:'v',      fit:'oversized', jersey:true },
   { id:'drapedShirt',label:'Open overshirt', sleeve:'long',  len:'long',  neck:'collar', fit:'relaxed',   layered:true },
   { id:'boxyTee',   label:'Boxy tee',       sleeve:'short', len:'boxy',  neck:'crew',   fit:'oversized', graphic:true },
@@ -1955,7 +1881,7 @@ CAT.top = [
   { id:'bomber',    label:'Bomber jacket',  sleeve:'long',  len:'boxy',  neck:'crew',   fit:'oversized', zip:true, rib:true },
   { id:'cardigan',  label:'Soft cardigan',  sleeve:'long',  len:'hip',   neck:'v',      fit:'relaxed',   placket:true, chunky:true },
   { id:'utility',   label:'Utility vest',   sleeve:'tank',  len:'hip',   neck:'crew',   fit:'boxy',      pockets:true, zip:true },
-  { id:'shell',     label:'Trail shell',    sleeve:'long',  len:'hip',   neck:'high',   fit:'relaxed',   zip:true, panels:true },
+  { id:'shell',     label:'Trail jacket',   sleeve:'long',  len:'hip',   neck:'high',   fit:'relaxed',   zip:true, panels:true },
   { id:'button',    label:'Relaxed shirt',  sleeve:'long',  len:'long',  neck:'collar', fit:'relaxed',   placket:true },
   { id:'sweater',   label:'Chunky knit',    sleeve:'long',  len:'hip',   neck:'crew',   fit:'relaxed',   chunky:true },
   { id:'slipDress', label:'Slip dress',     sleeve:'strap', len:'dress', neck:'scoop',  fit:'drape',     satin:true },
@@ -1967,7 +1893,7 @@ CAT.bottom = [
   { id:'wideTrouser', label:'Wide trouser', type:'wide'  },
   { id:'barrelJean',  label:'Barrel denim', type:'barrel'},
   { id:'cargo',       label:'Cargo pant',   type:'cargo' },
-  { id:'parachute',   label:'Parachute',    type:'wide',  ruched:true },
+  { id:'parachute',   label:'Parachute pant',type:'wide',  ruched:true },
   { id:'leggings',    label:'Leggings',     type:'legg'  },
   { id:'pleatedSkirt',label:'Pleated skirt',type:'skirt', pleated:true },
   { id:'midiSkirt',   label:'Midi skirt',   type:'skirt', midi:true },
@@ -2018,27 +1944,29 @@ CAT.vibeFilters = [
   { id:'everyday', label:'Everyday' },
   { id:'soft', label:'Soft' },
   { id:'polished', label:'Polished' },
-  { id:'street', label:'Streetwear' },
+  { id:'street', label:'Street' },
   { id:'active', label:'Active' },
   { id:'night', label:'Night' },
+  { id:'creative', label:'Creative' },
+  { id:'comfort', label:'Comfort' },
 ];
 CAT.vibe = [
   /* ---- Everyday — easy, comfortable, no-fuss ---- */
-  { id:'v_weekend', label:'Weekend Easy', moods:['everyday'], tag:'easy casual', note:'soft tee, barrel denim, sneakers', set:{ top:'boxyTee', bottom:'barrelJean', topColor:'#e6dcc6', bottomColor:'#5a6f8c', texture:'soft', makeup:'natural', shoe:'sneaker', carry:'crossbody' } },
-  { id:'v_cozyknit', label:'Cozy Knit', moods:['everyday','soft'], tag:'cozy neutral', note:'chunky knit, denim, loafers', set:{ top:'sweater', bottom:'barrelJean', topColor:'#c08457', bottomColor:'#5a6f8c', texture:'cozy', makeup:'none', shoe:'loafer', carry:'tote' } },
-  { id:'v_linen', label:'Linen Calm', moods:['everyday','polished'], tag:'linen ease', note:'relaxed shirt, soft shorts, airy', set:{ top:'button', bottom:'shorts', topColor:'#f1e9d8', bottomColor:'#c08457', texture:'breathable', makeup:'natural', shoe:'slide', carry:'tote' } },
+  { id:'v_weekend', label:'Weekend Easy', moods:['everyday','comfort'], tag:'easy casual', note:'soft tee, barrel denim, sneakers', set:{ top:'boxyTee', bottom:'barrelJean', topColor:'#e6dcc6', bottomColor:'#5a6f8c', texture:'soft', makeup:'natural', shoe:'sneaker', carry:'crossbody' } },
+  { id:'v_cozyknit', label:'Cozy Knit', moods:['everyday','soft','comfort'], tag:'cozy neutral', note:'chunky knit, denim, loafers', set:{ top:'sweater', bottom:'barrelJean', topColor:'#c08457', bottomColor:'#5a6f8c', texture:'cozy', makeup:'none', shoe:'loafer', carry:'tote' } },
+  { id:'v_linen', label:'Linen Calm', moods:['everyday','polished','comfort'], tag:'linen ease', note:'relaxed shirt, soft shorts, airy', set:{ top:'button', bottom:'shorts', topColor:'#f1e9d8', bottomColor:'#c08457', texture:'breathable', makeup:'natural', shoe:'slide', carry:'tote' } },
 
   /* ---- Soft — gentle, romantic, cozy ---- */
   { id:'v_romantic', label:'Soft Romantic', moods:['soft'], tag:'soft romantic', note:'wrap cardigan, midi skirt', set:{ top:'cardigan', bottom:'midiSkirt', topColor:'#d39aa3', bottomColor:'#cfc7bb', texture:'soft', makeup:'natural', makeupColor:'m_rose', shoe:'mary', carry:'mini' } },
-  { id:'v_ribbon', label:'Ribbon Soft', moods:['soft'], tag:'soft sweet', note:'corset top, pleated skirt', set:{ top:'cropCorset', bottom:'pleatedSkirt', topColor:'#f1e9d8', bottomColor:'#d39aa3', texture:'soft', makeup:'natural', makeupColor:'m_rose', shoe:'mary', carry:'mini' } },
-  { id:'v_softwrap', label:'Soft Wrap', moods:['soft','active'], tag:'wrap lines', note:'wrap knit, leggings, soft movement', set:{ top:'asymKnit', bottom:'leggings', topColor:'#d39aa3', bottomColor:'#cfc7bb', texture:'soft', makeup:'natural', shoe:'mary', carry:'tote' } },
+  { id:'v_ribbon', label:'Ballet Soft', moods:['soft'], tag:'ballet soft', note:'corset top, pleated skirt', set:{ top:'cropCorset', bottom:'pleatedSkirt', topColor:'#f1e9d8', bottomColor:'#d39aa3', texture:'soft', makeup:'natural', makeupColor:'m_rose', shoe:'mary', carry:'mini' } },
+  { id:'v_softwrap', label:'Gentle Movement', moods:['soft','active','comfort'], tag:'gentle movement', note:'wrap knit, leggings, soft movement', set:{ top:'asymKnit', bottom:'leggings', topColor:'#d39aa3', bottomColor:'#cfc7bb', texture:'soft', makeup:'natural', shoe:'mary', carry:'tote' } },
 
   /* ---- Polished — clean, tailored, put-together ---- */
   { id:'v_tailoring', label:'Quiet Tailoring', moods:['polished'], tag:'refined neutral', note:'relaxed shirt, wide trouser', set:{ top:'button', bottom:'wideTrouser', topColor:'#e6dcc6', bottomColor:'#5e4334', texture:'smooth', makeup:'none', shoe:'loafer', carry:'crossbody' } },
   { id:'v_mono', label:'Monochrome Minimal', moods:['polished'], tag:'monochrome', note:'boxy tee, wide trouser, black + cream', set:{ top:'boxyTee', bottom:'wideTrouser', topColor:'#f1e9d8', bottomColor:'#29231f', texture:'smooth', makeup:'none', shoe:'loafer', carry:'crossbody' } },
-  { id:'v_prep', label:'Prep', moods:['polished'], tag:'prep casual', note:'button-up, pleated skirt, loafers', set:{ top:'button', bottom:'pleatedSkirt', topColor:'#e6dcc6', bottomColor:'#5a6f8c', texture:'smooth', makeup:'none', shoe:'loafer', carry:'backpack' } },
+  { id:'v_prep', label:'Campus Prep', moods:['polished'], tag:'campus prep', note:'button-up, pleated skirt, loafers', set:{ top:'button', bottom:'pleatedSkirt', topColor:'#e6dcc6', bottomColor:'#5a6f8c', texture:'smooth', makeup:'none', shoe:'loafer', carry:'backpack' } },
 
-  /* ---- Streetwear — oversized, sporty-street, bold ---- */
+  /* ---- Street — oversized, sporty-street, bold ---- */
   { id:'v_softstreet', label:'Soft Street', moods:['street'], tag:'oversized', note:'hoodie, barrel denim, sneakers', set:{ top:'hoodie', bottom:'barrelJean', topColor:'#3c3a38', bottomColor:'#5a6f8c', texture:'soft', makeup:'liner', shoe:'sneaker', carry:'crossbody' } },
   { id:'v_utility', label:'Utility Street', moods:['street'], tag:'utility', note:'bomber, cargo pant, boots', set:{ top:'bomber', bottom:'cargo', topColor:'#29231f', bottomColor:'#7d8254', texture:'smooth', makeup:'liner', shoe:'boot', carry:'beltbag' } },
   { id:'v_skate', label:'Skate Easy', moods:['street'], tag:'loose + easy', note:'boxy tee, jorts, sneakers', set:{ top:'boxyTee', bottom:'jorts', topColor:'#e6dcc6', bottomColor:'#3c3a38', texture:'soft', makeup:'none', shoe:'sneaker', carry:'backpack' } },
@@ -2051,7 +1979,7 @@ CAT.vibe = [
   /* ---- Night — dressy, shine, occasion ---- */
   { id:'v_satin', label:'Satin Evening', moods:['night','polished'], tag:'evening', note:'satin slip, trouser, warm glam', set:{ top:'slipDress', bottom:'wideTrouser', topColor:'#bd6f4f', bottomColor:'#29231f', texture:'smooth', makeup:'glam', makeupColor:'m_red', shoe:'mary', carry:'mini' } },
   { id:'v_downtown', label:'Downtown', moods:['night','street'], tag:'downtown', note:'corset, dark denim, boots, smoky eye', set:{ top:'cropCorset', bottom:'barrelJean', topColor:'#84647f', bottomColor:'#29231f', texture:'smooth', makeup:'smoky', makeupColor:'m_plum', shoe:'boot', carry:'mini' } },
-  { id:'v_metallic', label:'Metallic Night', moods:['night','street'], tag:'metallic', note:'shine top, black trouser, bold liner', set:{ top:'jersey', bottom:'wideTrouser', topColor:'#cfcac3', bottomColor:'#29231f', texture:'smooth', makeup:'graphic', makeupColor:'m_violet', shoe:'boot', carry:'crossbody' } },
+  { id:'v_metallic', label:'Concert Night', moods:['night','street','creative'], tag:'night shine', note:'shine top, black trouser, bold liner', set:{ top:'jersey', bottom:'wideTrouser', topColor:'#cfcac3', bottomColor:'#29231f', texture:'smooth', makeup:'graphic', makeupColor:'m_violet', shoe:'boot', carry:'crossbody' } },
 ];
 
 /* ---- Assistive tech & accessories — presented as ordinary options ---- */
@@ -2119,6 +2047,153 @@ CAT.aura = [
   { id:'a_sky',     label:'Sky',      c:'#d5e5ea' },
   { id:'a_rose',    label:'Rose',     c:'#ead5d8' },
 ];
+
+/* ---- Catalog metadata: non-rendering fields that bridge SVG now to 3D later ---- */
+const CAT_META_DEFAULTS = {
+  group:'core',
+  tags:[],
+  status:'keep',
+  flatAssetStatus:'current-renderer',
+  threeDStatus:'not-started',
+  promptNotes:'Use current item as the live catalog baseline.',
+  svgNotes:'No visual change in this metadata pass.',
+  priority:'P1',
+};
+
+const CAT_CATEGORY_META = {
+  skin:         { group:'skin tone', tags:['skin','tone'], priority:'P0' },
+  feature:      { group:'skin feature', tags:['skin','feature'], priority:'P1' },
+  faceShape:    { group:'face shape', tags:['face','shape'], priority:'P1' },
+  brow:         { group:'brow', tags:['face','brow'], priority:'P1' },
+  eye:          { group:'eye shape', tags:['face','eyes'], priority:'P1' },
+  eyeColor:     { group:'eye color', tags:['color','eyes'], priority:'P2' },
+  nose:         { group:'nose', tags:['face','nose'], priority:'P1' },
+  lip:          { group:'lip', tags:['face','lips'], priority:'P1' },
+  makeup:       { group:'makeup style', tags:['face','makeup'], priority:'P2' },
+  makeupColor:  { group:'makeup color', tags:['color','makeup'], priority:'P2' },
+  hair:         { group:'hair', tags:['hair'], priority:'P0' },
+  hairColor:    { group:'hair color', tags:['color','hair'], priority:'P1' },
+  body:         { group:'body shape', tags:['body'], priority:'P0' },
+  height:       { group:'height', tags:['body','height'], priority:'P1' },
+  top:          { group:'top', tags:['fit','top'], priority:'P0' },
+  bottom:       { group:'bottom', tags:['fit','bottom'], priority:'P0' },
+  texture:      { group:'texture', tags:['texture','sensory'], priority:'P1' },
+  garmentColor: { group:'garment color', tags:['color','garment'], priority:'P1' },
+  palette:      { group:'palette', tags:['color','palette'], priority:'P1' },
+  vibeFilters:  { group:'vibe filter', tags:['vibe','filter'], priority:'P0' },
+  vibe:         { group:'vibe', tags:['vibe'], priority:'P0' },
+  glasses:      { group:'eyewear', tags:['accessory','glasses'], priority:'P0' },
+  mobility:     { group:'mobility', tags:['tool','mobility'], priority:'P0', flatAssetStatus:'needs-svg' },
+  aac:          { group:'communication', tags:['tool','aac'], priority:'P0', flatAssetStatus:'needs-svg' },
+  shoe:         { group:'shoe', tags:['fit','shoe'], priority:'P0' },
+  carry:        { group:'carry', tags:['accessory','bag'], priority:'P0' },
+  piercing:     { group:'piercing', tags:['accessory','piercing'], priority:'P2' },
+  jewelry:      { group:'jewelry', tags:['accessory','jewelry'], priority:'P1' },
+  hearing:      { group:'hearing', tags:['tool','hearing'], priority:'P0' },
+  aura:         { group:'aura', tags:['color','emotion'], priority:'P2' },
+};
+
+const CAT_ITEM_META = {
+  hair: {
+    straightL:  { group:'long', tags:['hair','straight','long'], status:'rename', priority:'P0', promptNotes:'Long straight hair with a calm, readable silhouette.', svgNotes:'Keep current silhouette; simplify generated path in a later visual pass.' },
+    wavyM:      { group:'long', tags:['hair','waves','soft'], priority:'P0', promptNotes:'Loose waves that read clearly at swatch size.', svgNotes:'Keep wave rhythm recognizable.' },
+    layers:     { group:'long', tags:['hair','layered','long'], priority:'P0', promptNotes:'Long layered hair with visible shape changes near the ends.', svgNotes:'Keep layer read; reduce path noise later.' },
+    bob:        { group:'bob', tags:['hair','bob','short','polished'], status:'rename', priority:'P1', promptNotes:'Chin-length French bob with a clean rounded edge.', svgNotes:'Refine proportions later; no renderer change now.' },
+    curtain:    { group:'bangs', tags:['hair','bangs','face-framing'], status:'rename', priority:'P0', promptNotes:'Parted curtain bangs framing the face.', svgNotes:'Make the center split clearer in a later visual pass.' },
+    halfUp:     { group:'updo', tags:['hair','half-up','waves'], status:'rename', priority:'P0', promptNotes:'Half-up waves with the tie point visible.', svgNotes:'Keep tie and back volume readable.' },
+    highPony:   { group:'ponytail', tags:['hair','ponytail','high'], priority:'P0', promptNotes:'High ponytail with clear tie point and motion.', svgNotes:'Keep current renderer shape.' },
+    lowPony:    { group:'ponytail', tags:['hair','ponytail','low'], priority:'P0', promptNotes:'Low ponytail at the nape.', svgNotes:'Keep tail visible behind the shoulder.' },
+    highBun:    { group:'bun', tags:['hair','bun','top'], status:'rename', priority:'P0', promptNotes:'Top bun above the crown.', svgNotes:'Rename only; keep current high bun renderer.' },
+    lowBun:     { group:'bun', tags:['hair','bun','low'], priority:'P0', promptNotes:'Low bun at the nape.', svgNotes:'Polish scale in a later pass.' },
+    crownBraid: { group:'braid', tags:['hair','braid','crown'], status:'needs-redesign', flatAssetStatus:'needs-png-concept', priority:'P2', promptNotes:'Only keep if the crown braid reads clearly and proudly.', svgNotes:'Defer until braid language is redesigned.' },
+    braid:      { group:'braid', tags:['hair','braid','side'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P0', promptNotes:'Side braid reference exists; use PNG only as concept/reference.', svgNotes:'Rebuild `_art/sideBraid_cut.png` as inline SVG or deterministic renderer logic.' },
+    pigtails:   { group:'braid', tags:['hair','braids','twin'], status:'rename', priority:'P0', promptNotes:'Two braids, one on each side.', svgNotes:'Decide later whether the visual should remain Dutch braids or broaden to twin braids.' },
+    shaved:     { group:'short', tags:['hair','shaved','minimal'], priority:'P0', promptNotes:'Very close shaved hair.', svgNotes:'Keep current cap shadow.' },
+    bald:       { group:'short', tags:['hair','bald'], priority:'P0', promptNotes:'Clean bald head with dignified head shape.', svgNotes:'No hair layer.' },
+  },
+  top: {
+    cropCorset:  { group:'fitted', tags:['top','corset','night'], priority:'P1', promptNotes:'Structured corset crop; expressive but not oversexualized.', svgNotes:'Keep current seams.' },
+    asymKnit:    { group:'knit', tags:['top','knit','asymmetric'], status:'rename', priority:'P1', promptNotes:'Asymmetric knit top with a clear diagonal neckline.', svgNotes:'Rename only; keep current neckline.' },
+    jersey:      { group:'sporty', tags:['top','jersey','graphic'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Graphic jersey with number/stripe language.', svgNotes:'Main renderer should consume the jersey flag later.' },
+    drapedShirt: { group:'layer', tags:['top','overshirt','open'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P0', promptNotes:'Open overshirt over an inner layer.', svgNotes:'Main renderer needs open-layer support later.' },
+    boxyTee:     { group:'tee', tags:['top','tee','boxy','casual'], priority:'P0', promptNotes:'Boxy relaxed tee.', svgNotes:'Keep current renderer; later allow plain and graphic variants.' },
+    babyTee:     { group:'tee', tags:['top','tee','fitted'], priority:'P1', promptNotes:'Fitted baby tee with safe proportions.', svgNotes:'Keep current crop.' },
+    ribTank:     { group:'tank', tags:['top','tank','ribbed'], priority:'P0', promptNotes:'Ribbed tank.', svgNotes:'Current rib detail is acceptable.' },
+    meshLayer:   { group:'layer', tags:['top','mesh','expressive'], priority:'P1', promptNotes:'Sheer mesh layer with subtle texture.', svgNotes:'Keep mesh calm and low-noise.' },
+    hoodie:      { group:'comfort', tags:['top','hoodie','oversized'], priority:'P0', promptNotes:'Oversized hoodie.', svgNotes:'Keep hood and kangaroo pocket.' },
+    bomber:      { group:'jacket', tags:['top','bomber','sporty'], priority:'P1', promptNotes:'Bomber jacket.', svgNotes:'Keep rib and zip.' },
+    cardigan:    { group:'knit', tags:['top','cardigan','soft'], priority:'P0', promptNotes:'Soft cardigan.', svgNotes:'Clarify cardigan vs wrap top later.' },
+    utility:     { group:'utility', tags:['top','vest','pockets'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Utility vest with clear pockets.', svgNotes:'Main renderer should consume pockets flag later.' },
+    shell:       { group:'active', tags:['top','trail','jacket'], status:'rename', flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Lightweight trail/rain jacket.', svgNotes:'Rename only; sync panel rendering later.' },
+    button:      { group:'shirt', tags:['top','button-up','relaxed'], priority:'P0', promptNotes:'Relaxed button-up shirt.', svgNotes:'Keep current placket and collar.' },
+    sweater:     { group:'knit', tags:['top','chunky','cozy'], priority:'P0', promptNotes:'Chunky knit sweater.', svgNotes:'Keep knit rows soft.' },
+    slipDress:   { group:'dress', tags:['top','dress','satin'], priority:'P1', promptNotes:'Satin slip dress as a whole-piece top.', svgNotes:'Keep satin sheen.' },
+  },
+  bottom: {
+    jorts:        { group:'denim', tags:['bottom','jorts','baggy'], priority:'P1', promptNotes:'Baggy denim shorts.', svgNotes:'Add denim detail in a later pass.' },
+    cargoMaxi:    { group:'skirt', tags:['bottom','skirt','cargo','maxi'], priority:'P1', promptNotes:'Cargo maxi skirt.', svgNotes:'Keep pockets but reduce clutter later.' },
+    trackPant:    { group:'active', tags:['bottom','track','sporty'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Track pant with side stripe.', svgNotes:'Renderer contract currently disagrees with dmFigure track branch.' },
+    wideTrouser:  { group:'trouser', tags:['bottom','wide','polished'], priority:'P0', promptNotes:'Wide trouser.', svgNotes:'Keep clean leg and crease language.' },
+    barrelJean:   { group:'denim', tags:['bottom','denim','barrel'], priority:'P0', promptNotes:'Barrel denim.', svgNotes:'Keep curved leg read.' },
+    cargo:        { group:'utility', tags:['bottom','cargo','pockets'], priority:'P0', promptNotes:'Cargo pant with readable pockets.', svgNotes:'Keep pocket placement.' },
+    parachute:    { group:'utility', tags:['bottom','parachute','ruched'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Parachute pant with ruched/cuffed volume.', svgNotes:'Renderer contract currently disagrees with dmFigure parachute branch.' },
+    leggings:     { group:'active', tags:['bottom','leggings','fitted'], priority:'P0', promptNotes:'Simple leggings.', svgNotes:'Keep fitted and neutral.' },
+    pleatedSkirt: { group:'skirt', tags:['bottom','skirt','pleated'], priority:'P1', promptNotes:'Pleated skirt.', svgNotes:'Keep pleats fewer and clearer.' },
+    midiSkirt:    { group:'skirt', tags:['bottom','skirt','midi'], priority:'P0', promptNotes:'Midi skirt.', svgNotes:'Keep soft drape.' },
+    shorts:       { group:'shorts', tags:['bottom','shorts','relaxed'], priority:'P0', promptNotes:'Relaxed soft shorts.', svgNotes:'Keep comfortable read.' },
+  },
+  shoe: {
+    runner:  { group:'sneaker', tags:['shoe','runner','chunky'], priority:'P0', promptNotes:'Chunky runner.', svgNotes:'Current branch works.' },
+    boot:    { group:'boot', tags:['shoe','boot','platform'], priority:'P1', promptNotes:'Platform boot.', svgNotes:'Current branch works.' },
+    loafer:  { group:'flat', tags:['shoe','loafer','soft'], priority:'P0', promptNotes:'Soft loafer.', svgNotes:'Current branch works.' },
+    mary:    { group:'flat', tags:['shoe','mary-jane','soft'], priority:'P0', promptNotes:'Mary Jane.', svgNotes:'Current strap branch works.' },
+    slide:   { group:'comfort', tags:['shoe','slide','comfort'], priority:'P0', promptNotes:'Cloud slide.', svgNotes:'Current branch works.' },
+    sneaker: { group:'sneaker', tags:['shoe','sneaker','color'], priority:'P0', promptNotes:'Color sneaker.', svgNotes:'Current branch works.' },
+  },
+  carry: {
+    none:      { group:'none', tags:['carry','none'], priority:'P0', promptNotes:'No carry item.', svgNotes:'No render.' },
+    crossbody: { group:'bag', tags:['carry','crossbody','daily'], priority:'P0', promptNotes:'Crossbody bag.', svgNotes:'Main renderer has a custom branch.' },
+    tote:      { group:'bag', tags:['carry','tote','soft'], flatAssetStatus:'needs-svg', priority:'P0', promptNotes:'Soft tote.', svgNotes:'Needs a distinct main-renderer shape.' },
+    beltbag:   { group:'bag', tags:['carry','beltbag','compact'], flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Belt bag.', svgNotes:'Needs main-renderer parity.' },
+    mini:      { group:'bag', tags:['carry','mini','occasion'], flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Mini bag.', svgNotes:'Needs a distinct main-renderer shape.' },
+    backpack:  { group:'bag', tags:['carry','backpack','school'], flatAssetStatus:'needs-svg', priority:'P0', promptNotes:'Backpack.', svgNotes:'Needs main-renderer parity.' },
+  },
+  vibe: {
+    v_weekend:    { group:'Everyday', tags:['vibe','everyday','comfort'], priority:'P0', promptNotes:'Soft tee, denim, sneakers.', svgNotes:'Uses existing pieces.' },
+    v_cozyknit:   { group:'Comfort', tags:['vibe','cozy','knit','comfort'], priority:'P0', promptNotes:'Chunky knit, denim, loafers.', svgNotes:'Uses existing pieces.' },
+    v_linen:      { group:'Everyday', tags:['vibe','calm','airy','comfort'], priority:'P0', promptNotes:'Relaxed shirt, shorts, slides.', svgNotes:'Uses existing pieces.' },
+    v_romantic:   { group:'Soft', tags:['vibe','soft','romantic'], priority:'P1', promptNotes:'Cardigan and midi skirt.', svgNotes:'Uses existing pieces.' },
+    v_ribbon:     { group:'Soft', tags:['vibe','ballet','soft'], status:'rename', priority:'P1', promptNotes:'Corset top and pleated skirt.', svgNotes:'Rename only.' },
+    v_softwrap:   { group:'Comfort', tags:['vibe','movement','soft','comfort'], status:'rename', priority:'P0', promptNotes:'Asymmetric knit and leggings.', svgNotes:'Rename only.' },
+    v_tailoring:  { group:'Polished', tags:['vibe','tailoring','neutral'], priority:'P0', promptNotes:'Relaxed shirt and wide trouser.', svgNotes:'Uses existing pieces.' },
+    v_mono:       { group:'Polished', tags:['vibe','minimal','monochrome'], priority:'P1', promptNotes:'Boxy tee and wide trouser.', svgNotes:'Uses existing pieces.' },
+    v_prep:       { group:'Polished', tags:['vibe','campus','prep'], status:'rename', priority:'P1', promptNotes:'Button-up, pleated skirt, backpack.', svgNotes:'Rename only.' },
+    v_softstreet: { group:'Street', tags:['vibe','street','hoodie'], priority:'P0', promptNotes:'Hoodie, barrel denim, sneakers.', svgNotes:'Uses existing pieces.' },
+    v_utility:    { group:'Street', tags:['vibe','utility','cargo'], priority:'P0', promptNotes:'Bomber, cargo, boots.', svgNotes:'Uses existing pieces.' },
+    v_skate:      { group:'Street', tags:['vibe','skate','easy'], priority:'P0', promptNotes:'Boxy tee, jorts, sneakers.', svgNotes:'Uses existing pieces.' },
+    v_athleisure: { group:'Active', tags:['vibe','active','track'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P0', promptNotes:'Bomber, track pant, runner.', svgNotes:'Depends on trackPant renderer cleanup.' },
+    v_trail:      { group:'Active', tags:['vibe','trail','utility'], priority:'P0', promptNotes:'Trail jacket, cargo, runners.', svgNotes:'Uses existing pieces.' },
+    v_studiomove: { group:'Active', tags:['vibe','movement','studio'], status:'needs-redesign', flatAssetStatus:'needs-svg', priority:'P1', promptNotes:'Mesh layer and track pant.', svgNotes:'Depends on trackPant renderer cleanup.' },
+    v_satin:      { group:'Night', tags:['vibe','satin','evening'], priority:'P1', promptNotes:'Slip dress, trouser, warm glam.', svgNotes:'Uses existing pieces.' },
+    v_downtown:   { group:'Night', tags:['vibe','downtown','boots'], priority:'P1', promptNotes:'Corset, dark denim, boots.', svgNotes:'Uses existing pieces.' },
+    v_metallic:   { group:'Creative', tags:['vibe','concert','night','creative'], status:'rename', priority:'P1', promptNotes:'Shine top, dark trouser, boots.', svgNotes:'Rename only.' },
+  },
+};
+
+function applyCatalogMetadata(){
+  Object.keys(CAT).forEach(category => {
+    const arr = CAT[category];
+    if(!Array.isArray(arr)) return;
+    const categoryMeta = CAT_CATEGORY_META[category] || {};
+    arr.forEach(item => {
+      const itemMeta = (CAT_ITEM_META[category] && CAT_ITEM_META[category][item.id]) || {};
+      const meta = Object.assign({}, CAT_META_DEFAULTS, categoryMeta, itemMeta, { category });
+      meta.tags = (meta.tags || []).slice();
+      Object.assign(item, meta);
+    });
+  });
+}
+applyCatalogMetadata();
 
 /* index helpers */
 function byId(arr, id){ return arr.find(o=>o.id===id) || arr[0]; }
@@ -2567,7 +2642,166 @@ function buildMakeup(g, state, P){
   return s;
 }
 
-/* ---------------------------- HAIR ---------------------------- */
+/* ====================================================================
+   SHARED HAIR ENGINE — single source of truth for both rendering engines.
+   dmFigure (Engine A) and renderAvatar (Engine B) both delegate here.
+   geo = { cx, headCy, headRx, headRy, topY, crownY, hairlineY,
+           napeY, fallTo, fill, dark, mid, lite, R }
+   ==================================================================== */
+
+const AVA_HAIR = {"straightL":{"ho":[58,18],"hd":"M133.506381,81.3351151 C137.363649,83.3307002 140,87.3574737 140,92 L140,105 C140,111.018625 135.569129,116.002364 129.791419,116.867187 C128.048193,137.114792 115.530782,154.282984 98,162.610951 L98,162.610951 L98,181 L102,181 C119.490913,181 135.525121,187.236892 148,197.608051 L148,74 C148,53.5654643 139.717268,35.0654643 126.325902,21.6740982 C112.934536,8.28273213 94.4345357,-3.55271368e-15 74,0 C33.1309285,7.10542736e-15 -7.10542736e-15,33.1309285 0,74 L0,257.716445 C13.5691766,255.775526 24,244.105888 24,230 L24,184.423101 C30.9346808,182.200199 38.3271796,181 46,181 L50,181 L50,162.610951 C38.7726252,157.277407 29.6015372,148.317951 24,137.245847 L24,75.2659587 C33.1467898,72.2910056 42.777598,68.0170651 52.3415164,62.4953343 C67.7445474,53.6023901 80.4313947,42.9409152 89.0661426,32.3970356 C90.8310687,37.5951441 93.1752556,42.8009742 96.1104311,47.8848473 C104.877881,63.0705152 117.224186,74.2337047 130,79.9170491 L130,80.1659169 C130.400422,80.233095 130.794121,80.3201038 131.18005,80.4258987 C131.954509,80.7493055 132.730185,81.0524853 133.506381,81.3351151 Z","sh":[{"d":"M192.506381,99.3351151 C197.3745,101.107702 202.263079,102.071957 207,102.148232 L207,102.148232 L207,92 C207,71.5654643 198.717268,53.0654643 185.325902,39.6740982 C198.717268,53.0654643 207,71.5654643 207,92 L207,215.608051 C194.525121,205.236892 178.490913,199 161,199 L157,199 L157,180.610951 L157,180.610951 C174.530782,172.282984 187.048193,155.114792 188.791419,134.867187 C194.569129,134.002364 199,129.018625 199,123 L199,110 C199,105.357474 196.363649,101.3307 192.506381,99.3351151 Z M190.18005,98.4258987 C189.794121,98.3201038 189.400422,98.233095 189,98.1659169 L189,97.9170491 C189.392974,98.0918644 189.786355,98.2614951 190.18005,98.4258987 Z M83,155.245847 C88.6015372,166.317951 97.7726252,175.277407 109,180.610951 L109,199 L105,199 C97.3271796,199 89.9346808,200.200199 83,202.423101 L83,155.245847 Z","o":0.24}]},"wavyM":{"ho":[-1,0],"hd":"M59,102.340285 C59,118.921045 59,145.474283 59,182 C59,186.418278 62.581722,190 67,190 L109,190 L109,180.610951 C91.4692178,172.282984 78.9518066,155.114792 77.2085808,134.867187 C71.4308707,134.002364 67,129.018625 67,123 L67,110 C67,106.509412 68.4903619,103.366917 70.8694649,101.174135 C82.4088376,98.5552525 94.9706808,93.6376395 107.341516,86.4953343 C119.473269,79.4910638 129.843979,71.2579416 137.820938,62.752196 C134.394107,70.6604321 130.244513,77.5880409 125.372156,83.5350224 C138.047336,78.0120855 146.677812,69.1324394 151.263585,56.8960843 C151.64142,57.8180234 152.034942,58.738913 152.444252,59.6582378 C162.699828,82.6926393 180.317578,99.018563 198.205873,104.403108 C198.718861,106.513486 199,108.48395 199,110 L199,123 C199,129.018625 194.569129,134.002364 188.791419,134.867187 C187.048193,155.114792 174.530782,172.282984 157,180.610951 L157,190 L175,190 C192.673112,190 207,175.673112 207,158 C207,133.944314 207,115.902549 207,103.874706 C207,103.807916 206.990567,103.721208 206.971823,103.615272 C206.82774,91.3536714 206.623862,84.2237818 206.360189,82.2256031 C201.576875,45.9764505 170.555563,18 133,18 C96.9151011,18 66.8627142,43.8282542 60,78 C54.4771525,78 50,83.5964406 50,90.5 C50,95.0507583 51.6949619,99.1431718 54.8534901,101.273154 C55.7582038,101.883256 57.323834,102.197638 58.9999994,102.340287 Z"},"layers":{"ho":[58,18],"hd":"M8.46130289,88.6935361 C8.16088005,89.7438903 8,90.8531574 8,92 L8,105 C8,111.018625 12.4308707,116.002364 18.2085808,116.867187 C19.9518066,137.114792 32.4692178,154.282984 50,162.610951 L50,181 L46,181 L46,181 C30.3810228,181 15.9236322,185.973344 4.12503673,194.422823 C1.45272918,186.776619 1.52589027e-14,178.557961 1.42108547e-14,170 L0,74 L0,74 C-5.00501776e-15,33.1309285 33.1309285,7.50752664e-15 74,0 L74,0 L74,0 C114.869071,-7.50752664e-15 148,33.1309285 148,74 L148,170 C148,178.557961 146.547271,186.776619 143.874963,194.422823 C132.076368,185.973344 117.618977,181 102,181 L102,181 L98,181 L98,162.610951 C115.530782,154.282984 128.048193,137.114792 129.791419,116.867187 C135.569129,116.002364 140,111.018625 140,105 L140,92 C140,90.3107559 139.650957,88.7030352 139.021057,87.2450254 C126.064756,85.0568849 111.478699,79.7686298 97.1489304,71.4953343 C85.0171781,64.4910638 74.6464677,56.2579416 66.6695083,47.752196 C70.0963393,55.6604321 74.2459335,62.5880409 79.118291,68.5350224 C66.4431108,63.0120855 57.8126345,54.1324394 53.2268621,41.8960843 C52.8490267,42.8180234 52.455505,43.738913 52.0461952,44.6582378 C42.206947,66.7575512 25.5911314,82.6819966 8.46130289,88.6935361 Z","sh":[{"d":"M59,102.418954 L59,108.837908 C78.9453743,105.750496 99.5895621,88.3902571 111.046195,62.6582378 C111.455505,61.738913 111.849027,60.8180234 112.226862,59.8960843 C116.231662,70.5822127 123.321236,78.70828 133.495584,84.2742862 C134.956498,86.4697241 136.497401,88.5566361 138.118291,90.5350224 C125.443111,85.0120855 116.812635,76.1324394 112.226862,63.8960843 C111.849027,64.8180234 111.455505,65.738913 111.046195,66.6582378 C99.5895621,92.3902571 78.9453743,109.750496 59,112.837908 L59,102.418954 Z M207,101.140388 L207,110.280776 C192.046922,109.412723 173.901259,103.744646 156.14893,93.4953343 C145.87623,87.5643877 136.866205,80.7523483 129.502994,73.639773 C128.137922,71.1289501 126.860094,68.4997578 125.669508,65.752196 C133.646468,74.2579416 144.017178,82.4910638 156.14893,89.4953343 C173.901259,99.7446457 192.046922,105.412723 207,106.280776 L207,101.140388 Z","o":0.16}]},"bob":{"ho":[38,19],"hd":"M38,79.3595521 L38,111 C38,133.339168 51.0804213,152.623239 70,161.610951 L70,174.74565 C50.3625813,177.434228 34.6409914,182.163507 23.3845374,181.000327 C9.16164761,179.530612 1.49623627,150.795665 1,126 C0.382878875,95.1640258 29.3189583,30.7950013 40,18 C47.9231015,8.50878211 69.6952966,0.550643437 94.0001685,1 C118.30504,1.44935656 140.861928,6.81215989 149.000169,17 C161.324059,32.4276364 186.868727,91.0786423 187.000169,126 C187.093514,150.800049 177.46255,175.65995 164.000169,177 C152.920532,178.102871 137.475571,175.511343 118,173.997342 L118,161.610951 C136.919579,152.623239 150,133.339168 150,111 L150,82.9882378 C140.478735,78.1305678 131.863294,72.248172 124.153679,65.3410505 C127.362309,70.6368571 130.848786,75.1475352 134.61311,78.8730846 C107.596314,71.2928169 86.1055278,58.4501118 70.1407506,40.3449693 C62.1597317,56.8095313 51.4461487,69.8143919 38.0000014,79.3595511 Z"},"curtain":{"ho":[39,19],"hd":"M148.859344,69 C148.952588,70.3212062 149,71.6550662 149,73 L149,111 C149,133.339168 135.919579,152.623239 117,161.610951 L117,170.317435 C135.145605,171.815797 152.721153,174.335027 163.000169,177 C172.952646,163.439362 185.884594,150.800081 186.000169,126 C186.085192,107.014914 158.324059,30.4276364 146.000169,15 C137.861928,4.81215989 117.30504,1.44935656 93.0001685,1 C68.6952966,0.550643437 48.9231015,6.50878211 41,16 C30.3189583,28.7950013 -0.0850232975,107.014914 4.92293245e-13,126 C0.115574613,150.800081 13.047523,163.439362 23,177 C33.2789946,174.335033 50.8544902,171.815807 69,170.317444 L69,161.610951 C50.0804213,152.623239 37,133.339168 37,111 L37,73 L37,73 C37,71.6550662 37.0474121,70.3212062 37.1406562,69 L65.3735517,69 L69.2529753,47.5561285 L72.058097,69 L148.859344,69 Z","sh":[{"d":"M69.0330562,76.212888 C81.9708809,43.1292208 95.6458945,26.5873873 110.058097,26.5873873 C110.596882,26.5873873 139.311316,26.3494141 158.112657,26.226792 C178.767149,35.5853581 193,55.3036503 193,78.114622 L193,93 L110.058097,93 L107.252975,69.820435 L103.373552,93 L69,93 L69,78.114622 C69,77.478246 69.0110772,76.844277 69.0330621,76.2128728 L69.0330562,76.212888 Z","o":0.16}]}};
+
+/* Sleek "hair down" styles come from Avataaars (Pablo Stanley, free for personal
+   & commercial use), mapped onto the dmFigure ellipse head (Avataaars head =
+   circle center 132,92 r56) by one affine derived from geo. */
+function avaHair(geo, hid){
+  const spec = AVA_HAIR[hid];
+  if(!spec) return '';
+  const sx = geo.headRx/56, sy = geo.headRy/56;
+  const tx = geo.cx - sx*132, ty = geo.headCy - sy*92;
+  const T = `translate(${tx.toFixed(3)} ${ty.toFixed(3)}) scale(${sx.toFixed(4)} ${sy.toFixed(4)})`;
+  let s = `<g transform="translate(${spec.ho[0]} ${spec.ho[1]})"><path d="${spec.hd}" fill="${geo.fill}"/></g>`;
+  if(spec.sh) for(const sh of spec.sh) s += `<path transform="translate(-1 0)" d="${sh.d}" fill="#000" fill-opacity="${sh.o}"/>`;
+  return `<g transform="${T}">${s}</g>`;
+}
+
+/* ---- Hand-built styled hair: the sister's looks (updos, braids, ponytails),
+        drawn natively in dmFigure head space, recolorable via geo.fill, with
+        gradient sheen + shadow for dimension. Each builder returns {back,front}. ---- */
+function hcCap(g){
+  const {cx:X, headCy:HY, headRx:HR, headRy:HRY, topY, crownY, hairlineY:HL, fill, lite} = g;
+  return `<path d="M ${X-HR-1} ${HL+2} C ${X-HR-3} ${HY-HRY*0.78} ${X-HR*0.45} ${topY-5} ${X} ${topY-5} C ${X+HR*0.45} ${topY-5} ${X+HR+3} ${HY-HRY*0.78} ${X+HR+1} ${HL+2} Q ${X} ${HL-5} ${X-HR-1} ${HL+2} Z" fill="${fill}"/>`
+    + `<path d="M ${X-HR*0.5} ${crownY+2} Q ${X-HR*0.1} ${topY} ${X+HR*0.35} ${crownY}" stroke="${lite}" stroke-width="2.6" fill="none" opacity="0.28" stroke-linecap="round"/>`;
+}
+function hcBraidCol(g, sx, sy, ex, ey, w, n){
+  const {fill, dark, lite, mid} = g;
+  const dx = ex-sx, dy = ey-sy;
+  let s = `<path d="M ${sx-w} ${sy} C ${sx-w*1.1} ${sy+dy*0.35} ${ex-w*0.9} ${ey-dy*0.35} ${ex-w*0.55} ${ey} Q ${ex} ${ey+w*0.9} ${ex+w*0.55} ${ey} C ${ex+w*0.9} ${ey-dy*0.35} ${sx+w*1.1} ${sy+dy*0.35} ${sx+w} ${sy} Z" fill="${fill}"/>`;
+  const segH = Math.hypot(dx,dy)/n;
+  for(let k=0;k<n;k++){
+    const t=k/(n-1), cx=sx+dx*t, cy=sy+dy*t, taper=1-t*0.32, rx=w*taper, ry=segH*0.92, lean=(k%2?1:-1)*24;
+    s += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${lean} ${cx} ${cy})" fill="${fill}"/>`;
+    s += `<path d="M ${cx-rx*0.95} ${cy-ry*0.45} Q ${cx} ${cy-ry*0.05} ${cx+rx*0.95} ${cy-ry*0.45}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.45" transform="rotate(${lean} ${cx} ${cy})"/>`;
+    s += `<path d="M ${cx-rx*0.4} ${cy-ry*0.15} Q ${cx} ${cy-ry*0.35} ${cx+rx*0.45} ${cy-ry*0.1}" stroke="${lite}" stroke-width="1.5" fill="none" opacity="0.28" stroke-linecap="round" transform="rotate(${lean} ${cx} ${cy})"/>`;
+  }
+  s += `<path d="M ${ex-w*0.45} ${ey+segH*0.5} L ${ex-w*0.1} ${ey+segH*1.8} M ${ex+w*0.1} ${ey+segH*0.5} L ${ex+w*0.35} ${ey+segH*1.7} M ${ex+w*0.35} ${ey+segH*0.5} L ${ex+w*0.6} ${ey+segH*1.5}" stroke="${mid}" stroke-width="1" fill="none" opacity="0.6" stroke-linecap="round"/>`;
+  return s;
+}
+function hcBraidArc(g, pts, w){
+  const {fill, dark, lite} = g; let s='';
+  for(let k=0;k<pts.length;k++){
+    const cx=pts[k][0], cy=pts[k][1], lean=(k%2?1:-1)*26;
+    s += `<ellipse cx="${cx}" cy="${cy}" rx="${w}" ry="${w*1.25}" transform="rotate(${lean} ${cx} ${cy})" fill="${fill}"/>`;
+    s += `<path d="M ${cx-w*0.9} ${cy-w*0.5} Q ${cx} ${cy} ${cx+w*0.9} ${cy-w*0.5}" stroke="${dark}" stroke-width="1" fill="none" opacity="0.42" transform="rotate(${lean} ${cx} ${cy})"/>`;
+    s += `<path d="M ${cx-w*0.4} ${cy-w*0.2} Q ${cx} ${cy-w*0.4} ${cx+w*0.4} ${cy-w*0.15}" stroke="${lite}" stroke-width="1.2" fill="none" opacity="0.26" transform="rotate(${lean} ${cx} ${cy})"/>`;
+  }
+  return s;
+}
+function hcLongBack(g, fy){
+  const {cx:X, headCy:HY, headRx:HR, headRy:HRY, crownY, fallTo:FT, fill, dark} = g; const F=fy||FT;
+  return `<path d="M ${X-HR*0.75} ${crownY} C ${X-HR*1.25} ${HY+HRY*0.3} ${X-HR*1.1} ${F-HRY*0.9} ${X-HR*0.6} ${F-HRY*0.2} Q ${X} ${F+HRY*0.1} ${X+HR*0.6} ${F-HRY*0.2} C ${X+HR*1.1} ${F-HRY*0.9} ${X+HR*1.25} ${HY+HRY*0.3} ${X+HR*0.75} ${crownY} Q ${X} ${crownY-3} ${X-HR*0.75} ${crownY} Z" fill="${fill}"/>`
+    + `<path d="M ${X-HR*0.55} ${HY} Q ${X-HR*0.4} ${HY+HRY} ${X-HR*0.3} ${F-HRY*0.4}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.32"/>`;
+}
+const HAIR_HC = {
+  highBun(g){
+    const {cx:X, headCy:HY, headRx:HR, headRy:HRY, topY, hairlineY:HL, fallTo:FT, fill, dark, lite} = g;
+    const bX=X, bY=topY-HRY*0.22, bRx=HR*0.4, bRy=HRY*0.3;
+    const back = `<path d="M ${X-HR*0.9} ${HL+HRY*0.2} C ${X-HR*1.05} ${HY+HRY*0.6} ${X-HR*0.95} ${FT-HRY*0.8} ${X-HR*0.62} ${FT-HRY*0.3} L ${X-HR*0.42} ${FT-HRY*0.4} C ${X-HR*0.6} ${HY+HRY*0.4} ${X-HR*0.65} ${HL+HRY*0.5} ${X-HR*0.55} ${HL+HRY*0.2} Z" fill="${fill}"/>`
+      + `<path d="M ${X+HR*0.9} ${HL+HRY*0.2} C ${X+HR*1.05} ${HY+HRY*0.6} ${X+HR*0.95} ${FT-HRY*0.8} ${X+HR*0.62} ${FT-HRY*0.3} L ${X+HR*0.42} ${FT-HRY*0.4} C ${X+HR*0.6} ${HY+HRY*0.4} ${X+HR*0.65} ${HL+HRY*0.5} ${X+HR*0.55} ${HL+HRY*0.2} Z" fill="${fill}"/>`;
+    let front = hcCap(g);
+    for(let i=-3;i<=3;i++){ const bx=X+i*HR*0.26; front += `<path d="M ${bx} ${HL+1} Q ${X+i*HR*0.06} ${topY} ${bX} ${bY+bRy*0.6}" stroke="${dark}" stroke-width="0.7" fill="none" opacity="0.2"/>`; }
+    front += `<ellipse cx="${bX}" cy="${bY}" rx="${bRx}" ry="${bRy}" fill="${fill}"/>`
+      + `<path d="M ${bX-bRx*0.6} ${bY} Q ${bX} ${bY-bRy*0.8} ${bX+bRx*0.6} ${bY}" stroke="${lite}" stroke-width="1.8" fill="none" opacity="0.3"/>`
+      + `<path d="M ${bX-bRx*0.7} ${bY+bRy*0.2} Q ${bX} ${bY+bRy*0.8} ${bX+bRx*0.7} ${bY+bRy*0.2}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.4"/>`
+      + `<ellipse cx="${bX}" cy="${bY+bRy*0.9}" rx="${bRx*0.45}" ry="${bRy*0.3}" fill="${fill}" stroke="${dark}" stroke-width="0.7"/>`;
+    return { back, front };
+  },
+  highPony(g){
+    const {cx:X, headCy:HY, headRx:HR, headRy:HRY, topY, hairlineY:HL, fallTo:FT, fill, dark, lite} = g;
+    const gx=X, gy=topY-HRY*0.18;
+    const back = `<path d="M ${gx-HR*0.5} ${gy+HRY*0.2} C ${X-HR*1.15} ${HY+HRY*0.5} ${X-HR*0.95} ${FT-HRY*0.6} ${X-HR*0.45} ${FT} Q ${X} ${FT+HRY*0.35} ${X+HR*0.5} ${FT-HRY*0.1} C ${X+HR*1.1} ${FT-HRY*0.7} ${X+HR*0.95} ${HY+HRY*0.4} ${gx+HR*0.5} ${gy+HRY*0.2} Q ${gx} ${gy} ${gx-HR*0.5} ${gy+HRY*0.2} Z" fill="${fill}"/>`
+      + `<path d="M ${X-HR*0.15} ${gy+HRY*0.4} C ${X-HR*0.6} ${HY+HRY*0.7} ${X-HR*0.45} ${FT-HRY*0.5} ${X-HR*0.15} ${FT-HRY*0.25}" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.4"/>`
+      + `<path d="M ${X+HR*0.12} ${gy+HRY*0.4} C ${X+HR*0.35} ${HY+HRY*0.6} ${X+HR*0.25} ${FT-HRY*0.6} ${X+HR*0.12} ${FT-HRY*0.4}" stroke="${lite}" stroke-width="2" fill="none" opacity="0.22"/>`;
+    let front = hcCap(g);
+    for(let i=-3;i<=3;i++){ const bx=X+i*HR*0.26; front += `<path d="M ${bx} ${HL+1} Q ${X+i*HR*0.06} ${topY} ${gx} ${gy+HRY*0.25}" stroke="${dark}" stroke-width="0.8" fill="none" opacity="0.22"/>`; }
+    front += `<ellipse cx="${gx}" cy="${gy+HRY*0.18}" rx="${HR*0.32}" ry="${HRY*0.18}" fill="${fill}" stroke="${dark}" stroke-width="0.9"/>`
+      + `<path d="M ${gx-HR*0.2} ${gy+HRY*0.12} Q ${gx} ${gy} ${gx+HR*0.18} ${gy+HRY*0.1}" stroke="${lite}" stroke-width="1.6" fill="none" opacity="0.3" stroke-linecap="round"/>`;
+    return { back, front };
+  },
+  lowPony(g){
+    const {cx:X, headCy:HY, headRx:HR, headRy:HRY, napeY, fallTo:FT, fill, dark, lite} = g;
+    const back = `<path d="M ${X-HR*0.42} ${napeY-HRY*0.1} C ${X-HR*0.7} ${napeY+HRY*0.6} ${X-HR*0.62} ${FT-HRY*0.5} ${X-HR*0.34} ${FT} Q ${X} ${FT+HRY*0.32} ${X+HR*0.36} ${FT-HRY*0.02} C ${X+HR*0.66} ${FT-HRY*0.6} ${X+HR*0.72} ${napeY+HRY*0.5} ${X+HR*0.42} ${napeY-HRY*0.1} Z" fill="${fill}"/>`
+      + `<path d="M ${X-HR*0.1} ${napeY+HRY*0.1} C ${X-HR*0.35} ${HY+HRY*1.4} ${X-HR*0.3} ${FT-HRY*0.5} ${X-HR*0.1} ${FT-HRY*0.3}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.38"/>`
+      + `<path d="M ${X+HR*0.08} ${napeY+HRY*0.1} C ${X+HR*0.2} ${HY+HRY*1.3} ${X+HR*0.15} ${FT-HRY*0.5} ${X+HR*0.08} ${FT-HRY*0.35}" stroke="${lite}" stroke-width="1.8" fill="none" opacity="0.2"/>`;
+    return { back, front: hcCap(g) + `<ellipse cx="${X}" cy="${napeY-HRY*0.05}" rx="${HR*0.28}" ry="${HRY*0.16}" fill="${fill}" stroke="${dark}" stroke-width="0.8"/>` };
+  },
+  lowBun(g){
+    const {cx:X, headRx:HR, headRy:HRY, napeY, fill, dark, lite} = g;
+    const bY=napeY+HRY*0.3, bRx=HR*0.62, bRy=HRY*0.46;
+    const back = `<ellipse cx="${X}" cy="${bY}" rx="${bRx}" ry="${bRy}" fill="${fill}"/>`
+      + `<path d="M ${X-bRx*0.72} ${bY-bRy*0.15} Q ${X} ${bY-bRy*0.9} ${X+bRx*0.72} ${bY-bRy*0.15}" stroke="${lite}" stroke-width="2.2" fill="none" opacity="0.32"/>`
+      + `<path d="M ${X-bRx*0.85} ${bY+bRy*0.15} Q ${X} ${bY+bRy*0.8} ${X+bRx*0.85} ${bY+bRy*0.15}" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.4"/>`
+      + `<path d="M ${X-bRx*0.45} ${bY-bRy*0.55} Q ${X} ${bY+bRy*0.1} ${X+bRx*0.45} ${bY-bRy*0.55}" stroke="${dark}" stroke-width="1" fill="none" opacity="0.32"/>`;
+    return { back, front: hcCap(g) };
+  },
+  crownBraid(g){
+    const {cx:X, headRx:HR, headRy:HRY, topY, hairlineY:HL} = g;
+    const lX=X-HR*0.98, rX=X+HR*0.98, lY=HL+HRY*0.2, cY=topY-6, n=9, pts=[];
+    for(let i=0;i<n;i++){ const t=i/(n-1); const x=(1-t)*(1-t)*lX+2*(1-t)*t*X+t*t*rX; const y=(1-t)*(1-t)*lY+2*(1-t)*t*cY+t*t*lY; pts.push([x,y]); }
+    return { back: hcLongBack(g), front: hcCap(g) + hcBraidArc(g, pts, HR*0.15) };
+  },
+  braid(g){
+    const {cx:X, headRx:HR, headRy:HRY, hairlineY:HL, fallTo:FT} = g;
+    return { back:'', front: hcCap(g) + hcBraidCol(g, X-HR*0.5, HL+HRY*0.35, X-HR*0.12, FT-HRY*0.25, HR*0.34, 8) };
+  },
+  pigtails(g){
+    const {cx:X, headRx:HR, headRy:HRY, hairlineY:HL, fallTo:FT} = g;
+    return { back:'', front: hcCap(g)
+      + hcBraidCol(g, X-HR*0.72, HL+HRY*0.45, X-HR*0.5, FT-HRY*0.55, HR*0.28, 7)
+      + hcBraidCol(g, X+HR*0.72, HL+HRY*0.45, X+HR*0.5, FT-HRY*0.55, HR*0.28, 7) };
+  },
+  halfUp(g){
+    const {cx:X, headCy:HY, headRx:HR, headRy:HRY, topY, crownY, fallTo:FT, fill, dark, lite} = g;
+    const back = `<path d="M ${X-HR*0.7} ${crownY} C ${X-HR*1.2} ${HY+HRY*0.3} ${X-HR*1.05} ${FT-HRY*0.9} ${X-HR*0.55} ${FT-HRY*0.2} Q ${X} ${FT+HRY*0.1} ${X+HR*0.55} ${FT-HRY*0.2} C ${X+HR*1.05} ${FT-HRY*0.9} ${X+HR*1.2} ${HY+HRY*0.3} ${X+HR*0.7} ${crownY} Q ${X} ${crownY-3} ${X-HR*0.7} ${crownY} Z" fill="${fill}"/>`
+      + `<path d="M ${X-HR*0.6} ${HY} Q ${X-HR*0.4} ${HY+HRY*1.2} ${X-HR*0.3} ${FT-HRY*0.4}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.35"/>`
+      + `<path d="M ${X+HR*0.5} ${HY} Q ${X+HR*0.4} ${HY+HRY*1.1} ${X+HR*0.3} ${FT-HRY*0.5}" stroke="${lite}" stroke-width="1.8" fill="none" opacity="0.2"/>`;
+    return { back, front: hcCap(g) + `<ellipse cx="${X}" cy="${topY+HRY*0.1}" rx="${HR*0.22}" ry="${HRY*0.13}" fill="${fill}" stroke="${dark}" stroke-width="0.7"/>` };
+  },
+};
+
+/* shaved = a faint hair shadow on the scalp; bald = nothing. */
+/* ---- Illustrated image hair: a flat grayscale PNG recolored in-file via an
+        SVG luminance->color filter. Placement is geo-relative so it tracks the
+        head at any body/height. (Hybrid approach: hair art drawn by eye, body
+        stays vector.) ---- */
+const HAIR_IMG = {
+  braid: { src:'_art/sideBraid_cut.png', wRx:2.69, ar:1.798, dx:0, dyTop:-0.35 },
+};
+function hcImg(geo, hid){
+  const m = HAIR_IMG[hid]; if(!m) return null;
+  const loH = shade(geo.mid, -0.45), hiH = shade(geo.mid, 0.42);
+  const lo = hexToRgb(loH), hi = hexToRgb(hiH);
+  const w = m.wRx*geo.headRx, h = w*m.ar;
+  const x = geo.cx - w/2 + (m.dx||0)*geo.headRx, y = geo.topY + m.dyTop*geo.headRx;
+  const fid = `hif_${hid}_${loH.slice(1)}`;
+  return `<filter id="${fid}" color-interpolation-filters="sRGB"><feComponentTransfer>`
+    + `<feFuncR type="table" tableValues="${(lo.r/255).toFixed(3)} ${(hi.r/255).toFixed(3)}"/>`
+    + `<feFuncG type="table" tableValues="${(lo.g/255).toFixed(3)} ${(hi.g/255).toFixed(3)}"/>`
+    + `<feFuncB type="table" tableValues="${(lo.b/255).toFixed(3)} ${(hi.b/255).toFixed(3)}"/>`
+    + `</feComponentTransfer></filter>`
+    + `<image href="${m.src}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" filter="url(#${fid})"/>`;
+}
+function sharedHairBack(geo, hid){ if(HAIR_IMG[hid]) return ''; const b = HAIR_HC[hid]; return b ? (b(geo).back || '') : ''; }
+function sharedHairFront(geo, hid){
+  if(hid==='bald') return '';
+  if(hid==='shaved') return `<g opacity="0.5">${hcCap(geo)}</g>`;
+  const im = hcImg(geo, hid); if(im) return im;
+  const b = HAIR_HC[hid];
+  if(b) return b(geo).front;
+  return avaHair(geo, hid);
+}
+
+/* ---------------------------- HAIR utilities ---------------------------- */
 /* laid edges / baby hairs along the hairline — echoes styled edges */
 function hairEdges(g, dark){
   const {cx, headCY, headRX, headRY} = g;
@@ -2581,282 +2815,35 @@ function hairEdges(g, dark){
 }
 
 function buildHairBack(g, state, P){
-  const hid = state.hair;
-  const {cx, headCY, headRX, headRY, shoulderY} = g;
-  const c = byId(CAT.hairColor,state.hairColor).v;
-  const fill = `url(#${P}hair)`;
-  const dark = shade(c,-0.26), mid = shade(c,-0.12), lite = shade(c,0.18);
-  const longTo = shoulderY + 54;
-  const crownY = headCY - headRY*0.55;
-
-  if(hid==='highPony'){
-    let s = `<path d="M ${R(cx-18)} ${R(crownY-18)} C ${R(cx-36)} ${R(crownY+18)} ${R(cx-30)} ${R(shoulderY+58)} ${R(cx-8)} ${R(shoulderY+70)} C ${R(cx+25)} ${R(shoulderY+42)} ${R(cx+34)} ${R(crownY+16)} ${R(cx+18)} ${R(crownY-18)} Z" fill="${fill}"/>`;
-    s += `<ellipse cx="${cx}" cy="${R(crownY-17)}" rx="18" ry="13" fill="${fill}" stroke="${dark}" stroke-width="1"/>`;
-    s += `<path d="M ${R(cx-8)} ${R(crownY-10)} Q ${R(cx-28)} ${R(headCY+30)} ${R(cx-10)} ${R(shoulderY+58)}" stroke="${lite}" stroke-width="4" fill="none" opacity="0.28" stroke-linecap="round"/>`;
-    return s;
-  }
-
-  if(hid==='lowBun' || hid==='sleekBun'){
-    const bunY = headCY + headRY*0.67;
-    let s = `<ellipse cx="${cx}" cy="${R(bunY)}" rx="19" ry="14" fill="${fill}" stroke="${dark}" stroke-width="1"/>`;
-    s += `<path d="M ${R(cx-15)} ${R(bunY)} Q ${cx} ${R(bunY-13)} ${R(cx+15)} ${R(bunY+1)} Q ${cx} ${R(bunY+11)} ${R(cx-13)} ${R(bunY+4)}" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.5"/>`;
-    return s;
-  }
-
-  if(hid==='clawClip'){
-    let s = `<path d="M ${R(cx-28)} ${R(crownY+12)} C ${R(cx-34)} ${R(headCY+12)} ${R(cx-18)} ${R(shoulderY+34)} ${R(cx-8)} ${R(shoulderY+56)} C ${R(cx+20)} ${R(shoulderY+34)} ${R(cx+34)} ${R(headCY+8)} ${R(cx+26)} ${R(crownY+12)} Q ${cx} ${R(crownY-8)} ${R(cx-28)} ${R(crownY+12)} Z" fill="${fill}"/>`;
-    s += `<rect x="${R(cx-14)}" y="${R(crownY+17)}" width="28" height="20" rx="7" fill="#cda14e" stroke="${shade('#cda14e',-0.25)}" stroke-width="1" opacity="0.92"/>`;
-    for(let index=0; index<4; index++) s += `<line x1="${R(cx-9+index*6)}" y1="${R(crownY+20)}" x2="${R(cx-9+index*6)}" y2="${R(crownY+34)}" stroke="${shade('#cda14e',-0.35)}" stroke-width="1" opacity="0.55"/>`;
-    return s;
-  }
-
-  if(hid==='sideBraid'){
-    let s = `<path d="M ${R(cx-headRX-4)} ${R(crownY+9)} C ${R(cx-headRX-18)} ${R(headCY+18)} ${R(cx-headRX-5)} ${R(shoulderY+20)} ${R(cx+headRX+19)} ${R(shoulderY+8)} C ${R(cx+headRX+25)} ${R(headCY+26)} ${R(cx+headRX+18)} ${R(crownY+7)} ${R(cx+headRX+2)} ${R(crownY-5)} Q ${cx} ${R(crownY-13)} ${R(cx-headRX-4)} ${R(crownY+9)} Z" fill="${fill}"/>`;
-    return s;
-  }
-
-  // ---- Long flowing styles: straight / wavy / curly ----
-  if(['straightL','wavyM','curly','layers','blowout','curtain','halfUp'].includes(hid)){
-    const curl = hid==='curly', wavy = ['wavyM','layers','blowout','curtain','halfUp'].includes(hid), blown = hid==='blowout';
-    const ex = headRX + (curl?10:(blown?16:(wavy?12:6)));
-    const fallTo = longTo + ((hid==='layers'||blown)?16:0);
-    const flL = curl?-10:(wavy?-14:-2);
-    const path =
-      `M ${R(cx-ex+2)} ${R(crownY+8)}`+
-      ` C ${R(cx-ex-6)} ${R(headCY)}, ${R(cx-ex+flL)} ${R(fallTo-34)}, ${R(cx-ex+2)} ${R(fallTo-6)}`+
-      ` Q ${cx} ${R(fallTo+14)} ${R(cx+ex-2)} ${R(fallTo-6)}`+
-      ` C ${R(cx+ex-flL)} ${R(fallTo-34)}, ${R(cx+ex+6)} ${R(headCY)}, ${R(cx+ex-2)} ${R(crownY+8)}`+
-      ` Q ${cx} ${R(crownY-6)} ${R(cx-ex+2)} ${R(crownY+8)} Z`;
-    let s = `<path d="${path}" fill="${fill}"/>`;
-    if(curl){
-      for(let i=0;i<6;i++){ const ty = headCY + i*((fallTo-headCY)/5);
-        s += `<circle cx="${R(cx-ex+1)}" cy="${R(ty)}" r="7" fill="${fill}"/>`;
-        s += `<circle cx="${R(cx+ex-1)}" cy="${R(ty)}" r="7" fill="${fill}"/>`;
-      }
-    }
-    // strand flow lines
-    for(let i=-3;i<=3;i++){
-      const sx = cx + i*(ex*0.55)/3;
-      const bx = cx + i*(ex*0.85)/3;
-      const dx = wavy ? ((i%2)?8:-8) : 0;
-      const col = (i%2===0)? mid : dark;
-      s += `<path d="M ${R(sx)} ${R(crownY+14)} Q ${R((sx+bx)/2+dx)} ${R(headCY+36)} ${R(bx)} ${R(fallTo-10)}" stroke="${col}" stroke-width="${(i%2===0)?1.5:1}" fill="none" opacity="0.5" stroke-linecap="round"/>`;
-    }
-    s += `<path d="M ${R(cx-ex*0.42)} ${R(crownY+16)} Q ${R(cx-ex*0.34)} ${R(headCY+28)} ${R(cx-ex*0.24)} ${R(fallTo-18)}" stroke="${lite}" stroke-width="5" fill="none" opacity="0.28" stroke-linecap="round"/>`;
-    if(hid==='layers' || blown) s += `<path d="M ${R(cx+ex*.22)} ${R(headCY+10)} Q ${R(cx+ex*.55)} ${R(headCY+60)} ${R(cx+ex*.12)} ${R(fallTo+2)}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.34" stroke-linecap="round"/>`;
-    return s;
-  }
-
-  // ---- Afro / puff volume behind head ----
-  if(hid==='coily' || hid==='puff'){
-    const rx = headRX + (hid==='coily'?16:6);
-    const ry = headRY + (hid==='coily'?14:-2);
-    const cyA = headCY - headRY*(hid==='coily'?0.18:0.42);
-    let s = `<ellipse cx="${cx}" cy="${R(cyA)}" rx="${R(rx)}" ry="${R(ry)}" fill="${fill}"/>`;
-    for(let yy=-0.8; yy<=0.8; yy+=0.4){
-      for(let xx=-0.8; xx<=0.8; xx+=0.34){
-        if(xx*xx + yy*yy > 0.72) continue;
-        const px = cx + xx*rx, py = cyA + yy*ry;
-        s += `<path d="M ${R(px-3)} ${R(py)} q 3 -3.5 6 0 q -3 3.5 -6 0" stroke="${dark}" stroke-width="0.9" fill="none" opacity="0.32"/>`;
-      }
-    }
-    return s;
-  }
-
-  // ---- Locs (individual, bumpy, textured) ----
-  if(hid==='locs'){
-    let s='';
-    for(let i=-3;i<=3;i++){
-      const x = cx + i*15;
-      const len = longTo - headCY + (i%2?6:-4);
-      s += `<path d="M ${R(x-5)} ${R(headCY)} C ${R(x-7)} ${R(headCY+len*0.3)} ${R(x-4)} ${R(headCY+len*0.6)} ${R(x-5)} ${R(headCY+len)} Q ${x} ${R(headCY+len+8)} ${R(x+5)} ${R(headCY+len)} C ${R(x+4)} ${R(headCY+len*0.6)} ${R(x+7)} ${R(headCY+len*0.3)} ${R(x+5)} ${R(headCY)} Z" fill="${fill}" stroke="${dark}" stroke-width="0.8"/>`;
-      for(let k=0;k<5;k++){ const ty=headCY+(k+0.5)*len/5; s+=`<path d="M ${R(x-4)} ${R(ty)} q 4 3 8 0" stroke="${dark}" stroke-width="0.9" fill="none" opacity="0.4"/>`; }
-    }
-    return s;
-  }
-
-  // ---- Box braids (long, with chevron plait + cuffs) ----
-  if(hid==='braids'){
-    let s='';
-    for(let i=-3;i<=3;i++){
-      const x = cx + i*13;
-      const len = longTo - headCY + 16 + (i%2?8:0);
-      s += `<path d="M ${R(x-4)} ${R(headCY)} L ${R(x-4)} ${R(headCY+len)} Q ${x} ${R(headCY+len+7)} ${R(x+4)} ${R(headCY+len)} L ${R(x+4)} ${R(headCY)} Z" fill="${fill}"/>`;
-      const n = Math.floor(len/8);
-      for(let k=0;k<n;k++){ const ty=headCY+k*8;
-        s+=`<path d="M ${R(x-4)} ${R(ty)} L ${R(x+4)} ${R(ty+4)}" stroke="${dark}" stroke-width="1" opacity="0.5"/>`;
-        s+=`<path d="M ${R(x+4)} ${R(ty)} L ${R(x-4)} ${R(ty+4)}" stroke="${dark}" stroke-width="1" opacity="0.5"/>`;
-      }
-      s+=`<circle cx="${x}" cy="${R(headCY+len+8)}" r="3" fill="${mid}"/>`;
-    }
-    return s;
-  }
-  return '';
+  const c = byId(CAT.hairColor, state.hairColor).v;
+  const geo = {
+    cx: g.cx, headCy: g.headCY, headRx: g.headRX, headRy: g.headRY,
+    topY: g.headCY - g.headRY,
+    crownY: g.headCY - g.headRY * 0.55,
+    hairlineY: g.headCY - g.headRY * 0.42,
+    napeY: g.headCY + g.headRY + 6,
+    fallTo: g.shoulderY + 54,
+    fill: `url(#${P}hair)`,
+    dark: shade(c, -0.26), mid: shade(c, -0.12), lite: shade(c, 0.18),
+    R,
+  };
+  return sharedHairBack(geo, state.hair);
 }
 
 function buildHairFront(g, state, P){
-  const hid = state.hair;
-  const {cx, headCY, headRX, headRY, shoulderY} = g;
-  const c = byId(CAT.hairColor,state.hairColor).v;
-  const fill = `url(#${P}hair)`;
-  const dark = shade(c,-0.26), mid = shade(c,-0.12), lite = shade(c,0.2);
-  const topY = headCY - headRY;
-  const hy = headCY - headRY*0.42;        // forehead hairline
-  if(hid==='bald') return '';
-
-  // crown cap helper (open path along the top, ending at right hairline)
-  function crownCap(){
-    return `M ${R(cx-headRX-2)} ${R(hy+4)}`+
-      ` C ${R(cx-headRX-3)} ${R(topY)}, ${R(cx-headRX*0.5)} ${R(topY-9)}, ${cx} ${R(topY-9)}`+
-      ` C ${R(cx+headRX*0.5)} ${R(topY-9)}, ${R(cx+headRX+3)} ${R(topY)}, ${R(cx+headRX+2)} ${R(hy+4)}`;
-  }
-  const simpleClose = `Q ${cx} ${R(hy-4)} ${R(cx-headRX-2)} ${R(hy+4)} Z`;
-
-  // ---- very short ----
-  if(hid==='shaved' || hid==='buzz'){
-    const op = hid==='shaved'? 0.55 : 1;
-    let s = `<path d="${crownCap()} ${simpleClose}" fill="${fill}" opacity="${op}"/>`;
-    for(let yy=0; yy<4; yy++) for(let xx=-3; xx<=3; xx++){
-      const px = cx+xx*9 + (yy%2?4:0), py = topY+2+yy*9;
-      s += `<circle cx="${R(px)}" cy="${R(py)}" r="0.9" fill="${dark}" opacity="0.4"/>`;
-    }
-    return s;
-  }
-
-  if(hid==='highPony'){
-    let s = `<path d="${crownCap()} C ${R(cx+headRX-8)} ${R(hy-2)} ${R(cx+13)} ${R(hy-12)} ${cx} ${R(topY-9)} C ${R(cx-13)} ${R(hy-12)} ${R(cx-headRX+8)} ${R(hy-2)} ${R(cx-headRX-2)} ${R(hy+4)} Z" fill="${fill}"/>`;
-    for(let index=-3; index<=3; index++) s += `<path d="M ${R(cx+index*headRX*.22)} ${R(hy)} Q ${R(cx+index*5)} ${R(topY+1)} ${cx} ${R(topY-12)}" stroke="${index%2?mid:dark}" stroke-width="1.2" fill="none" opacity="0.45" stroke-linecap="round"/>`;
-    s += `<ellipse cx="${cx}" cy="${R(topY-14)}" rx="17" ry="12" fill="${fill}" stroke="${dark}" stroke-width="1"/>`;
-    s += `<path d="M ${R(cx-headRX-4)} ${R(hy+2)} q -8 18 -5 32" stroke="${dark}" stroke-width="1.8" fill="none" opacity="0.4" stroke-linecap="round"/>`;
-    s += `<path d="M ${R(cx+headRX+4)} ${R(hy+2)} q 8 18 5 32" stroke="${dark}" stroke-width="1.8" fill="none" opacity="0.4" stroke-linecap="round"/>`;
-    return s;
-  }
-
-  if(hid==='lowBun' || hid==='sleekBun'){
-    let s = `<path d="${crownCap()} C ${R(cx+headRX-4)} ${R(hy+2)} ${R(cx+20)} ${R(hy-2)} ${R(cx+4)} ${R(hy-5)} Q ${cx} ${R(topY+3)} ${R(cx-4)} ${R(hy-5)} C ${R(cx-20)} ${R(hy-2)} ${R(cx-headRX+4)} ${R(hy+2)} ${R(cx-headRX-2)} ${R(hy+4)} Z" fill="${fill}"/>`;
-    s += `<line x1="${cx}" y1="${R(topY-4)}" x2="${cx}" y2="${R(hy+3)}" stroke="${dark}" stroke-width="1.2" opacity="0.42"/>`;
-    s += `<path d="M ${R(cx-headRX-3)} ${R(hy+1)} q -7 20 -2 36" stroke="${dark}" stroke-width="1.5" fill="none" opacity="0.35" stroke-linecap="round"/>`;
-    s += `<path d="M ${R(cx+headRX+3)} ${R(hy+1)} q 7 20 2 36" stroke="${dark}" stroke-width="1.5" fill="none" opacity="0.35" stroke-linecap="round"/>`;
-    if(hid==='sleekBun') s += hairEdges(g, dark);
-    return s;
-  }
-
-  if(hid==='clawClip'){
-    let s = `<path d="${crownCap()} C ${R(cx+headRX-8)} ${R(headCY-headRY*0.06)} ${R(cx+16)} ${R(hy-2)} ${R(cx+5)} ${R(hy-5)} Q ${cx} ${R(hy-11)} ${R(cx-5)} ${R(hy-5)} C ${R(cx-16)} ${R(hy-2)} ${R(cx-headRX+8)} ${R(headCY-headRY*0.06)} ${R(cx-headRX-2)} ${R(hy+4)} Z" fill="${fill}"/>`;
-    s += `<rect x="${R(cx-13)}" y="${R(topY+8)}" width="26" height="18" rx="7" fill="#cda14e" stroke="${shade('#cda14e',-0.25)}" stroke-width="1" opacity="0.95"/>`;
-    s += `<path d="M ${R(cx-headRX-4)} ${R(hy)} C ${R(cx-headRX-12)} ${R(headCY+15)} ${R(cx-headRX-8)} ${R(headCY+48)} ${R(cx-headRX+2)} ${R(headCY+55)}" stroke="${fill}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
-    s += `<path d="M ${R(cx+headRX+4)} ${R(hy)} C ${R(cx+headRX+12)} ${R(headCY+15)} ${R(cx+headRX+8)} ${R(headCY+48)} ${R(cx+headRX-2)} ${R(headCY+55)}" stroke="${fill}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
-    return s;
-  }
-
-  if(hid==='sideBraid'){
-    let s = `<path d="${crownCap()} C ${R(cx+headRX+7)} ${R(headCY-headRY*0.08)} ${R(cx+20)} ${R(hy-4)} ${R(cx+5)} ${R(hy-5)} Q ${R(cx-5)} ${R(topY+1)} ${R(cx-headRX-2)} ${R(hy+4)} Z" fill="${fill}"/>`;
-    s += `<path d="M ${R(cx-headRX+4)} ${R(hy+3)} Q ${R(cx+8)} ${R(hy-18)} ${R(cx+headRX+6)} ${R(hy+8)}" stroke="${lite}" stroke-width="4" fill="none" opacity="0.28" stroke-linecap="round"/>`;
-    const braidX = cx + headRX + 13;
-    const braidTop = hy + 8;
-    const braidLen = shoulderY + 76 - braidTop;
-    s += `<path d="M ${R(braidX-9)} ${R(braidTop)} C ${R(braidX-13)} ${R(braidTop+braidLen*.25)} ${R(braidX-7)} ${R(braidTop+braidLen*.72)} ${R(braidX-5)} ${R(braidTop+braidLen)} Q ${R(braidX)} ${R(braidTop+braidLen+7)} ${R(braidX+5)} ${R(braidTop+braidLen)} C ${R(braidX+7)} ${R(braidTop+braidLen*.72)} ${R(braidX+13)} ${R(braidTop+braidLen*.25)} ${R(braidX+9)} ${R(braidTop)} Z" fill="${fill}" stroke="${dark}" stroke-width=".8"/>`;
-    for(let step=0; step<9; step++){
-      const braidY = braidTop + step*braidLen/9;
-      s += `<path d="M ${R(braidX-8)} ${R(braidY)} L ${R(braidX+8)} ${R(braidY+6)} M ${R(braidX+8)} ${R(braidY)} L ${R(braidX-8)} ${R(braidY+6)}" stroke="${dark}" stroke-width="1" opacity="0.45"/>`;
-    }
-    return s;
-  }
-
-  // ---- straight / wavy / curly: center part + face-framing ----
-  if(['straightL','wavyM','curly','layers','blowout','curtain','halfUp'].includes(hid)){
-    let s = `<path d="${crownCap()}`+
-      ` C ${R(cx+headRX-8)} ${R(headCY-headRY*0.1)}, ${R(cx+16)} ${R(hy-4)}, ${R(cx+4)} ${R(hy-6)}`+
-      ` Q ${cx} ${R(hy-16)} ${R(cx-4)} ${R(hy-6)}`+
-      ` C ${R(cx-16)} ${R(hy-4)}, ${R(cx-headRX+8)} ${R(headCY-headRY*0.1)}, ${R(cx-headRX-2)} ${R(hy+4)} Z" fill="${fill}"/>`;
-    // face-framing swoops over the temples
-    s += `<path d="M ${R(cx-headRX-2)} ${R(hy)} C ${R(cx-headRX-8)} ${R(headCY+10)} ${R(cx-headRX-4)} ${R(headCY+headRY*0.5)} ${R(cx-headRX+2)} ${R(headCY+headRY*0.55)} Q ${R(cx-headRX-6)} ${R(headCY+headRY*0.2)} ${R(cx-headRX-2)} ${R(hy)} Z" fill="${fill}"/>`;
-    s += `<path d="M ${R(cx+headRX+2)} ${R(hy)} C ${R(cx+headRX+8)} ${R(headCY+10)} ${R(cx+headRX+4)} ${R(headCY+headRY*0.5)} ${R(cx+headRX-2)} ${R(headCY+headRY*0.55)} Q ${R(cx+headRX+6)} ${R(headCY+headRY*0.2)} ${R(cx+headRX+2)} ${R(hy)} Z" fill="${fill}"/>`;
-    // strands fanning from the part
-    for(let i=-3;i<=3;i++){ if(i===0) continue;
-      s += `<path d="M ${cx} ${R(topY+6)} Q ${R(cx + i*headRX*0.3)} ${R(hy-6)} ${R(cx + i*headRX*0.42)} ${R(hy+2)}" stroke="${(i%2?mid:dark)}" stroke-width="${i%2?1:1.4}" fill="none" opacity="0.45" stroke-linecap="round"/>`;
-    }
-    s += `<path d="M ${R(cx-headRX*0.4)} ${R(topY+8)} Q ${R(cx-headRX*0.5)} ${R(headCY-headRY*0.2)} ${R(cx-headRX*0.3)} ${R(hy+4)}" stroke="${lite}" stroke-width="4" fill="none" opacity="0.3" stroke-linecap="round"/>`;
-    if(hid==='curtain' || hid==='layers' || hid==='blowout'){
-      s += `<path d="M ${R(cx-3)} ${R(topY+2)} C ${R(cx-22)} ${R(topY+12)} ${R(cx-28)} ${R(hy+22)} ${R(cx-18)} ${R(headCY+12)}" stroke="${fill}" stroke-width="11" fill="none" stroke-linecap="round"/>`;
-      s += `<path d="M ${R(cx+3)} ${R(topY+2)} C ${R(cx+22)} ${R(topY+12)} ${R(cx+28)} ${R(hy+22)} ${R(cx+18)} ${R(headCY+12)}" stroke="${fill}" stroke-width="11" fill="none" stroke-linecap="round"/>`;
-      s += `<path d="M ${R(cx-2)} ${R(topY+3)} C ${R(cx-15)} ${R(topY+13)} ${R(cx-18)} ${R(hy+24)} ${R(cx-10)} ${R(headCY+10)}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.38" stroke-linecap="round"/>`;
-      s += `<path d="M ${R(cx+2)} ${R(topY+3)} C ${R(cx+15)} ${R(topY+13)} ${R(cx+18)} ${R(hy+24)} ${R(cx+10)} ${R(headCY+10)}" stroke="${dark}" stroke-width="1.1" fill="none" opacity="0.38" stroke-linecap="round"/>`;
-    }
-    if(hid==='blowout'){
-      s += `<path d="M ${R(cx-headRX-2)} ${R(hy+8)} Q ${R(cx-headRX-18)} ${R(headCY+20)} ${R(cx-headRX-4)} ${R(headCY+42)}" stroke="${fill}" stroke-width="13" fill="none" stroke-linecap="round"/>`;
-      s += `<path d="M ${R(cx+headRX+2)} ${R(hy+8)} Q ${R(cx+headRX+18)} ${R(headCY+20)} ${R(cx+headRX+4)} ${R(headCY+42)}" stroke="${fill}" stroke-width="13" fill="none" stroke-linecap="round"/>`;
-    }
-    if(hid==='halfUp'){
-      s += `<ellipse cx="${cx}" cy="${R(topY-5)}" rx="14" ry="9" fill="${fill}" stroke="${dark}" stroke-width=".9"/>`;
-      s += `<path d="M ${R(cx-11)} ${R(topY-6)} Q ${cx} ${R(topY-14)} ${R(cx+11)} ${R(topY-5)}" stroke="${lite}" stroke-width="3" fill="none" opacity="0.35" stroke-linecap="round"/>`;
-    }
-    if(hid==='curly'){
-      for(let i=-3;i<=3;i++){ const x=cx+i*11; s+=`<circle cx="${R(x)}" cy="${R(hy-2)}" r="5.5" fill="${fill}"/>`; s+=`<path d="M ${R(x-3)} ${R(hy-3)} q 3 -4 6 0" stroke="${dark}" stroke-width="1" fill="none" opacity="0.4"/>`; }
-      for(let k=0;k<4;k++){ const ty=headCY-headRY*0.1 + k*14; s+=`<circle cx="${R(cx-headRX-1)}" cy="${R(ty)}" r="5" fill="${fill}"/><circle cx="${R(cx+headRX+1)}" cy="${R(ty)}" r="5" fill="${fill}"/>`; }
-    }
-    return s;
-  }
-
-  // ---- afro / puff: clumped coil ring around the crown ----
-  if(hid==='coily' || hid==='puff'){
-    const big = 12;
-    const ringR = headRX + (hid==='coily'?6:2);
-    const ringY = headRY + (hid==='coily'?8:0);
-    let s='<g>';
-    const N=11;
-    for(let i=0;i<N;i++){ const a=Math.PI*(0.06+0.88*(i/(N-1))); const px=cx-Math.cos(a)*ringR; const py=headCY-Math.sin(a)*ringY; s+=`<circle cx="${R(px)}" cy="${R(py)}" r="${big}" fill="${fill}"/>`; }
-    for(let i=0;i<7;i++){ const a=Math.PI*(0.12+0.76*(i/6)); const px=cx-Math.cos(a)*ringR*0.6; const py=headCY-Math.sin(a)*(ringY*0.7); s+=`<circle cx="${R(px)}" cy="${R(py)}" r="${big*0.9}" fill="${fill}"/>`; }
-    s+='</g>';
-    for(let i=0;i<N;i++){ const a=Math.PI*(0.1+0.8*(i/(N-1))); const px=cx-Math.cos(a)*ringR*0.85; const py=headCY-Math.sin(a)*(ringY*0.92); s+=`<path d="M ${R(px-3)} ${R(py)} q 3 -4 6 0 q -3 4 -6 0" stroke="${dark}" stroke-width="1" fill="none" opacity="0.4"/>`; }
-    s+=`<circle cx="${R(cx-headRX*0.4)}" cy="${R(topY+6)}" r="3.5" fill="${lite}" opacity="0.4"/>`;
-    s+=`<circle cx="${R(cx+headRX*0.2)}" cy="${R(topY+2)}" r="3" fill="${lite}" opacity="0.35"/>`;
-    if(hid==='puff') s += hairEdges(g, dark);
-    return s;
-  }
-
-  // ---- locs (top, radiating) ----
-  if(hid==='locs'){
-    let s = `<path d="${crownCap()} ${simpleClose}" fill="${fill}"/>`;
-    for(let i=-3;i<=3;i++){ const x=cx+i*13; s+=`<path d="M ${R(x)} ${R(topY-6)} C ${R(x-2)} ${R(topY+headRY*0.2)} ${R(x+2)} ${R(headCY-headRY*0.4)} ${R(x)} ${R(hy)}" stroke="${dark}" stroke-width="2" fill="none" opacity="0.55"/>`;
-      for(let k=0;k<3;k++){ const ty=topY+4+k*10; s+=`<path d="M ${R(x-4)} ${R(ty)} q 4 3 8 0" stroke="${dark}" stroke-width="0.9" fill="none" opacity="0.4"/>`; }
-    }
-    return s;
-  }
-
-  // ---- cornrows (curved scalp rows + stitch ticks) ----
-  if(hid==='cornrows'){
-    let s = `<path d="${crownCap()} ${simpleClose}" fill="${fill}"/>`;
-    for(let i=-3;i<=3;i++){ const x0=cx+i*11;
-      s += `<path d="M ${R(x0)} ${R(hy+2)} C ${R(x0)} ${R(headCY-headRY*0.3)} ${R(cx+i*7)} ${R(topY+4)} ${R(cx+i*5)} ${R(topY-4)}" stroke="${dark}" stroke-width="2.2" fill="none" opacity="0.6"/>`;
-      for(let k=1;k<5;k++){ const t=k/5; const yy=hy+2 + t*(topY-hy-6); const xx=x0 + (cx+i*5 - x0)*t*t; s+=`<line x1="${R(xx-2)}" y1="${R(yy)}" x2="${R(xx+2)}" y2="${R(yy)}" stroke="${lite}" stroke-width="0.8" opacity="0.5"/>`; }
-    }
-    return s;
-  }
-
-  // ---- box braids (part grid + front braids) ----
-  if(hid==='braids'){
-    let s = `<path d="${crownCap()} ${simpleClose}" fill="${fill}"/>`;
-    for(let i=-2;i<=2;i++){ const x=cx+i*12; s+=`<line x1="${R(x)}" y1="${R(topY-2)}" x2="${R(x)}" y2="${R(hy)}" stroke="${dark}" stroke-width="1" opacity="0.4"/>`; }
-    for(let j=0;j<3;j++){ const yy=topY+2+j*((hy-topY)/3); s+=`<line x1="${R(cx-headRX+6)}" y1="${R(yy)}" x2="${R(cx+headRX-6)}" y2="${R(yy)}" stroke="${dark}" stroke-width="1" opacity="0.3"/>`; }
-    for(let i=-2;i<=2;i++){ const x=cx+i*13; s+=`<path d="M ${R(x)} ${R(topY)} L ${R(x)} ${R(hy)}" stroke="${dark}" stroke-width="2.4" opacity="0.5"/>`; }
-    return s;
-  }
-
-  // ---- sleek top bun ----
-  if(hid==='bun'){
-    let s = `<path d="${crownCap()} C ${R(cx+headRX-6)} ${R(hy-2)} ${R(cx+10)} ${R(hy-8)} ${cx} ${R(hy-8)} C ${R(cx-10)} ${R(hy-8)} ${R(cx-headRX+6)} ${R(hy-2)} ${R(cx-headRX-2)} ${R(hy+4)} Z" fill="${fill}"/>`;
-    for(let i=-3;i<=3;i++){ const x0=cx+i*headRX*0.28; s+=`<path d="M ${R(x0)} ${R(hy-2)} Q ${R(cx+i*4)} ${R(topY+2)} ${cx} ${R(topY-6)}" stroke="${(i%2?mid:dark)}" stroke-width="${i%2?1:1.3}" fill="none" opacity="0.45" stroke-linecap="round"/>`; }
-    s += `<ellipse cx="${cx}" cy="${R(topY-10)}" rx="15" ry="13" fill="${fill}" stroke="${dark}" stroke-width="1"/>`;
-    s += `<path d="M ${R(cx-11)} ${R(topY-12)} Q ${cx} ${R(topY-22)} ${R(cx+11)} ${R(topY-10)} Q ${cx} ${R(topY-2)} ${R(cx-9)} ${R(topY-8)}" stroke="${dark}" stroke-width="1.2" fill="none" opacity="0.5"/>`;
-    s += `<ellipse cx="${R(cx-4)}" cy="${R(topY-14)}" rx="4" ry="3" fill="${lite}" opacity="0.35"/>`;
-    s += `<path d="M ${R(cx-headRX-1)} ${R(hy+2)} q -6 ${R(headRY*0.5)} -2 ${R(headRY*0.8)}" stroke="${dark}" stroke-width="2" fill="none" opacity="0.45" stroke-linecap="round"/>`;
-    s += `<path d="M ${R(cx+headRX+1)} ${R(hy+2)} q 6 ${R(headRY*0.5)} 2 ${R(headRY*0.8)}" stroke="${dark}" stroke-width="2" fill="none" opacity="0.45" stroke-linecap="round"/>`;
-    s += hairEdges(g, dark);
-    return s;
-  }
-
-  return `<path d="${crownCap()} ${simpleClose}" fill="${fill}"/>`;
+  const c = byId(CAT.hairColor, state.hairColor).v;
+  const geo = {
+    cx: g.cx, headCy: g.headCY, headRx: g.headRX, headRy: g.headRY,
+    topY: g.headCY - g.headRY,
+    crownY: g.headCY - g.headRY * 0.55,
+    hairlineY: g.headCY - g.headRY * 0.42,
+    napeY: g.headCY + g.headRY + 6,
+    fallTo: g.shoulderY + 54,
+    fill: `url(#${P}hair)`,
+    dark: shade(c, -0.26), mid: shade(c, -0.12), lite: shade(c, 0.18),
+    R,
+  };
+  return sharedHairFront(geo, state.hair);
 }
 
 /* ---------------------------- GARMENTS ---------------------------- */
@@ -3269,17 +3256,17 @@ const HEAD_VB = '92 6 136 174';
 function randOf(arr){ return arr[Math.floor(Math.random()*arr.length)].id; }
 function pickId(ids){ return ids[Math.floor(Math.random()*ids.length)]; }
 const LATINO_FIRST_SKINS = ['s8','s9','s10','s11','s12'];
-const LATINO_FIRST_HAIR = ['layers','blowout','curtain','halfUp','highPony','lowBun','sideBraid','clawClip','sleekBun','straightL','wavyM','curly'];
+const LATINO_FIRST_HAIR = ['straightL','wavyM','layers','bob','curtain','halfUp','highPony','lowPony','highBun','lowBun','crownBraid','braid','pigtails'];
 const LATINO_FIRST_HAIR_COLORS = ['h1','h2','h3','h4','h5','h6','h7'];
 const LATINO_PREVIEW_BASES = [
   { skin:'s9',  hair:'layers',    hairColor:'h3', faceShape:'oval',    brow:'arched', eye:'almond', nose:'round',  lip:'full',    body:'average', height:'h2',    makeup:'natural', makeupColor:'m_rose' },
-  { skin:'s8',  hair:'blowout',   hairColor:'h4', faceShape:'heart',   brow:'thick',  eye:'almond', nose:'button', lip:'bow',     body:'curvy',   height:'h2',    makeup:'liner',   makeupColor:'m_bronze' },
+  { skin:'s8',  hair:'highBun',   hairColor:'h4', faceShape:'heart',   brow:'thick',  eye:'almond', nose:'button', lip:'bow',     body:'curvy',   height:'h2',    makeup:'liner',   makeupColor:'m_bronze' },
   { skin:'s10', hair:'curtain',   hairColor:'h3', faceShape:'round',   brow:'soft',   eye:'hooded',  nose:'round',  lip:'neutral', body:'average', height:'h1',    makeup:'natural', makeupColor:'m_nude' },
-  { skin:'s11', hair:'halfUp',    hairColor:'h2', faceShape:'diamond', brow:'arched', eye:'wide',    nose:'narrow', lip:'wide',    body:'athletic',height:'h3',    makeup:'glam',    makeupColor:'m_coral' },
-  { skin:'s10', hair:'highPony',  hairColor:'h3', faceShape:'long',    brow:'straight',eye:'almond', nose:'long',   lip:'small',   body:'slim',    height:'h2',    makeup:'liner',   makeupColor:'m_red' },
-  { skin:'s9',  hair:'clawClip',  hairColor:'h2', faceShape:'square',  brow:'thick',  eye:'round',   nose:'wide',   lip:'full',    body:'average', height:'h3',    makeup:'smoky',   makeupColor:'m_berry' },
-  { skin:'s8',  hair:'lowBun',    hairColor:'h4', faceShape:'oval',    brow:'soft',   eye:'hooded',  nose:'button', lip:'bow',     body:'average', height:'h2',    makeup:'natural', makeupColor:'m_rose' },
-  { skin:'s11', hair:'sideBraid', hairColor:'h3', faceShape:'heart',   brow:'arched', eye:'wide',    nose:'round',  lip:'neutral', body:'curvy',   height:'h1',    makeup:'bold',    makeupColor:'m_red' },
+  { skin:'s11', hair:'pigtails',       hairColor:'h2', faceShape:'diamond', brow:'arched', eye:'wide',    nose:'narrow', lip:'wide',    body:'athletic',height:'h3',    makeup:'glam',    makeupColor:'m_coral' },
+  { skin:'s10', hair:'highPony',       hairColor:'h3', faceShape:'long',    brow:'straight',eye:'almond', nose:'long',   lip:'small',   body:'slim',    height:'h2',    makeup:'liner',   makeupColor:'m_red' },
+  { skin:'s9',  hair:'crownBraid',     hairColor:'h2', faceShape:'square',  brow:'thick',  eye:'round',   nose:'wide',   lip:'full',    body:'average', height:'h3',    makeup:'smoky',   makeupColor:'m_berry' },
+  { skin:'s8',  hair:'bob',       hairColor:'h4', faceShape:'oval',    brow:'soft',   eye:'hooded',  nose:'button', lip:'bow',     body:'average', height:'h2',    makeup:'natural', makeupColor:'m_rose' },
+  { skin:'s11', hair:'braid',      hairColor:'h3', faceShape:'heart',   brow:'arched', eye:'wide',    nose:'round',  lip:'neutral', body:'curvy',   height:'h1',    makeup:'bold',    makeupColor:'m_red' },
 ];
 function stableIndex(id, length){
   let total = 0;
