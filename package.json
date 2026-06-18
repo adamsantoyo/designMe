@@ -4,7 +4,8 @@
   "private": true,
   "description": "A no-typing, recognition-first avatar creator and style explorer built for self-expression and autonomy.",
   "scripts": {
-    "playwright": "playwright"
+    "playwright": "playwright",
+    "validate:catalog": "node tools/validate-catalog.js"
   },
   "repository": {
     "type": "git",
