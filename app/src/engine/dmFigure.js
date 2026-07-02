@@ -161,8 +161,8 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
       ` C${P(-1, K.wa, K.waist)} ${P(-1, K.hp - 3, K.hip - 16)} ${P(-1, K.hp, K.hip + 2)} L${P(1, K.hp, K.hip + 2)}` +
       ` C${P(1, K.hp - 3, K.hip - 16)} ${P(1, K.wa, K.waist)} ${P(1, K.wa + 1, K.waist - 10)}` +
       ` C${P(1, K.ch, K.chest)} ${P(1, K.ch + 3, K.chest - 14)} ${P(1, K.sh, K.shoulder)}` +
-      ` C${P(1, K.sh - 7, K.shoulder - 9)} ${P(1, K.neckW + 5, K.neckBot)} ${P(1, K.neckW, K.neckBot - 2)}` +
-      ` L${P(-1, K.neckW, K.neckBot - 2)} C${P(-1, K.neckW + 5, K.neckBot)} ${P(-1, K.sh - 7, K.shoulder - 9)} ${P(-1, K.sh, K.shoulder)} Z`;
+      ` C${P(1, K.sh - 7, K.shoulder - 9)} ${P(1, K.neckW + 5, K.neckBot)} ${P(1, K.neckW + 1, K.neckBot - 2)}` +
+      ` L${P(-1, K.neckW + 1, K.neckBot - 2)} C${P(-1, K.neckW + 5, K.neckBot)} ${P(-1, K.sh - 7, K.shoulder - 9)} ${P(-1, K.sh, K.shoulder)} Z`;
 
     const footSkin = (s) => {
       const ax = cx + s * K.ankCx;
@@ -358,8 +358,10 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
       const neckStartR = neck === "v" ? `M${P(1, nk, nckY + 1)}` : neck === "scoop" ? `M${P(1, nk, nckY + 3)}` : neck === "high" ? `M${P(1, nk - 3, nckY)}` : `M${P(1, nk, nckY + 1)}`;
 
       // bodice: right neck → right shoulder → right side → hem → left side → left shoulder → neckline
+      // straight (boxy/oversized): soft drop-shoulder — bow gently outward just below the
+      // shoulder tip before easing into the straight body drop, instead of a near-linear cap.
       const side = (sd) => straight
-        ? `C${P(sd, shE + 0.5, K.chest)} ${P(sd, hemW, (K.chest + hemY) / 2)} ${P(sd, hemW, hemY - 6)}`
+        ? `C${P(sd, shE + 4, K.shoulder + 20)} ${P(sd, hemW, K.chest - 6)} ${P(sd, hemW, hemY - 6)}`
         : fit === "drape"
           ? `C${P(sd, chE, K.chest)} ${P(sd, hemW * 0.9, (K.chest + hemY) / 2)} ${P(sd, hemW, hemY - 8)}`
           : `C${P(sd, chE, K.chest)} ${P(sd, (fit === "fitted" ? K.wa + eS : K.wa + eS + 3), K.waist)} ${P(sd, hemW, hemY - 6)}`;
@@ -379,7 +381,7 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
       // --- helper closures for path assembly (kept tiny & local) ---
       function revSide(sd, bustY) {
         return straight
-          ? `C${P(sd, hemW, (K.chest + hemY) / 2)} ${P(sd, chE, K.chest + 6)} ${P(sd, K.ch + 2, bustY)}`
+          ? `C${P(sd, hemW, (K.chest + hemY) / 2)} ${P(sd, shE + 4, K.shoulder + 22)} ${P(sd, K.ch + 2, bustY)}`
           : `C${P(sd, (fit === "fitted" ? K.wa + eS : K.wa + eS + 3), K.waist)} ${P(sd, chE, K.chest + 4)} ${P(sd, K.ch + 2, bustY)}`;
       }
       function sideFrom(sd) {
@@ -393,7 +395,7 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
       }
       function revSideFull(sd) {
         return straight
-          ? `C${P(sd, hemW, (K.chest + hemY) / 2)} ${P(sd, shE + 0.5, K.chest)} ${P(sd, shTipX, K.shoulder + 1)}`
+          ? `C${P(sd, hemW, K.chest - 6)} ${P(sd, shE + 4, K.shoulder + 20)} ${P(sd, shTipX, K.shoulder + 1)}`
           : fit === "drape"
             ? `C${P(sd, hemW * 0.9, (K.chest + hemY) / 2)} ${P(sd, chE, K.chest)} ${P(sd, shTipX, K.shoulder + 1)}`
             : `C${P(sd, (fit === "fitted" ? K.wa + eS : K.wa + eS + 3), K.waist)} ${P(sd, chE, K.chest)} ${P(sd, shTipX, K.shoulder + 1)}`;
@@ -704,10 +706,25 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
       }
       return d;
     }
+    // organic bun: 3 overlapping offset lobes (soft ellipses) inside the same
+    // overall r-sized footprint as the old single circle, so it reads as a mass
+    // of hair rather than a ball. Strand arcs are redistributed one-per-lobe;
+    // one shared soft highlight sits across the top-left lobe cluster.
     function bunMass(x, y, r) {
-      return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fHair}"/>` +
-        [-1, 0, 1].map((k) => `<path d="M${x - r * 0.72} ${y + k * r * 0.42} Q${x} ${y - r * 0.85 + k * r * 0.42} ${x + r * 0.72} ${y + k * r * 0.42}" fill="none" stroke="${dkH}" stroke-width="1" opacity=".4"/>`).join("") +
-        `<ellipse cx="${x - r * 0.32}" cy="${y - r * 0.34}" rx="${r * 0.42}" ry="${r * 0.26}" fill="#fff" opacity=".16"/>`;
+      const lobes = [
+        { dx: -r * 0.3, dy: r * 0.08, rx: r * 0.72, ry: r * 0.62, rot: -12 },
+        { dx: r * 0.34, dy: -r * 0.06, rx: r * 0.68, ry: r * 0.58, rot: 14 },
+        { dx: r * 0.02, dy: r * 0.36, rx: r * 0.6, ry: r * 0.5, rot: 2 },
+      ];
+      let d = lobes.map((L) =>
+        `<ellipse cx="${R(x + L.dx)}" cy="${R(y + L.dy)}" rx="${R(L.rx)}" ry="${R(L.ry)}" fill="${fHair}" transform="rotate(${L.rot} ${R(x + L.dx)} ${R(y + L.dy)})"/>`
+      ).join("");
+      d += lobes.map((L, i) => {
+        const cx2 = x + L.dx, cy2 = y + L.dy, w = L.rx * 0.78;
+        return `<path d="M${R(cx2 - w)} ${R(cy2 + L.ry * 0.28)} Q${R(cx2)} ${R(cy2 - L.ry * 0.6)} ${R(cx2 + w)} ${R(cy2 + L.ry * 0.28)}" fill="none" stroke="${dkH}" stroke-width="1" opacity="${0.4 - i * 0.04}"/>`;
+      }).join("");
+      d += `<ellipse cx="${R(x - r * 0.32)}" cy="${R(y - r * 0.34)}" rx="${R(r * 0.4)}" ry="${R(r * 0.24)}" fill="#fff" opacity=".16"/>`;
+      return d;
     }
     const tie = (x, y) => `<circle cx="${x}" cy="${y}" r="3.4" fill="${dkH}"/>`;
     // long sleek fall behind the shoulders
@@ -796,6 +813,32 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
     const legSkinL = tube(K.legPts(-1), K.legWs), legSkinR = tube(K.legPts(1), K.legWs);
     const armL = tube(K.armPts(-1), K.armWs), armR = tube(K.armPts(1), K.armWs);
     const wL = K.armPts(-1)[2], wR = K.armPts(1)[2];
+    // mitt hand: rounded palm tapering slightly, subtle thumb notch on the inner
+    // side (the side facing the body midline). Same footprint as the old bare
+    // ellipse (rx=armWs[2]+1.2, ry=armWs[2]+3.5), grown by ≤2px for the thumb bump.
+    // s = wrist side (-1 left, 1 right); the thumb sits toward the body, i.e. on
+    // the +s side of the left hand and the -s side of the right hand — so the
+    // notch/thumb x-offset uses -s (mirrors correctly for left vs right).
+    function mitt(s, w) {
+      const rx = K.armWs[2] + 1.2, ry = K.armWs[2] + 3.5, cy = w[1] + 6;
+      const inner = -s; // +1 = thumb toward body on this hand
+      const px = w[0], top = cy - ry, bot = cy + ry;
+      const thumbX = px + inner * (rx - 0.6), thumbY = cy - ry * 0.15;
+      // palm: rounded quad tracing the mitt silhouette, with a small thumb lobe
+      // bulging out on the inner side and a shallow notch pinching in just below it.
+      return `<path d="M${R(px)} ${R(top)}
+        Q${R(px + rx * 0.95)} ${R(top)} ${R(px + rx)} ${R(cy - ry * 0.3)}
+        Q${R(px + rx * 1.05)} ${R(cy + ry * 0.1)} ${R(px + rx * 0.8)} ${R(cy + ry * 0.35)}
+        Q${R(px + rx * 0.55)} ${R(bot)} ${R(px)} ${R(bot)}
+        Q${R(px - rx * 0.55)} ${R(bot)} ${R(px - rx * 0.8)} ${R(cy + ry * 0.35)}
+        Q${R(px - rx * 1.05)} ${R(cy + ry * 0.1)} ${R(px - rx)} ${R(cy - ry * 0.3)}
+        Q${R(px - rx * 0.95)} ${R(top)} ${R(px)} ${R(top)} Z"
+        fill="${fSkin}"/>
+      <path d="M${R(px + inner * rx * 0.55)} ${R(cy - ry * 0.22)}
+        Q${R(thumbX)} ${R(thumbY - 2.2)} ${R(thumbX + inner * 1.6)} ${R(thumbY + 2.6)}
+        Q${R(px + inner * rx * 0.7)} ${R(cy + ry * 0.22)} ${R(px + inner * rx * 0.48)} ${R(cy + ry * 0.02)} Z"
+        fill="${fSkin}"/>`;
+    }
 
     const standingLower = `
   <path d="${legSkinL}" fill="${fSkin}"/><path d="${legSkinR}" fill="${fSkin}"/>
@@ -815,11 +858,11 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
   ${seated ? extWheel.back(ctx) : ""}
   ${extCarry.back(ctx)}
   ${coverHair ? "" : hairBack()}
-  <path d="M${P(-1, K.neckW, K.chin - 6)} L${P(-1, K.neckW + 0.5, K.neckBot + 2)} L${P(1, K.neckW + 0.5, K.neckBot + 2)} L${P(1, K.neckW, K.chin - 6)} Z" fill="${shade(skin, -0.07)}"/>
+  <path d="M${P(-1, K.neckW, K.chin - 6)} Q${P(-1, K.neckW - 0.5, (K.chin - 6 + K.neckBot + 2) / 2)} ${P(-1, K.neckW + 2, K.neckBot + 2)} L${P(1, K.neckW + 2, K.neckBot + 2)} Q${P(1, K.neckW - 0.5, (K.chin - 6 + K.neckBot + 2) / 2)} ${P(1, K.neckW, K.chin - 6)} Z" fill="${shade(skin, -0.07)}"/>
   ${seated ? extWheel.seated(ctx) : standingLower}
   <path d="${armL}" fill="${fSkin}"/><path d="${armR}" fill="${fSkin}"/>
-  <ellipse cx="${wL[0]}" cy="${wL[1] + 6}" rx="${K.armWs[2] + 1.2}" ry="${K.armWs[2] + 3.5}" fill="${fSkin}"/>
-  <ellipse cx="${wR[0]}" cy="${wR[1] + 6}" rx="${K.armWs[2] + 1.2}" ry="${K.armWs[2] + 3.5}" fill="${fSkin}"/>
+  ${mitt(-1, wL)}
+  ${mitt(1, wR)}
   <path d="${torsoPath()}" fill="${fSkin}"/>
   ${drawTop()}
   ${drawCarry("crossbody")}

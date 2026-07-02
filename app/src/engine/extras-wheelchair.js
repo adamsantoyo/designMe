@@ -19,14 +19,21 @@ const INK = "#2c2118";   // house soft-shadow ink
 function geom(ctx) {
   const { K, cx } = ctx;
   const ground = ctx.floorY ?? K.hip + (K.floor - K.hip) * 0.62;
-  // big enough to read "manual chair", small enough that the two wheels never
-  // overlap at the center for any body (inner edge stays outside the hips)
-  const rw = Math.min(50, K.hp + 6, (ground - K.hip) / 2 - 2);
+  // wheel-center offset from cx — brought in from +8 to +5 to reduce the splayed
+  // read at hero scale.
+  const WX_OFF = 5;
+  // no-overlap constraint: with wx = cx + sd*(K.hp + WX_OFF), the inner wheel edge
+  // is at cx + sd*(K.hp + WX_OFF - rw). Capping rw at (K.hp + WX_OFF - 2) guarantees
+  // that edge stays >= cx - 2 for every sd, i.e. the wheels never cross the body
+  // midline (with a small 2px margin) for any of the 5 body presets. The 50px and
+  // ground-based caps below are the visual/size caps (never bigger than reads
+  // "manual chair", never taller than the seated ground clearance).
+  const rw = Math.min(50, K.hp + WX_OFF - 2, (ground - K.hip) / 2 - 2);
   return {
     ground,
     rw,
     wy: ground - rw,
-    wx: (sd) => cx + sd * (K.hp + 8),          // wheels flanking the body
+    wx: (sd) => cx + sd * (K.hp + WX_OFF),     // wheels flanking the body
     fy: K.hip + (K.floor - K.hip) * 0.44,      // footrest level
     kx: (sd) => cx + sd * (K.thighCx + 5),     // seated knee x
   };
@@ -37,10 +44,13 @@ export default {
     const { K, cx, R, line, shade } = ctx;
     const g = geom(ctx);
     let s = "";
+    // tire stroke scales with wheel radius so hero-scale chairs don't look
+    // thin-rimmed; floor is the small-wheel (child-height) case.
+    const tireSw = Math.max(5, g.rw * 0.14);
     for (const sd of [-1, 1]) {
       const wx = R(g.wx(sd));
       // tire + soft upper highlight
-      s += `<circle cx="${wx}" cy="${R(g.wy)}" r="${R(g.rw)}" fill="none" stroke="${TIRE}" stroke-width="5"/>`;
+      s += `<circle cx="${wx}" cy="${R(g.wy)}" r="${R(g.rw)}" fill="none" stroke="${TIRE}" stroke-width="${R(tireSw)}"/>`;
       s += line(`M${R(wx - g.rw * 0.8)} ${R(g.wy - g.rw * 0.55)} A${R(g.rw)} ${R(g.rw)} 0 0 1 ${R(wx + g.rw * 0.3)} ${R(g.wy - g.rw * 0.95)}`, shade(TIRE, 0.32), 1.8, .45);
       // 6 thin spokes + hub
       let sp = "";
@@ -72,8 +82,13 @@ export default {
     const { K, cx, R, tube, line, shade, sideShade, fills, colors } = ctx;
     const g = geom(ctx), dkB = shade(colors.botC, -0.22);
     let s = `<ellipse cx="${cx}" cy="${K.hip + 8}" rx="${R(K.hp * 0.85)}" ry="4" fill="${INK}" opacity=".14"/>`;
+    // center connecting fill: closes the seated crotch gap between the two thigh
+    // tops (raised to 0.9 below, but at hero scale even a narrow gap can show
+    // background) with a soft rounded shape spanning the thigh-top rows. Drawn
+    // before the thighs/split line so the trouser center-split reads on top of it.
+    s += `<path d="M${R(cx - K.thighCx * 0.42)} ${K.hip + 9} Q${cx} ${K.hip + 6} ${R(cx + K.thighCx * 0.42)} ${K.hip + 9} L${R(cx + K.thighCx * 0.36)} ${K.hip + 20} Q${cx} ${K.hip + 24} ${R(cx - K.thighCx * 0.36)} ${K.hip + 20} Z" fill="${fills.bot}"/>`;
     for (const sd of [-1, 1]) {
-      const hx = cx + sd * K.thighCx * 0.75, kx = g.kx(sd);
+      const hx = cx + sd * K.thighCx * 0.9, kx = g.kx(sd);
       const thigh = tube([[hx, K.hip + 9], [kx, K.hip + 32]], [K.thW + 2.5, K.thW + 0.5]);
       const shin = tube([[kx, K.hip + 30], [kx, g.fy + 2]], [K.kneeW + 1.5, K.ankW + 1.5]);
       s += `<path d="${shin}" fill="${fills.bot}"/>` + sideShade(shin);
@@ -91,10 +106,11 @@ export default {
     const { K, cx, R, line, shade } = ctx;
     const g = geom(ctx);
     let s = "";
+    const rimSw = Math.max(2.4, g.rw * 0.07);
     for (const sd of [-1, 1]) {
       const wx = R(g.wx(sd));
       // push rim over the figure
-      s += `<circle cx="${wx}" cy="${R(g.wy)}" r="${R(g.rw - 8)}" fill="none" stroke="${FRAME}" stroke-width="2.4" opacity=".9"/>`;
+      s += `<circle cx="${wx}" cy="${R(g.wy)}" r="${R(g.rw - 8)}" fill="none" stroke="${FRAME}" stroke-width="${R(rimSw)}" opacity=".9"/>`;
       // armrest: pad above the wheel + support down to the seat edge
       s += `<rect x="${R(cx + sd * (K.hp - 2) - (sd > 0 ? 0 : 20))}" y="${K.hip - 9}" width="20" height="5" rx="2.5" fill="${SEAT}"/>`;
       s += line(`M${R(cx + sd * (K.hp + 6))} ${K.hip - 4} L${R(cx + sd * (K.hp + 6))} ${K.hip + 6}`, FRAME, 3, .95);

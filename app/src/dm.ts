@@ -6,7 +6,7 @@
 export type ColorOpt = { v: string; label: string };
 export type Item = { id: string; label: string };
 export type GarmentItem = { id: string; label: string; attrs: Record<string, any> };
-export type Vibe = { id: string; label: string; note: string; ov: Partial<Av> };
+export type Vibe = { id: string; label: string; tag: string; note: string; ov: Partial<Av> };
 
 // 14 skin tones (art-bible §3, s1–s14) — never a light default.
 // Labels are for screen readers: every tone must be distinguishable non-visually.
@@ -195,30 +195,30 @@ export const defaultAv: Av = {
 // Vibes are recipes, not images: garments + colors only. A vibe NEVER changes the
 // person (skin, body, hair, face, assistive tech) — clothes are moods, identity isn't.
 export const vibes: Vibe[] = [
-  { id: "v_weekend", label: "Weekend Easy", note: "soft tee, jeans, sneakers", ov: { top: "plainTee", topColor: "#e6dcc6", bottom: "straightJean", bottomColor: "#5a6f8c", layer: "none", shoes: "classicSneaker", pattern: "none" } },
-  { id: "v_cozyknit", label: "Cozy Knit", note: "chunky knit, soft trousers, loafers", ov: { top: "sweater", topColor: "#c08457", bottom: "wideTrouser", bottomColor: "#5e4334", layer: "none", shoes: "loafer", pattern: "none" } },
-  { id: "v_linen", label: "Linen Calm", note: "relaxed shirt, shorts, slides", ov: { top: "button", topColor: "#f1e9d8", bottom: "shorts", bottomColor: "#e6dcc6", layer: "none", shoes: "slide", pattern: "none" } },
-  { id: "v_bookstore", label: "Bookstore Soft", note: "cardigan, midi skirt, flats", ov: { top: "cardigan", topColor: "#8aa382", bottom: "midiSkirt", bottomColor: "#5e4334", layer: "none", shoes: "balletFlat", pattern: "none" } },
-  { id: "v_romantic", label: "Soft Romantic", note: "soft cardigan, cream skirt", ov: { top: "cardigan", topColor: "#d39aa3", bottom: "midiSkirt", bottomColor: "#f1e9d8", layer: "none", shoes: "mary", pattern: "none" } },
-  { id: "v_ribbon", label: "Ballet Soft", note: "wrap top, pleated skirt, flats", ov: { top: "wrapTop", topColor: "#d39aa3", bottom: "pleatedSkirt", bottomColor: "#f1e9d8", layer: "none", shoes: "balletFlat", pattern: "none" } },
-  { id: "v_softwrap", label: "Gentle Movement", note: "soft knit, leggings", ov: { top: "asymKnit", topColor: "#8aa382", bottom: "leggings", bottomColor: "#3c3a38", layer: "none", shoes: "balletFlat", pattern: "none" } },
-  { id: "v_tailoring", label: "Quiet Tailoring", note: "relaxed shirt, wide trousers", ov: { top: "button", topColor: "#e6dcc6", bottom: "wideTrouser", bottomColor: "#3c3a38", layer: "none", shoes: "loafer", pattern: "none" } },
-  { id: "v_office", label: "Office Casual", note: "shirt and blazer, trousers", ov: { top: "button", topColor: "#8aa7bd", bottom: "dressPants", bottomColor: "#3c3a38", layer: "blazer", layerColor: "#3c3a38", shoes: "loafer", pattern: "none" } },
-  { id: "v_interview", label: "Interview Ready", note: "blazer, dress pants, loafers", ov: { top: "button", topColor: "#f1e9d8", bottom: "dressPants", bottomColor: "#3c3a38", layer: "blazer", layerColor: "#5e4334", shoes: "loafer", pattern: "none" } },
-  { id: "v_prep", label: "Campus Prep", note: "button-up, pleated skirt, backpack", ov: { top: "button", topColor: "#f1e9d8", bottom: "pleatedSkirt", bottomColor: "#46604b", layer: "none", shoes: "loafer", carry: "backpack", pattern: "none" } },
-  { id: "v_mono", label: "Monochrome Minimal", note: "one color, head to toe", ov: { top: "boxyTee", topColor: "#3c3a38", bottom: "wideTrouser", bottomColor: "#3c3a38", layer: "none", shoes: "classicSneaker", pattern: "none" } },
-  { id: "v_softstreet", label: "Soft Street", note: "hoodie, barrel denim, sneakers", ov: { top: "hoodie", topColor: "#8aa382", bottom: "barrelJean", bottomColor: "#5a6f8c", layer: "none", shoes: "sneaker", pattern: "none" } },
-  { id: "v_utility", label: "Utility Street", note: "bomber, cargo pants, boots", ov: { top: "bomber", topColor: "#7d8254", bottom: "cargo", bottomColor: "#3c3a38", layer: "none", shoes: "combatBoot", pattern: "none" } },
-  { id: "v_skate", label: "Skate Easy", note: "boxy tee, jorts, skate shoes", ov: { top: "boxyTee", topColor: "#8aa7bd", bottom: "jorts", bottomColor: "#5a6f8c", layer: "none", shoes: "skateShoe", pattern: "none" } },
-  { id: "v_creative", label: "Creative Studio", note: "open overshirt, wide denim, tote", ov: { top: "plainTee", topColor: "#f1e9d8", bottom: "wideDenim", bottomColor: "#5a6f8c", layer: "drapedShirt", layerColor: "#3f8a86", shoes: "sneaker", carry: "tote", pattern: "none" } },
-  { id: "v_concert", label: "Concert Night", note: "corset top, dark pants, boots", ov: { top: "cropCorset", topColor: "#7a5570", bottom: "dressPants", bottomColor: "#3c3a38", layer: "none", shoes: "boot", pattern: "none" } },
-  { id: "v_athleisure", label: "Athleisure", note: "bomber, track pants, runners", ov: { top: "bomber", topColor: "#3c3a38", bottom: "trackPant", bottomColor: "#3c3a38", layer: "none", shoes: "runner", pattern: "none" } },
-  { id: "v_trail", label: "Trail Utility", note: "trail jacket, cargo, hiking shoes", ov: { top: "longSleeveTee", topColor: "#e6dcc6", bottom: "cargo", bottomColor: "#5e4334", layer: "shell", layerColor: "#46604b", shoes: "hikingShoe", pattern: "none" } },
-  { id: "v_studiomove", label: "Studio Move", note: "mesh layer, track pants", ov: { top: "meshLayer", topColor: "#3c3a38", bottom: "trackPant", bottomColor: "#3c3a38", layer: "none", shoes: "runner", pattern: "none" } },
-  { id: "v_airport", label: "Airport Fit", note: "sweatshirt, joggers, slides", ov: { top: "sweatshirt", topColor: "#e6dcc6", bottom: "joggers", bottomColor: "#5e4334", layer: "none", shoes: "slide", carry: "crossbody", pattern: "none" } },
-  { id: "v_satin", label: "Satin Evening", note: "slip dress, soft shoes", ov: { top: "slipDress", topColor: "#7a5570", bottom: "slipSkirt", bottomColor: "#7a5570", layer: "none", shoes: "mary", pattern: "none" } },
-  { id: "v_downtown", label: "Downtown", note: "corset, dark jeans, boots", ov: { top: "cropCorset", topColor: "#3c3a38", bottom: "straightJean", bottomColor: "#3c3a38", layer: "none", shoes: "boot", pattern: "none" } },
-  { id: "v_familyParty", label: "Family Party", note: "wrap top, midi skirt, comfortable shoes", ov: { top: "wrapTop", topColor: "#d39aa3", bottom: "midiSkirt", bottomColor: "#7a5570", layer: "none", shoes: "mary", pattern: "none" } },
+  { id: "v_weekend", label: "Weekend Easy", tag: "Everyday", note: "soft tee, jeans, sneakers", ov: { top: "plainTee", topColor: "#e6dcc6", bottom: "straightJean", bottomColor: "#5a6f8c", layer: "none", shoes: "classicSneaker", pattern: "none" } },
+  { id: "v_cozyknit", label: "Cozy Knit", tag: "Comfort", note: "chunky knit, soft trousers, loafers", ov: { top: "sweater", topColor: "#c08457", bottom: "wideTrouser", bottomColor: "#5e4334", layer: "none", shoes: "loafer", pattern: "none" } },
+  { id: "v_linen", label: "Linen Calm", tag: "Everyday", note: "relaxed shirt, shorts, slides", ov: { top: "button", topColor: "#f1e9d8", bottom: "shorts", bottomColor: "#e6dcc6", layer: "none", shoes: "slide", pattern: "none" } },
+  { id: "v_bookstore", label: "Bookstore Soft", tag: "Soft", note: "cardigan, midi skirt, flats", ov: { top: "cardigan", topColor: "#8aa382", bottom: "midiSkirt", bottomColor: "#5e4334", layer: "none", shoes: "balletFlat", pattern: "none" } },
+  { id: "v_romantic", label: "Soft Romantic", tag: "Soft", note: "soft cardigan, cream skirt", ov: { top: "cardigan", topColor: "#d39aa3", bottom: "midiSkirt", bottomColor: "#f1e9d8", layer: "none", shoes: "mary", pattern: "none" } },
+  { id: "v_ribbon", label: "Ballet Soft", tag: "Soft", note: "wrap top, pleated skirt, flats", ov: { top: "wrapTop", topColor: "#d39aa3", bottom: "pleatedSkirt", bottomColor: "#f1e9d8", layer: "none", shoes: "balletFlat", pattern: "none" } },
+  { id: "v_softwrap", label: "Gentle Movement", tag: "Comfort", note: "soft knit, leggings", ov: { top: "asymKnit", topColor: "#8aa382", bottom: "leggings", bottomColor: "#3c3a38", layer: "none", shoes: "balletFlat", pattern: "none" } },
+  { id: "v_tailoring", label: "Quiet Tailoring", tag: "Polished", note: "relaxed shirt, wide trousers", ov: { top: "button", topColor: "#e6dcc6", bottom: "wideTrouser", bottomColor: "#3c3a38", layer: "none", shoes: "loafer", pattern: "none" } },
+  { id: "v_office", label: "Office Casual", tag: "Polished", note: "shirt and blazer, trousers", ov: { top: "button", topColor: "#8aa7bd", bottom: "dressPants", bottomColor: "#3c3a38", layer: "blazer", layerColor: "#3c3a38", shoes: "loafer", pattern: "none" } },
+  { id: "v_interview", label: "Interview Ready", tag: "Polished", note: "blazer, dress pants, loafers", ov: { top: "button", topColor: "#f1e9d8", bottom: "dressPants", bottomColor: "#3c3a38", layer: "blazer", layerColor: "#5e4334", shoes: "loafer", pattern: "none" } },
+  { id: "v_prep", label: "Campus Prep", tag: "Polished", note: "button-up, pleated skirt, backpack", ov: { top: "button", topColor: "#f1e9d8", bottom: "pleatedSkirt", bottomColor: "#46604b", layer: "none", shoes: "loafer", carry: "backpack", pattern: "none" } },
+  { id: "v_mono", label: "Monochrome Minimal", tag: "Minimal", note: "one color, head to toe", ov: { top: "boxyTee", topColor: "#3c3a38", bottom: "wideTrouser", bottomColor: "#3c3a38", layer: "none", shoes: "classicSneaker", pattern: "none" } },
+  { id: "v_softstreet", label: "Soft Street", tag: "Street", note: "hoodie, barrel denim, sneakers", ov: { top: "hoodie", topColor: "#8aa382", bottom: "barrelJean", bottomColor: "#5a6f8c", layer: "none", shoes: "sneaker", pattern: "none" } },
+  { id: "v_utility", label: "Utility Street", tag: "Street", note: "bomber, cargo pants, boots", ov: { top: "bomber", topColor: "#7d8254", bottom: "cargo", bottomColor: "#3c3a38", layer: "none", shoes: "combatBoot", pattern: "none" } },
+  { id: "v_skate", label: "Skate Easy", tag: "Street", note: "boxy tee, jorts, skate shoes", ov: { top: "boxyTee", topColor: "#8aa7bd", bottom: "jorts", bottomColor: "#5a6f8c", layer: "none", shoes: "skateShoe", pattern: "none" } },
+  { id: "v_creative", label: "Creative Studio", tag: "Creative", note: "open overshirt, wide denim, tote", ov: { top: "plainTee", topColor: "#f1e9d8", bottom: "wideDenim", bottomColor: "#5a6f8c", layer: "drapedShirt", layerColor: "#3f8a86", shoes: "sneaker", carry: "tote", pattern: "none" } },
+  { id: "v_concert", label: "Concert Night", tag: "Night", note: "corset top, dark pants, boots", ov: { top: "cropCorset", topColor: "#7a5570", bottom: "dressPants", bottomColor: "#3c3a38", layer: "none", shoes: "boot", pattern: "none" } },
+  { id: "v_athleisure", label: "Athleisure", tag: "Active", note: "bomber, track pants, runners", ov: { top: "bomber", topColor: "#3c3a38", bottom: "trackPant", bottomColor: "#3c3a38", layer: "none", shoes: "runner", pattern: "none" } },
+  { id: "v_trail", label: "Trail Utility", tag: "Outdoor", note: "trail jacket, cargo, hiking shoes", ov: { top: "longSleeveTee", topColor: "#e6dcc6", bottom: "cargo", bottomColor: "#5e4334", layer: "shell", layerColor: "#46604b", shoes: "hikingShoe", pattern: "none" } },
+  { id: "v_studiomove", label: "Studio Move", tag: "Active", note: "mesh layer, track pants", ov: { top: "meshLayer", topColor: "#3c3a38", bottom: "trackPant", bottomColor: "#3c3a38", layer: "none", shoes: "runner", pattern: "none" } },
+  { id: "v_airport", label: "Airport Fit", tag: "Comfort", note: "sweatshirt, joggers, slides", ov: { top: "sweatshirt", topColor: "#e6dcc6", bottom: "joggers", bottomColor: "#5e4334", layer: "none", shoes: "slide", carry: "crossbody", pattern: "none" } },
+  { id: "v_satin", label: "Satin Evening", tag: "Night", note: "slip dress, soft shoes", ov: { top: "slipDress", topColor: "#7a5570", bottom: "slipSkirt", bottomColor: "#7a5570", layer: "none", shoes: "mary", pattern: "none" } },
+  { id: "v_downtown", label: "Downtown", tag: "Night", note: "corset, dark jeans, boots", ov: { top: "cropCorset", topColor: "#3c3a38", bottom: "straightJean", bottomColor: "#3c3a38", layer: "none", shoes: "boot", pattern: "none" } },
+  { id: "v_familyParty", label: "Family Party", tag: "Night", note: "wrap top, midi skirt, comfortable shoes", ov: { top: "wrapTop", topColor: "#d39aa3", bottom: "midiSkirt", bottomColor: "#7a5570", layer: "none", shoes: "mary", pattern: "none" } },
 ];
 
 // Resolve avatar state (+ optional override) into dmFigure options.
