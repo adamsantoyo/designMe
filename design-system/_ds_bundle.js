@@ -46,12 +46,6 @@ try { (() => {
           [[62, 60, 24], [82, 44, 25], [100, 38, 27], [118, 44, 25], [138, 60, 24], [54, 90, 22], [146, 90, 22]].forEach(p => c += `<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}"/>`);
           return c + `</g>`;
         }
-      case "coily":
-        {
-          let c = `<g ${f}>`;
-          [[60, 56, 26], [82, 40, 26], [100, 34, 29], [118, 40, 26], [140, 56, 26], [50, 88, 24], [150, 88, 24], [58, 116, 20], [142, 116, 20]].forEach(p => c += `<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}"/>`);
-          return c + `</g>`;
-        }
       case "braids":
         return `<path ${f} d="M52 92 C50 54 70 40 100 40 C130 40 150 54 148 92 C140 70 122 60 100 60 C78 60 60 70 52 92 Z"/>
                 <g ${f}><rect x="44" y="78" width="14" height="120" rx="7"/><rect x="142" y="78" width="14" height="120" rx="7"/></g>`;
@@ -905,16 +899,13 @@ try { (() => {
             for (let y = K.headCy + 10; y < longEnd + 6; y += 11) d += `<ellipse cx="${bx}" cy="${y}" rx="4.6" ry="3.4" fill="${shade(hairC, 0.12)}" opacity=".5"/>`;
             return d;
           }).join("");
-        case "coily":
         case "curly":
           {
             let s = `<g fill="${fHair}">`;
-            const rr = hair === "coily" ? 15 : 13;
+            const rr = 13;
             [[-17, -22, rr], [0, -27, rr + 2], [17, -22, rr], [-25, -6, rr - 2], [25, -6, rr - 2], [-21, 9, rr - 4], [21, 9, rr - 4]].forEach(p => s += `<circle cx="${hx + p[0]}" cy="${K.headCy + p[1]}" r="${p[2]}"/>`);
             return s + "</g>";
           }
-        case "locs":
-          return `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 3} ${t - 8} ${hx + K.headRx + 2} ${K.headCy} Q${hx} ${K.headCy - 20} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>` + [-26, -19, 19, 26].map(dx => `<path d="M${hx + dx} ${K.headCy - 4} q${dx < 0 ? -2 : 2} ${(K.chest - K.headCy) / 2} 0 ${K.chest - K.headCy} q3.5 5 7 0" fill="none" stroke="${fHair}" stroke-width="7" stroke-linecap="round"/>`).join("");
         default:
           return `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 7} ${hx} ${t - 8} Q${hx + K.headRx + 3} ${t - 7} ${hx + K.headRx + 2} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 15} ${hx} ${K.headCy - 17} Q${hx - K.headRx + 4} ${K.headCy - 15} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>`;
       }
@@ -3013,17 +3004,11 @@ window.DM = {
     id: "curly",
     label: "Curls"
   }, {
-    id: "coily",
-    label: "Coily"
-  }, {
     id: "bun",
     label: "Bun"
   }, {
     id: "braids",
     label: "Braids"
-  }, {
-    id: "locs",
-    label: "Locs"
   }, {
     id: "buzz",
     label: "Crop"
@@ -3497,7 +3482,7 @@ window.DM = {
       topColor: "#f1e9d8",
       bottomColor: "#3c3a38",
       shoes: "sneaker",
-      hair: "coily",
+      hair: "curly",
       layer: "denimJacket",
       layerColor: "#5a6f8c"
     }
@@ -3556,7 +3541,7 @@ window.DM = {
       topColor: "#f1e9d8",
       bottomColor: "#29231f",
       shoes: "boot",
-      hair: "coily"
+      hair: "curly"
     }
   }, {
     id: "v_street",

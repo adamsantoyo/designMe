@@ -54,7 +54,7 @@ The following look generated or implementation-led rather than product-curated:
 - `drapedShirt`: id does not match label `Open overshirt`.
 - `a_forest`: id does not match label `Breeze`.
 - Phase 4 label cleanup resolved the safest user-facing label issues: `Asymmetric knit`, `Ballet Soft`, `Gentle Movement`, `Campus Prep`, `Concert Night`, `Curtain bangs`, `French bob`, `Top bun`, `Twin braids`, `Street`, and `Trail jacket`.
-- The live hair renderer still lacks several high-identity textured/coily/protective styles; metadata now tracks this as roadmap work before renderer expansion.
+- The live hair renderer still lacks several high-identity styles; metadata now tracks this as roadmap work before renderer expansion.
 
 ## Duplicate or Overlapping Concepts
 

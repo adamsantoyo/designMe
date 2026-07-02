@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>designMe art lab — PNG-multiply vs SVG-trace recolor</title>
+<style>
+  :root { --paper:#fbf8f2; --ink:#2f2823; --soft:#6b5f53; --line:#ddd0bd; }
+  body { margin:0; padding:28px 32px 60px; background:#ece7dc; color:var(--ink);
+         font:15px/1.45 "Nunito", system-ui, sans-serif; }
+  h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:34px 0 10px; }
+  p.note { color:var(--soft); margin:2px 0 14px; max-width:860px; }
+  .grid { display:grid; gap:10px; }
+  .rowlabel { font-weight:800; font-size:12px; color:var(--soft); align-self:center; width:150px; }
+  .row { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+  .cell { background:var(--paper); border:1px solid var(--line); border-radius:14px;
+          width:130px; overflow:hidden; text-align:center; }
+  .cell .art { position:relative; width:130px; height:150px; }
+  .cell .cap { font-size:11px; font-weight:800; color:var(--soft); padding:3px 0 6px; }
+  .art img, .art svg, .art .tintwrap { position:absolute; inset:6px; width:118px; height:138px; }
+  .art img { object-fit:contain; }
+  .art svg { display:block; }
+  .tint { position:absolute; inset:0; mix-blend-mode:multiply;
+          -webkit-mask-size:contain; mask-size:contain;
+          -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+          -webkit-mask-position:center; mask-position:center; }
+  .zoom { display:flex; gap:14px; margin-top:8px; }
+  .zoombox { width:270px; height:220px; overflow:hidden; position:relative;
+             background:var(--paper); border:1px solid var(--line); border-radius:14px; }
+  .zoombox > * { position:absolute; width:1000px; height:1000px; }
+  .zoombox .cap { position:absolute; left:8px; top:6px; z-index:3; font-size:11px; font-weight:800; color:var(--soft); }
+  .stats { background:var(--paper); border:1px solid var(--line); border-radius:14px;
+           padding:12px 16px; font-size:13px; max-width:860px; }
+  .stats b { font-weight:800; }
+</style>
+</head>
+<body>
+<h1>Art lab — recolor pipelines, side by side</h1>
+<p class="note">Row 1 is exactly what the app does today: the PNG master tinted with a multiply
+overlay masked to its own alpha. Row 2 is that same PNG auto-traced to SVG (vtracer, default
+settings, zero cleanup) and recolored by remapping each path fill onto a two-tone ramp of the
+target color. Same master, two pipelines. Judge edges, shading survival, and the deep tones.</p>
+
+<div id="sections"></div>
+
+<h2>Edge fidelity at 4× — dark brown, hair left edge</h2>
+<div class="zoom">
+  <div class="zoombox" id="zoomPng"><span class="cap">PNG · multiply</span></div>
+  <div class="zoombox" id="zoomSvg"><span class="cap">SVG · fill-remap</span></div>
+</div>
+
+<h2>Numbers</h2>
+<div class="stats" id="stats">loading…</div>
+
+<script>
+const HAIR_PNG = "/app/assets/parts/hair/waves.png";
+const BODY_PNG = "/_art/av2.png";
+// _clean = same masters with the glow halo stripped (alpha threshold) before tracing —
+// i.e. what a to-spec "no glow" master per the art bible yields.
+const HAIR_SVG = "/tools/art-lab/waves_clean.svg";
+const BODY_SVG = "/tools/art-lab/body_clean.svg";
+
+const HAIR_COLORS = [["h1 black","#211c1a"],["h3 dark brown","#3f2b1f"],["h8 blonde","#c8a968"],
+                     ["h12 silver","#cfcac3"],["h16 ocean","#3f6f8a"],["h18 rose","#c0708f"]];
+const SKIN_COLORS = [["s1 deepest","#3b2a21"],["s3 deep","#5c3f30"],["s6 warm","#8a5a3f"],
+                     ["s8 medium","#a87c58"],["s12 tan","#d3b48f"],["s14 fair","#efd4b8"]];
+
+// dmFigure's shade(): toward black (amt<0) or white (amt>0)
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16);
+  let r = (n>>16)&255, g = (n>>8)&255, b = n&255;
+  const t = amt < 0 ? 0 : 255, p = Math.abs(amt);
+  r = Math.round((t-r)*p + r); g = Math.round((t-g)*p + g); b = Math.round((t-b)*p + b);
+  return "#" + ((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+const lum = (r,g,b) => 0.299*r + 0.587*g + 0.114*b;
+function parseFill(s) {
+  let m = s.match(/^#([0-9a-f]{6})$/i);
+  if (m) { const n = parseInt(m[1],16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+  m = s.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if (m) return [+m[1],+m[2],+m[3]];
+  return null;
+}
+
+// Recolor a traced neutral master: normalize each fill's luminance across the doc's
+// range, then map onto a ramp *designed for the target's lightness* — deep targets get
+// a narrow highlight spread (so black hair stays black, with visible strands), light
+// targets get a wider one. This is the thing multiply can't do.
+function remapSvg(svgText, target) {
+  const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
+  const fills = [...doc.querySelectorAll("[fill]")];
+  const lums = fills.map(el => { const c = parseFill(el.getAttribute("fill")); return c ? lum(...c) : null; });
+  const valid = lums.filter(v => v !== null);
+  const lo = Math.min(...valid), hi = Math.max(...valid);
+  const tl = lum(...parseFill(target)) / 255;
+  const shadowAmt = -(0.16 + 0.20 * tl);
+  const highAmt = Math.min(0.30, 0.08 + 0.35 * tl);
+  fills.forEach((el, i) => {
+    if (lums[i] === null) return;
+    const t = hi > lo ? (lums[i]-lo)/(hi-lo) : 1;
+    el.setAttribute("fill", shade(target, shadowAmt + t*(highAmt - shadowAmt)));
+  });
+  const svg = doc.documentElement;
+  if (!svg.getAttribute("viewBox")) {
+    svg.setAttribute("viewBox", `0 0 ${parseInt(svg.getAttribute("width"))} ${parseInt(svg.getAttribute("height"))}`);
+  }
+  svg.removeAttribute("width"); svg.removeAttribute("height");
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  return svg;
+}
+
+function pngCell(src, color, label) {
+  const cell = document.createElement("div"); cell.className = "cell";
+  const art = document.createElement("div"); art.className = "art";
+  const wrap = document.createElement("div"); wrap.className = "tintwrap"; wrap.style.position = "absolute";
+  const img = document.createElement("img"); img.src = src; img.style.position = "absolute"; img.style.inset = 0;
+  img.style.width = "100%"; img.style.height = "100%";
+  wrap.appendChild(img);
+  if (color) {
+    const tint = document.createElement("div"); tint.className = "tint";
+    tint.style.backgroundColor = color;
+    tint.style.webkitMaskImage = tint.style.maskImage = `url(${src})`;
+    wrap.appendChild(tint);
+  }
+  art.appendChild(wrap); cell.appendChild(art);
+  cell.insertAdjacentHTML("beforeend", `<div class="cap">${label}</div>`);
+  return cell;
+}
+function svgCell(svgText, color, label) {
+  const cell = document.createElement("div"); cell.className = "cell";
+  const art = document.createElement("div"); art.className = "art";
+  art.appendChild(remapSvg(svgText, color));
+  cell.appendChild(art);
+  cell.insertAdjacentHTML("beforeend", `<div class="cap">${label}</div>`);
+  return cell;
+}
+function row(labelText, cells) {
+  const r = document.createElement("div"); r.className = "row";
+  r.insertAdjacentHTML("beforeend", `<div class="rowlabel">${labelText}</div>`);
+  cells.forEach(c => r.appendChild(c));
+  return r;
+}
+
+async function build() {
+  const [hairSvgText, bodySvgText] = await Promise.all([
+    fetch(HAIR_SVG).then(r => r.text()), fetch(BODY_SVG).then(r => r.text()),
+  ]);
+  const sections = document.getElementById("sections");
+
+  for (const [title, png, svgText, colors] of [
+    ["Hair — waves master (the identity-part case)", HAIR_PNG, hairSvgText, HAIR_COLORS],
+    ["Body — skin master (the dignity-critical case)", BODY_PNG, bodySvgText, SKIN_COLORS],
+  ]) {
+    sections.insertAdjacentHTML("beforeend", `<h2>${title}</h2>`);
+    sections.appendChild(row("PNG · multiply<br>(app today)",
+      [pngCell(png, null, "master"), ...colors.map(([n,c]) => pngCell(png, c, n))]));
+    sections.appendChild(row("SVG trace · fill-remap<br>(zero cleanup)",
+      [svgCell(svgText, "#efe9dd", "master"), ...colors.map(([n,c]) => svgCell(svgText, c, n))]));
+  }
+
+  // 4x zoom on the hair's left edge, dark brown
+  const zp = document.getElementById("zoomPng");
+  const pc = pngCell(HAIR_PNG, "#3f2b1f", "").firstChild.firstChild;
+  pc.style.position = "absolute"; pc.style.width = "1000px"; pc.style.height = "1000px";
+  pc.style.left = "-190px"; pc.style.top = "-330px";
+  zp.appendChild(pc);
+  const zs = document.getElementById("zoomSvg");
+  const sv = remapSvg(hairSvgText, "#3f2b1f");
+  sv.style.width = "1000px"; sv.style.height = "1000px";
+  sv.style.left = "-190px"; sv.style.top = "-330px"; sv.style.position = "absolute";
+  zs.appendChild(sv);
+
+  const kb = (t) => Math.round(t.length/1024) + " KB";
+  document.getElementById("stats").innerHTML =
+    `<b>Hair:</b> PNG master 1416 KB → traced SVG ${kb(hairSvgText)}, ${hairSvgText.split("<path").length-1} paths · ` +
+    `<b>Body:</b> PNG master 2102 KB → traced SVG ${kb(bodySvgText)}, ${bodySvgText.split("<path").length-1} paths.<br>` +
+    `Trace = vtracer defaults after one automatic preprocessing step (strip the glow halo the art
+    bible already bans). With the halo in, the same trace was 480 / 1927 paths — master hygiene is
+    the whole ballgame. No human touched any path.`;
+}
+build();
+</script>
+</body>
+</html>

@@ -251,7 +251,6 @@ const TOPCOLORS = ['#e7dcc6','#6f8f6a','#bd7a4f','#5a6f8c','#84647f','#b23b43','
 const HAIRS = [
   { id:'waves',  label:'Waves'  },
   { id:'curls',  label:'Curls'  },
-  { id:'coily',  label:'Coily'  },
   { id:'bun',    label:'Bun'    },
   { id:'crop',   label:'Crop'   },
   { id:'braids', label:'Braids' },
@@ -320,7 +319,6 @@ function pHairBack(s,id){
   const frame=`<path ${f} d="M200,70 C148,70 102,104 99,170 C96,214 104,252 120,286 C110,250 114,206 120,176 C126,150 154,128 200,127 C246,128 274,150 280,176 C286,206 290,250 280,286 C296,252 304,214 301,170 C298,104 252,70 200,70 Z"/>`;
   switch(s.hair){
     case 'curls': { let c=`<g ${f}>`; const pts=[[110,124,48],[150,86,50],[200,72,54],[250,86,50],[290,124,48],[96,186,44],[304,186,44],[104,248,38],[296,248,38]]; pts.forEach(p=>c+=`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}"/>`); return c+`</g>`; }
-    case 'coily': { let c=`<g ${f}>`; const pts=[[110,120,52],[150,82,52],[200,68,58],[250,82,52],[290,120,52],[92,184,48],[308,184,48],[100,248,42],[300,248,42],[120,300,34],[280,300,34]]; pts.forEach(p=>c+=`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}"/>`); return c+`</g>`; }
     case 'bun': return `<path ${f} d="M200,96 C158,96 122,122 120,168 C142,150 162,140 200,140 C238,140 258,150 280,168 C278,122 242,96 200,96 Z"/>`;
     default: return frame; // waves, braids share the framing mass; length is drawn in pHairSide
   }
@@ -340,9 +338,6 @@ function pHairSide(s,id){
       c+=`<circle cx="${x}" cy="440" r="7" fill="${shade(s.hairColor,-20)}"/>`; });
     return c+`</g>`;
   }
-  if(s.hair==='coily'){
-    return `<g ${f}><circle cx="96" cy="304" r="30"/><circle cx="304" cy="304" r="30"/></g>`;
-  }
   return '';
 }
 
@@ -353,7 +348,6 @@ function pHairFront(s,id){
   switch(s.hair){
     case 'crop': return `<path ${f} d="M108,198 C100,116 150,88 200,88 C250,88 300,116 292,198 C289,208 281,208 278,198 C272,150 248,132 200,132 C152,132 128,150 122,198 C119,208 111,208 108,198 Z"/>`+hl;
     case 'bun':  return cap+`<ellipse ${f} cx="200" cy="70" rx="30" ry="28"/>`+hl;
-    case 'coily':
     case 'curls': return `<path ${f} d="M118,188 C112,150 124,120 150,108 C140,128 142,140 150,150 C156,124 178,112 200,112 C222,112 244,124 250,150 C258,140 260,128 250,108 C276,120 288,150 282,188 C268,162 240,150 200,150 C160,150 132,162 118,188 Z"/>`+hl;
     default: return cap+hl;
   }

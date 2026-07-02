@@ -16,8 +16,8 @@ window.DM = {
   ],
   hairStyles: [
     { id: "waves", label: "Waves" }, { id: "long", label: "Long" }, { id: "curly", label: "Curls" },
-    { id: "coily", label: "Coily" }, { id: "bun", label: "Bun" }, { id: "braids", label: "Braids" },
-    { id: "locs", label: "Locs" }, { id: "buzz", label: "Crop" }, { id: "bald", label: "Bald" },
+    { id: "bun", label: "Bun" }, { id: "braids", label: "Braids" },
+    { id: "buzz", label: "Crop" }, { id: "bald", label: "Bald" },
   ],
   hairColors: [
     { v: "#211c1a", label: "Black" }, { v: "#3f2b1f", label: "Dark brown" }, { v: "#6f4a2f", label: "Brown" },
@@ -110,7 +110,7 @@ window.DM = {
     { id: "v_weekend", name: "Weekend Easy", tag: "easy casual", moods: ["Everyday"], note: "boxy tee, barrel denim, sneakers",
       set: { top: "boxyTee", bottom: "barrelJean", topColor: "#e6dcc6", bottomColor: "#5a6f8c", shoes: "sneaker", hair: "waves", carry: "crossbody" } },
     { id: "v_campus", name: "Campus Layer", tag: "layered casual", moods: ["Everyday", "Streetwear"], note: "striped tee, denim jacket, wide trouser",
-      set: { top: "boxyTee", pattern: "stripe", bottom: "wideTrouser", topColor: "#f1e9d8", bottomColor: "#3c3a38", shoes: "sneaker", hair: "coily", layer: "denimJacket", layerColor: "#5a6f8c" } },
+      set: { top: "boxyTee", pattern: "stripe", bottom: "wideTrouser", topColor: "#f1e9d8", bottomColor: "#3c3a38", shoes: "sneaker", hair: "curly", layer: "denimJacket", layerColor: "#5a6f8c" } },
     { id: "v_cozy", name: "Cozy Knit", tag: "cozy neutral", moods: ["Everyday", "Soft"], note: "chunky knit, barrel denim, loafers",
       set: { top: "sweater", bottom: "barrelJean", topColor: "#c08457", bottomColor: "#5a6f8c", shoes: "loafer", hair: "bun", carry: "tote" } },
     { id: "v_romantic", name: "Soft Romantic", tag: "soft romantic", moods: ["Soft"], note: "cardigan, pleated skirt, loafers",
@@ -118,7 +118,7 @@ window.DM = {
     { id: "v_tailoring", name: "Quiet Tailoring", tag: "refined neutral", moods: ["Polished"], note: "turtleneck, wide trouser, loafers",
       set: { top: "turtle", bottom: "wideTrouser", topColor: "#5a6f8c", bottomColor: "#3c3a38", shoes: "loafer", hair: "buzz" } },
     { id: "v_mono", name: "Monochrome", tag: "monochrome", moods: ["Polished"], note: "boxy tee, wide trouser, boots",
-      set: { top: "boxyTee", bottom: "wideTrouser", topColor: "#f1e9d8", bottomColor: "#29231f", shoes: "boot", hair: "coily" } },
+      set: { top: "boxyTee", bottom: "wideTrouser", topColor: "#f1e9d8", bottomColor: "#29231f", shoes: "boot", hair: "curly" } },
     { id: "v_street", name: "Soft Street", tag: "oversized", moods: ["Streetwear"], note: "hoodie, barrel denim, sneakers",
       set: { top: "hoodie", bottom: "barrelJean", topColor: "#3c3a38", bottomColor: "#5a6f8c", shoes: "sneaker", hair: "curly" } },
     { id: "v_utility", name: "Utility Street", tag: "utility", moods: ["Streetwear"], note: "bomber, cargo pant, boots",

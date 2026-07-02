@@ -62,7 +62,7 @@ Rename decisions applied as label-only catalog cleanup:
 Add:
 
 - Creative and Comfort vibe filters.
-- Hair breadth for short, textured, coily, braided, loc, puff, fade, and clip styles.
+- Hair breadth for short, straight, wavy, curly, braided, updo, and clip styles.
 - More shoes, carry items, headwear, headphones, sensory tools, walker, medical bracelet, rings, watch, and headscarf.
 - More life-context vibes such as Bookstore Soft, Interview Ready, Airport Fit, Family Party, and Creative Studio.
 
@@ -91,7 +91,6 @@ Cut or defer from MVP:
 | shaved | Shaved | hair | short | shaved, minimal | keep | current-renderer | not-started | P0 | Very close shaved head | Keep current cap shadow, polish edge |
 | pixie | Pixie cut | hair | short | pixie, playful, short | add | needs-png-concept | not-started | P1 | Short pixie with recognizable side shape | Layered cap with side points |
 | taperFade | Taper fade | hair | short | fade, tapered | add | needs-png-concept | not-started | P1 | Tapered sides, fuller top | Separate side fade and top volume |
-| curlyFade | Curly fade | hair | textured | curly, fade | add | needs-png-concept | not-started | P0 | Tight curls on top with faded sides | Curl marks clipped to top silhouette |
 | bald | Bald | hair | short | bald, no hair | keep | current-renderer | not-started | P0 | Clean bald head | Ensure head shape still dignified |
 | bob | French bob | hair | bob | bob, short, polished | rename | current-renderer | not-started | P1 | Chin-length bob with soft curve | Refine current bob proportions |
 | curtain | Curtain bangs | hair | bangs | bangs, face-framing | rename | current-renderer | not-started | P0 | Parted bangs framing face | Make bang split clear at small size |
@@ -109,12 +108,6 @@ Cut or defer from MVP:
 | highBun | Top bun | hair | bun | bun, top | rename | current-renderer | not-started | P0 | Top bun above crown | Keep current high bun, rename for clarity |
 | braid | Side braid | hair | braid | braid, side | needs-redesign | needs-svg | not-started | P0 | Side braid reference exists | Rebuild PNG reference as inline SVG |
 | pigtails | Twin braids | hair | braid | braids, twin | rename | current-renderer | not-started | P0 | Two braids, one each side | Decide if Dutch detail remains |
-| boxBraids | Box braids | hair | protective | braids, protective | add | needs-png-concept | not-started | P0 | Medium box braids, natural fall | Repeat braid units, avoid noisy grid |
-| cornrows | Cornrows | hair | protective | cornrows, protective | add | needs-png-concept | not-started | P0 | Neat cornrows following scalp | Scalp curves plus braid rows |
-| locs | Locs | hair | protective | locs, textured | add | needs-png-concept | not-started | P0 | Shoulder locs or tied locs | Grouped loc strands with clean silhouette |
-| afro | Afro | hair | coily | afro, coily, volume | add | needs-png-concept | not-started | P0 | Rounded afro with soft edge | Scalloped silhouette, minimal inner marks |
-| puff | Puff | hair | coily | puff, coily | add | needs-png-concept | not-started | P0 | Single high puff | Puff sphere plus hairline cap |
-| twoPuffs | Two puffs | hair | coily | puffs, coily | add | needs-png-concept | not-started | P0 | Two side puffs | Symmetric puffs, clear ties |
 | definedCurls | Defined curls | hair | curly | curls, defined | add | needs-png-concept | not-started | P0 | Defined curls around face | Curl clusters, not random spirals |
 
 ### Tops
@@ -269,7 +262,7 @@ Cut or defer from MVP:
 
 - Every catalog item should get a stable id before asset production.
 - Add an eventual asset manifest with fields such as `id`, `category`, `flatSvg`, `pngConcept`, `threeDModel`, `materialSlots`, `rigSlots`, and `compatibility`.
-- Avoid ids that encode current rendering implementation. Good: `boxBraids`, `classicSneaker`. Risky: `button`, `wavyM`, `e_amy`.
+- Avoid ids that encode current rendering implementation. Good: `sideBraid`, `classicSneaker`. Risky: `button`, `wavyM`, `e_amy`.
 - Outfit items should keep semantic attributes that map to 3D garment slots: `sleeve`, `length`, `neckline`, `fit`, `layer`, `material`, `pattern`, and `coverage`.
 - Hair items should define compatibility needs early: head coverage, ear visibility, hat compatibility, hearing-tech compatibility, and optional rig/physics behavior.
 - Assistive tools need spatial anchors: hand-held, wrist, ear, head, seated pose, behind-body, front-body.

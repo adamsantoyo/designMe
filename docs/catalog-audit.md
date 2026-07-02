@@ -508,8 +508,8 @@ The `braid` hair item is currently routed through `HAIR_IMG` to `_art/sideBraid_
 
 ## Product-Quality Concerns
 
-- Hair is the highest identity-impact category but currently has 15 styles, with no afro, locs, cornrows, box braids, defined curls, puff, two puffs, buzz, pixie, fade, or claw clip.
-- The live hair renderer still lacks several high-identity textured/coily/protective styles, but the inline comment now frames that as roadmap work instead of an endpoint.
+- Hair is the highest identity-impact category but currently has 15 styles, with no defined curls, buzz, pixie, fade, or claw clip yet.
+- The live hair renderer still lacks several high-identity styles, but the inline comment now frames that as roadmap work instead of an endpoint.
 - Outfit categories are broad enough to work, but tops and bottoms are still renderer-attribute abstractions more than a curated wardrobe system.
 - Vibes are a strong recognition-first entry point, but the current 18 vibes still need fuller Creative and Comfort coverage.
 - Body labels are relatively safe, but should remain simple and non-evaluative. Avoid adding fine-grained measurements.

@@ -646,16 +646,13 @@
               for (let y = K.headCy + 10; y < longEnd + 6; y += 11) d += `<ellipse cx="${bx}" cy="${y}" rx="4.6" ry="3.4" fill="${shade(hairC, 0.12)}" opacity=".5"/>`;
               return d;
             }).join("");
-        case "coily": case "curly": {
+        case "curly": {
           let s = `<g fill="${fHair}">`;
-          const rr = hair === "coily" ? 15 : 13;
+          const rr = 13;
           [[-17, -22, rr], [0, -27, rr + 2], [17, -22, rr], [-25, -6, rr - 2], [25, -6, rr - 2], [-21, 9, rr - 4], [21, 9, rr - 4]]
             .forEach((p) => s += `<circle cx="${hx + p[0]}" cy="${K.headCy + p[1]}" r="${p[2]}"/>`);
           return s + "</g>";
         }
-        case "locs":
-          return `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 8} ${hx} ${t - 9} Q${hx + K.headRx + 3} ${t - 8} ${hx + K.headRx + 2} ${K.headCy} Q${hx} ${K.headCy - 20} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>` +
-            [-26, -19, 19, 26].map((dx) => `<path d="M${hx + dx} ${K.headCy - 4} q${dx < 0 ? -2 : 2} ${(K.chest - K.headCy) / 2} 0 ${K.chest - K.headCy} q3.5 5 7 0" fill="none" stroke="${fHair}" stroke-width="7" stroke-linecap="round"/>`).join("");
         default:
           return `<path d="M${hx - K.headRx - 2} ${K.headCy} Q${hx - K.headRx - 3} ${t - 7} ${hx} ${t - 8} Q${hx + K.headRx + 3} ${t - 7} ${hx + K.headRx + 2} ${K.headCy} Q${hx + K.headRx - 4} ${K.headCy - 15} ${hx} ${K.headCy - 17} Q${hx - K.headRx + 4} ${K.headCy - 15} ${hx - K.headRx - 2} ${K.headCy} Z" fill="${fHair}"/>`;
       }

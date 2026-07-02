@@ -1,62 +1,62 @@
 # designMe — Find Your Vibe
 
-A no-typing, recognition-first avatar creator and style explorer built for self-expression and autonomy.
-
-**Live:** https://adamsantoyo.github.io/designMe/
+A no-typing, recognition-first avatar creator and style explorer built for
+self-expression and autonomy.
 
 ---
 
 ## What it does
 
-- Build a full-body avatar (skin tone, face shape, hair, body, height)
-- Dress it across 18 curated looks in 6 style worlds
-- Every choice is visual — tap to try it on, no text input required
-- Save looks to a personal lookbook (session memory only, nothing is stored)
-- "Find my vibe" this-or-that discovery mode: react to two looks, get a style
+- Build a full-body avatar — skin tone, hair (style + color), face/expression, body
+- Dress it: tops, bottoms, layers, shoes, and recolor any piece
+- Add everyday extras — glasses, hearing tech, jewelry, bags
+- Every choice is visual: **tap a part of the avatar → a tray of options → tap to try
+  it on.** No text input required.
+- Shuffle a fresh look, save to your lookbook, undo any change
 
 ## Who it's for
 
-People who benefit from recognition-over-recall interaction — AAC users, multimodal communicators, and anyone who'd rather *show* what they like than describe it. Representation is a core requirement: 14 skin tones, wide hair range, assistive tech (wheelchair, cane, AAC tablet/board, iPad, letter board, hearing aids, cochlear implants) presented as ordinary options.
+People who benefit from recognition-over-recall interaction — autistic people, AAC
+users, multimodal communicators, and anyone who'd rather *show* what they like than
+describe it. Representation is a core requirement: a wide skin-tone and hair range, and
+assistive tech (hearing aids, cochlear implants, and more) presented as ordinary
+options. Gender-expansive — every item is available to every avatar.
 
-## Running locally
+## The product
 
-No build step, no dependencies. Open the product directly:
+A **React Native + Expo** app — one codebase shipping to **web and iPad**. The avatar
+is drawn by the deterministic **dmFigure** SVG engine (same state always renders the
+same avatar); art is composited locally, with no AI on the interaction path.
+
+### Run it locally
 
 ```
-open index.html
+cd app
+npm install
+brew install watchman   # avoids the macOS EMFILE file-watcher limit
+npm run web             # → http://localhost:8081  (or: npm run ios)
 ```
-
-`index.html` is fully self-contained — it runs from `file://` with no server, no network, and no install.
 
 ## What's in this repo
 
 | Path | What it is |
 |---|---|
-| **`index.html`** | **The product.** One self-contained file — open it and you're running the app. |
-| `feel-prototype.html` | A throwaway experiment testing a different interaction paradigm. Not the product. |
-| `design-system/` | Design reference from a later design pass — tokens, guidelines, React components, and a React **mockup** of this screen (`ui_kits/avatar-studio/`). A style spec; **not** what ships. See `design-system/SKILL.md`. |
-| `CLAUDE.md` | Project brief, north star, and hard constraints. |
+| **`app/`** | **The product** — the Expo app (web + iPad). |
+| `app/src/AvatarStudio.tsx` | The main "avatar is the menu" screen. |
+| `app/src/engine/dmFigure.js` | The deterministic SVG avatar engine. |
+| `app/src/dm.ts` | Catalog + palettes + engine option builder. |
+| `docs/` | Build spec — `build-kickoff`, `art-bible`, `avatar-engine`, `catalog-bible`, audits. |
+| `CLAUDE.md` / `AGENTS.md` | Project brief, north star, hard constraints, agent orientation. |
+| `index.html` | Retired self-contained HTML PoC — **reference + catalog data source only**, not the product. |
+| `design-system/` | Tokens, guidelines, and an earlier React studio mockup — reference. |
 
-> The product is `index.html` and nothing else. Everything under `design-system/` is reference material — the app loads none of it.
-
-## Architecture (the product)
-
-`index.html`, three layers:
+## Architecture (the app)
 
 | Layer | What it does |
 |---|---|
-| **Catalog** (`CAT.*`) | Pure data — every style option and how to render it |
-| **Render engine** | `renderAvatar(state)` → deterministic inline SVG |
-| **UI shell** | Thin DOM layer — pinned avatar, tappable panels, history/undo |
+| **Catalog** (`dm.ts`) | Pure data — every option, palettes, and `buildOpts(state)` |
+| **Engine** (`engine/dmFigure.js`) | `dmFigure(opts)` → deterministic SVG string |
+| **Render** (`SvgString` / `.web`) | Draws the SVG: `SvgXml` on native, a DOM `<div>` on web |
+| **Screen** (`AvatarStudio.tsx`) | Pinned avatar, on-body tap-zones + chips, slide-up trays, history/undo |
 
-No external dependencies, no network requests, **no storage** (state is memory-only by design — a clean slate on every reload, safe for shared devices), no frameworks.
-
-## Deploying updates
-
-```
-git add -A
-git commit -m "your message"
-git push
-```
-
-GitHub Pages publishes from `main` root automatically.
+Front-end only for now — local state, no backend or accounts.

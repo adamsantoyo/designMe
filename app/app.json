@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "designMe",
+    "slug": "designme",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios", "web"],
+    "ios": { "supportsTablet": true },
+    "web": { "bundler": "metro" }
+  }
+}
