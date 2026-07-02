@@ -51,6 +51,13 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
     r = Math.round((t - r) * p + r); g = Math.round((t - g) * p + g); b = Math.round((t - b) * p + b);
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
+  // linear blend of two hexes (t=0 → a, t=1 → b) — for tone-aware tints (blush)
+  function mixc(a, b, t) {
+    const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+    const c = (x, y) => Math.round(x + (y - x) * t);
+    const r = c((pa >> 16) & 255, (pb >> 16) & 255), g = c((pa >> 8) & 255, (pb >> 8) & 255), bl = c(pa & 255, pb & 255);
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + bl).toString(16).slice(1);
+  }
   const isLight = (hex) => {
     const n = parseInt(hex.slice(1), 16);
     return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) > 152;
@@ -150,8 +157,11 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
     const cx = K.cx;
     const P = (s, x, y) => `${R(cx + s * x)} ${R(y)}`;
 
-    const grad = (gid, c, lift = 0.15, drop = 0.15) =>
-      `<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${shade(c, lift)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, -drop)}"/></linearGradient>`;
+    // Two-tone lane (art bible / CLAUDE.md decision #5): fills are FLAT — all
+    // shading comes from sideShade(), the single directional shadow+light overlay.
+    // The gradient def survives (flat) so every url(#…) fill ref keeps working.
+    const grad = (gid, c) =>
+      `<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
     const fSkin = `url(#sk_${id})`, fTop = `url(#tp_${id})`, fBot = `url(#bt_${id})`, fHair = `url(#hr_${id})`;
     const sideShade = (d) => `<path d="${d}" fill="url(#sx_${id})"/>`;
 
@@ -428,7 +438,7 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
           const pts = K.armPts(sd), ws = K.armWs.map((w) => w + eS * 0.45 + 1.5);
           const d = subTube(pts, ws, fr);
           sleeveDs.push(d);
-          s += `<path d="${d}" fill="${fTop}"/>`;
+          s += `<path d="${d}" fill="${fTop}"/>` + sideShade(d);
           const end = along(pts, ws, fr);
           if (sleeve === "long") {
             const cuff = subTube(pts, ws.map((w) => w - 0.4), fr);
@@ -631,21 +641,42 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
     /* ---------------- head & hair ---------------- */
     function head() {
       const eyeY = K.headCy - 3, hx = cx;
+      const ink = "#372a20";
+      // Mouth: filled lip shapes — a stroke-only mouth reads flat at hero scale.
+      const my = K.headCy + 12;
       const mouth = expr === "calm"
-        ? line(`M${hx - 7} ${K.headCy + 14} h14`, shade(skin, -0.3), 2.2)
+        ? `<path d="M${hx - 6.5} ${my + 1} q6.5 2.2 13 0 q-6.5 3.4 -13 0 z" fill="${shade(skin, -0.3)}"/>`
         : expr === "soft"
-        ? line(`M${hx - 7} ${K.headCy + 13} q7 4 14 0`, shade(skin, -0.3), 2.2)
-        : line(`M${hx - 8} ${K.headCy + 12} q8 7.5 16 0`, shade(skin, -0.32), 2.5);
+        ? `<path d="M${hx - 7} ${my} Q${hx} ${my + 4.6} ${hx + 7} ${my} Q${hx} ${my + 2.2} ${hx - 7} ${my} Z" fill="${shade(skin, -0.3)}"/>`
+        : `<path d="M${hx - 8} ${my} Q${hx} ${my + 7.6} ${hx + 8} ${my} Q${hx} ${my + 3} ${hx - 8} ${my} Z" fill="${shade(skin, -0.32)}"/>` +
+          line(`M${hx - 3} ${my + 6.7} q3 1.4 6 0`, shade(skin, 0.18), 1.2, 0.6);
+      // Almond eyes with a lash line + highlight. Eye centers stay at ±10 — all
+      // three glasses renderers center their lenses there.
+      const eye = (s) => {
+        const ex = hx + s * 10, aw = 4.8, ah = 3.5;
+        const inner = R(ex - s * aw), outer = R(ex + s * aw);
+        return `<path d="M${inner} ${eyeY + 0.6} Q${ex} ${eyeY - ah} ${outer} ${eyeY - 0.2} Q${ex} ${eyeY + ah * 0.95} ${inner} ${eyeY + 0.6} Z" fill="${ink}"/>` +
+          line(`M${inner} ${eyeY - 0.8} Q${ex} ${eyeY - ah - 0.7} ${outer} ${eyeY - 1.2}`, ink, 1.2, 0.55) +
+          `<circle cx="${R(ex - s * 1.3)}" cy="${eyeY - 1.1}" r="0.95" fill="#fff" opacity=".85"/>`;
+      };
+      // Brows: small tapered fills (the tube primitive at brow scale), not scribbles.
+      const brow = (s) => {
+        const pts = [[hx + s * 5.5, eyeY - 7.4], [hx + s * 10, eyeY - 9], [hx + s * 15, eyeY - 7.6]];
+        return `<path d="${tube(pts, [1.5, 2.1, 1.1])}" fill="${shade(hairC, -0.05)}"/>`;
+      };
+      // Tone-aware blush: blended FROM the skin toward a warm rose so it reads
+      // correctly on every one of the 14 tones (a fixed pink washes out on deep
+      // skin and shouts on light skin).
+      const blushC = mixc(skin, "#c9584a", 0.4);
       let f = `<ellipse cx="${hx}" cy="${K.headCy}" rx="${K.headRx}" ry="${K.headRy}" fill="${fSkin}"/>
         <ellipse cx="${hx - K.headRx}" cy="${K.headCy + 4}" rx="5" ry="6" fill="${fSkin}"/>
         <ellipse cx="${hx + K.headRx}" cy="${K.headCy + 4}" rx="5" ry="6" fill="${fSkin}"/>
-        <ellipse cx="${hx - 12}" cy="${K.headCy + 9}" rx="6.5" ry="4" fill="#d98b76" opacity=".3"/>
-        <ellipse cx="${hx + 12}" cy="${K.headCy + 9}" rx="6.5" ry="4" fill="#d98b76" opacity=".3"/>
-        <circle cx="${hx - 10}" cy="${eyeY}" r="3.1" fill="#372a20"/><circle cx="${hx + 10}" cy="${eyeY}" r="3.1" fill="#372a20"/>
-        <circle cx="${hx - 9}" cy="${eyeY - 1}" r="1" fill="#fff" opacity=".85"/><circle cx="${hx + 11}" cy="${eyeY - 1}" r="1" fill="#fff" opacity=".85"/>
-        ${line(`M${hx - 15} ${eyeY - 8} q5 -3 10 -0.5`, shade(hairC, -0.05), 2)}
-        ${line(`M${hx + 5} ${eyeY - 8.5} q5 -2.5 10 0.5`, shade(hairC, -0.05), 2)}
-        ${line(`M${hx} ${K.headCy + 1} q2.5 5 -1 7.5`, shade(skin, -0.2), 1.8)}
+        <ellipse cx="${hx - 12}" cy="${K.headCy + 9.5}" rx="6" ry="3.6" fill="${blushC}" opacity=".32"/>
+        <ellipse cx="${hx + 12}" cy="${K.headCy + 9.5}" rx="6" ry="3.6" fill="${blushC}" opacity=".32"/>
+        ${sideShade(`M${hx - K.headRx} ${K.headCy} a${K.headRx} ${K.headRy} 0 1 0 ${K.headRx * 2} 0 a${K.headRx} ${K.headRy} 0 1 0 ${-K.headRx * 2} 0 Z`)}
+        ${eye(-1)}${eye(1)}
+        ${brow(-1)}${brow(1)}
+        ${line(`M${hx} ${K.headCy + 1} q2.5 5 -1 7.5`, shade(skin, -0.2), 1.6, 0.8)}
         ${mouth}`;
       /* identity extras carried over from the bust language */
       if (o.feature === "freckles") {
@@ -812,6 +843,7 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
     const coverHair = extHeadwear.coversHair(o.headwear);
     const legSkinL = tube(K.legPts(-1), K.legWs), legSkinR = tube(K.legPts(1), K.legWs);
     const armL = tube(K.armPts(-1), K.armWs), armR = tube(K.armPts(1), K.armWs);
+    const torsoD = torsoPath();
     const wL = K.armPts(-1)[2], wR = K.armPts(1)[2];
     // mitt hand: rounded palm tapering slightly, subtle thumb notch on the inner
     // side (the side facing the body midline). Same footprint as the old bare
@@ -842,6 +874,7 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
 
     const standingLower = `
   <path d="${legSkinL}" fill="${fSkin}"/><path d="${legSkinR}" fill="${fSkin}"/>
+  ${sideShade(legSkinL)}${sideShade(legSkinR)}
   ${footSkin(-1)}${footSkin(1)}
   ${drawShoes()}
   ${drawBottom()}`;
@@ -861,9 +894,11 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
   <path d="M${P(-1, K.neckW, K.chin - 6)} Q${P(-1, K.neckW - 0.5, (K.chin - 6 + K.neckBot + 2) / 2)} ${P(-1, K.neckW + 2, K.neckBot + 2)} L${P(1, K.neckW + 2, K.neckBot + 2)} Q${P(1, K.neckW - 0.5, (K.chin - 6 + K.neckBot + 2) / 2)} ${P(1, K.neckW, K.chin - 6)} Z" fill="${shade(skin, -0.07)}"/>
   ${seated ? extWheel.seated(ctx) : standingLower}
   <path d="${armL}" fill="${fSkin}"/><path d="${armR}" fill="${fSkin}"/>
+  ${sideShade(armL)}${sideShade(armR)}
   ${mitt(-1, wL)}
   ${mitt(1, wR)}
-  <path d="${torsoPath()}" fill="${fSkin}"/>
+  <path d="${torsoD}" fill="${fSkin}"/>
+  ${sideShade(torsoD)}
   ${drawTop()}
   ${drawCarry("crossbody")}
   ${drawOuter()}
