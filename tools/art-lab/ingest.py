@@ -84,6 +84,20 @@ def normalize(im: Image.Image) -> Image.Image:
     return out
 
 
+def optimize(im: Image.Image) -> Image.Image:
+    """Shrink the shipped master ~85% with no visible loss on two-tone flat art:
+    zero the RGB of fully transparent pixels (the generator leaves invisible junk
+    there that wrecks PNG compression), then adaptive-palette quantize — 192
+    entries cover flat base + two shading tones + anti-aliased edges comfortably.
+    Skip with --no-optimize if an asset ever shows banding."""
+    px = im.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            if px[x, y][3] == 0:
+                px[x, y] = (0, 0, 0, 0)
+    return im.quantize(colors=192, method=Image.FASTOCTREE)
+
+
 def place(im: Image.Image, spec: str) -> Image.Image:
     """Escape hatch for off-frame sources: --place scale,dx,dy (canvas px).
 
@@ -125,8 +139,12 @@ def main() -> None:
 
     dest = ROOT / "app" / "assets" / "parts" / (key + ".png")
     dest.parent.mkdir(parents=True, exist_ok=True)
-    im.save(dest)
     opaque = sum(im.getchannel("A").histogram()[255:]) / (CANVAS[0] * CANVAS[1])
+    if "--no-optimize" in flags:
+        im.save(dest)
+    else:
+        im = optimize(im)
+        im.save(dest, optimize=True)
     print(f"wrote {dest.relative_to(ROOT)}  ({opaque:.0%} opaque)")
     print("paste into app/src/parts/registry.ts:")
     print(f'  "{key}": require("../../assets/parts/{key}.png"),')
