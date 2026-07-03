@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "seed": "foundry-hero-loose-waves-hoodie",
+  "anatomy": {
+    "body": "balanced",
+    "height": "medium",
+    "stance": "soft-front",
+    "proportions": {
+      "shoulder": 1,
+      "waist": 1,
+      "hip": 1,
+      "arm": 1,
+      "leg": 1
+    }
+  },
+  "identity": {
+    "skin": "#a87c58",
+    "faceShape": "oval",
+    "brow": "soft",
+    "eye": "almond",
+    "eyeColor": "#2f221b",
+    "nose": "rounded",
+    "lip": "soft",
+    "expression": "soft"
+  },
+  "hair": {
+    "family": "wavy",
+    "style": "wavyM",
+    "volume": 0.88,
+    "color": "#3f2b1f"
+  },
+  "outfit": {
+    "top": "hoodie",
+    "bottom": "barrelJean",
+    "shoe": "classicSneaker",
+    "palette": "sage-denim-cream",
+    "topColor": "#8aa382",
+    "bottomColor": "#5a6f8c"
+  },
+  "assistive": {},
+  "artDirection": {
+    "lineWeight": 1.45,
+    "softness": 0.78,
+    "detailLevel": 0.72,
+    "editorialWarmth": 0.9
+  }
+}
