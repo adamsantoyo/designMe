@@ -59,7 +59,7 @@ NFR7: Art lane locked — two-tone handcrafted, neutral masters + multiply recol
 
 ### UX Design Requirements
 
-No separate UX design contract exists; UX requirements are embedded in FR1–FR4 success criteria and NFR1–NFR3 (avatar-is-the-menu interaction, calm/premium visual language via theme tokens, tray/tile interaction pattern, this-or-that binary door).
+The UX design contract lives at `ux-designs/ux-designme-2026-07-03/` (DESIGN.md + EXPERIENCE.md, final 2026-07-03). It codifies rather than adds requirements — FR1–FR4 and NFR1–NFR3 remain the requirement source; the spines govern implementation detail (tokens, component behavior, state patterns, interaction primitives, Sofia/Rio journeys) and win over any mock on conflict.
 
 ### FR Coverage Map
 
