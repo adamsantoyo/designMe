@@ -15,8 +15,9 @@ from pathlib import Path
 
 from PIL import Image, ImageFilter
 
-HUE_LO, HUE_HI = 70, 175   # degrees — green band (sage drift included)
-MIN_SAT = 0.12             # below this it's neutral/cream, keep it
+HUE_LO, HUE_HI = 55, 175   # degrees — green band incl. sage AND olive drift
+MIN_SAT = 0.10             # below this it's neutral/cream, keep it
+# warm creams are safe from the wider band: they have r >= g, which is_green rejects
 
 src, dst = Path(sys.argv[1]), Path(sys.argv[2])
 im = Image.open(src).convert("RGBA")

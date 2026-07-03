@@ -130,7 +130,7 @@ Format: `- [ ] filename — one-line prompt` · `(P1)`/`(P2)` marks lower priori
 - [ ] `body/lean.png` — base figure with a lean build
 - [ ] `body/balanced.png` — base figure with a balanced build
 - [ ] `body/broad.png` — base figure with a broad build
-- [ ] `body/curves.png` — base figure with curves
+- [ ] `body/curves.png` — base figure with a soft, gently rounded silhouette — an abstract friendly mannequin build, smooth simplified surface, no anatomical detail
 - [ ] `body/full.png` — base figure with a full build
 - [ ] `body/seated.png` — base figure seated upright (needed for the wheelchair)
 - [ ] `height/_note` — height = scale the base figure (shorter→taller); no separate asset

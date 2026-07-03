@@ -214,7 +214,7 @@ const wornPrompt = (it) => [
     ? "FACE-SHAPE SPECIAL CASE: this item is not hair and not a feature — it is the face panel itself. Repaint the front of the figure's head as one smooth flat face-shaped panel of the named shape, in the near-white master tone with its two soft shading tones, fitted exactly over the head. No hair, no eyes, no brows, no nose, no mouth, no ears — a blank face panel only. The panel covers ONLY the face: it ends at the jaw/chin line and never extends onto the neck, shoulders, or chest. Everything else stays green."
     : "",
   it.category === "hair"
-    ? "HAIR RULE: style the hair so the face stays clear — the fringe may touch the brow line but must NEVER cover or cross the eye area; the green face (eyes, nose, mouth region) remains fully visible."
+    ? "HAIR RULE: style the hair so the face stays clear — the fringe may touch the brow line but must NEVER cover or cross the eye area; the green face (eyes, nose, mouth region) remains fully visible. Draw the COMPLETE hairstyle fully visible IN FRONT of the figure — every part that would naturally sit behind the head, shoulders, or back (buns, ponytails, tails, long lengths) is drawn on top of the green figure instead, like a full wig displayed on a mannequin; no strand may be occluded by the figure."
     : "",
   it.category === "shoe"
     ? "SHOE RULE: the shoes fully cover and contain the figure's feet — no green toe, heel, or sole edge may remain visible; the shoe silhouette entirely replaces the foot silhouette."

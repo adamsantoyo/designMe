@@ -19,7 +19,7 @@ from pathlib import Path
 
 from PIL import Image
 
-HUE_LO, HUE_HI, MIN_SAT = 70, 175, 0.12
+HUE_LO, HUE_HI, MIN_SAT = 55, 175, 0.10  # keep in sync with key.py (olive drift included)
 ALPHA_MIN = 60
 MIN_AREA = 12
 
