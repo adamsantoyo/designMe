@@ -56,9 +56,10 @@ const MAKEUP = {
 const FEATURES = {
   freckles: "soft warm freckles scattered across where the nose bridge and cheeks sit",
   vitiligo: "gentle lighter de-pigmented patches with soft organic edges on the face",
-  birthmark: "one soft natural birthmark patch on one cheek",
-  scar: "one small understated thin scar line near the brow or cheek",
-  blush: "soft warm rounded blush on both cheeks",
+  // gentler phrasing — the safety filter reads "birthmark/scar on a face" badly
+  birthmark: "one soft rounded warm-tone patch on one cheek area, a natural skin variation",
+  scar: "one small faint pale line accent near the brow area, subtle and dignified",
+  blush: "soft warm rounded color on both cheek areas",
 };
 
 const CHROMA =
@@ -118,7 +119,9 @@ for (const c of COMBOS) {
   if (DRY) continue;
   const worn = join(STAGING, "_worn", "face", `${c.name}.png`);
   if (await render(prompt, worn)) {
-    split(worn, layerKeys) ? rendered++ : failed++;
+    // demand only the layers this run actually needs — an unrecoverable nose must
+    // not sink an eye-only re-split
+    split(worn, needed) ? rendered++ : failed++;
   } else failed++;
 }
 

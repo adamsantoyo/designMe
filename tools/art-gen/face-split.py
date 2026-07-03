@@ -92,6 +92,8 @@ gy0, gy1, gx0, gx1 = green_head
 by0, by1, bx0, bx1 = base_head
 s = (by1 - by0) / (gy1 - gy0)
 print(f"green head y {gy0}-{gy1} x {gx0}-{gx1} -> base head y {by0}-{by1} x {bx0}-{bx1} (scale {s:.3f})")
+if not (0.1 <= s <= 3.0):
+    sys.exit(f"FACE SPLIT FAIL: implausible head scale {s:.2f} — head measurement broke (cropped/edge-touching render?)")
 
 # feature pixels: non-green, opaque, inside the green head box (pad a little)
 pad = int((gy1 - gy0) * 0.15)

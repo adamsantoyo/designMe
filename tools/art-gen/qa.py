@@ -63,12 +63,13 @@ PALETTE = [
     "#47321e", "#705436", "#4b6348", "#608694", "#7c858a", "#644b7a",
     "#c4607a", "#b23b43", "#8a3a5e", "#d9745e", "#b07b66", "#a86b3f", "#7a5fb0",
 ]
-MAX_SAT_NEUTRAL = 0.30   # mean saturation ceiling for recolor masters
+MAX_SAT_NEUTRAL = 0.35   # recolor-master ceiling — deep-tone multiply proof passed at 0.33
 MAX_COVERAGE = 0.85      # more opaque than this = background almost certainly baked
 MIN_COVERAGE = 0.005     # less than this = generation came back essentially empty
 # single facial features are legitimately tiny on the full frame
 MIN_COVERAGE_BY_CAT = {"brow": 0.0001, "eye": 0.0002, "nose": 0.00005, "lip": 0.0002,
-                       "makeup": 0.0002, "feature": 0.0001, "jewelry": 0.0001, "hearing": 0.0001}
+                       "makeup": 0.0002, "feature": 0.0001, "jewelry": 0.0001, "hearing": 0.0001,
+                       "glasses": 0.001}  # thin frames are ~0.2% of the full frame
 CENTER_TOL = 40          # px of bbox-midline drift off x=512 before we warn
 
 # Which categories are neutral recolor masters, straight from the worksheet notes.
