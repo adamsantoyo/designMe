@@ -12,14 +12,25 @@
 // Start with `body/balanced` (the base body), then hair, then the rest.
 
 export const PARTS: Record<string, number> = {
-  // ── add your require() lines below ──────────────────────────────────────────
-  // Ingest downloads with:  tools/art-lab/ingest.py <file.png> <category/id>
-  // (it cleans halos, registers onto the canonical canvas, and prints this line).
-  // DEMO: your _art/wavy_transp.png, wired in to prove recolor works. Replace or
-  // remove once real, body-registered art exists.
-  "hair/wavyM": require("../../assets/parts/hair/wavyM.png"),
+  // -- add your require() lines below ------------------------------------------
+  // Generate with tools/art-gen/ (greenscreen-worn pipeline), approve on the
+  // contact sheet, then tools/art-gen/ingest-approved.mjs prints these lines.
+  // Only contact-sheet-APPROVED parts belong here — presence in assets/ alone
+  // means nothing (skin/base lives there as the registration master, unlisted).
+  "bottom/barrelJean": require("../../assets/parts/bottom/barrelJean.png"),
+  "hair/definedCurls": require("../../assets/parts/hair/definedCurls.png"),
+  "mobility/wheelchair": require("../../assets/parts/mobility/wheelchair.png"),
+  "shoe/classicSneaker": require("../../assets/parts/shoe/classicSneaker.png"),
+  "top/hoodie": require("../../assets/parts/top/hoodie.png"),
+  // first-slice completion (2026-07-03) — pending contact-sheet approval; body/balanced
+  // is the approved base figure itself (balanced build == the base)
   "body/balanced": require("../../assets/parts/body/balanced.png"),
-  // "top/hoodie":    require("../../assets/parts/top/hoodie.png"),
+  "hair/wavyM": require("../../assets/parts/hair/wavyM.png"),
+  "faceShape/oval": require("../../assets/parts/faceShape/oval.png"),
+  "eye/almond": require("../../assets/parts/eye/almond.png"),
+  "brow/soft": require("../../assets/parts/brow/soft.png"),
+  "nose/rounded": require("../../assets/parts/nose/rounded.png"),
+  "lip/soft": require("../../assets/parts/lip/soft.png"),
 };
 
 export const hasPart = (key: string): boolean =>

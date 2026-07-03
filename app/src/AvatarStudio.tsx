@@ -21,7 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import SvgString from "./SvgString";
 import { theme } from "./theme";
-import AvatarCanvas from "./AvatarCanvas";
+import AvatarCanvas, { type AvatarEngine } from "./AvatarCanvas";
 import ThisOrThat from "./ThisOrThat";
 import UIPressable from "./ui/Pressable";
 import { Hairline, RadialMat } from "./ui/TopHighlight";
@@ -33,6 +33,7 @@ import type { Av } from "./dm";
 
 type Region = "hair" | "face" | "body" | "top" | "bottom" | "shoes" | "extras";
 type SavedLook = { id: string; savedAt: number; av: Av };
+declare const process: { env?: Record<string, string | undefined> } | undefined;
 type ColorRow = { key: string; title: string; colors: { v: string; sel: boolean; onTap: () => void; aria: string }[] };
 type Tile = {
   key: string;
@@ -44,22 +45,30 @@ type Tile = {
   onTap: () => void;
 };
 
-// v2: catalog ids moved to the item bible (docs/catalog-bible.md); v1 data used
-// retired ids and would render wrong, so v2 starts clean.
-const LOOKBOOK_KEY = "designMe.lookbook.v2";
-const CURRENT_AV_KEY = "designMe.currentAv.v2";
+// v3: PNG slice must never restore pre-Skia partial states into the main stage.
+const LOOKBOOK_KEY = "designMe.lookbook.v3";
+const CURRENT_AV_KEY = "designMe.currentAv.v3";
 const EXPLORED_KEY = "designMe.explored.v1";
 const LOOKBOOK_CAP = 24;
+// re-enabled 2026-07-03: registry carries the approved art-gen slice
+const PNG_LAB_ENABLED = true;
+const FOUNDRY_ENGINE_ENABLED = typeof process !== "undefined" && process.env?.EXPO_PUBLIC_FOUNDRY_ENGINE === "1";
+const ENGINE_LAB_MODES: AvatarEngine[] = [
+  "svg",
+  ...(FOUNDRY_ENGINE_ENABLED ? ["foundry" as const] : []),
+  ...(PNG_LAB_ENABLED ? ["png" as const] : []),
+];
 const AV_KEYS: (keyof Av)[] = [
   "skin", "body", "height", "hair", "hairColor", "expression", "feature",
+  "faceShape", "brow", "eye", "eyeColor", "nose", "lip", "makeup", "makeupColor",
   "glasses", "hearing", "headwear", "jewelry", "tool", "aac", "mobility",
   "carry", "top", "topColor", "pattern",
   "bottom", "bottomColor", "layer", "layerColor", "shoes",
 ];
 
 const META: Record<Region, { title: string; hint: string }> = {
-  hair: { title: "Hair", hint: "Tap a style" },
-  face: { title: "Face", hint: "Skin tone, expression, and features" },
+  hair: { title: "Hair", hint: "Start with the hair family, then the style" },
+  face: { title: "Face", hint: "Skin, shape, eyes, features, and makeup" },
   body: { title: "Body", hint: "Body shape first, then height" },
   top: { title: "Top", hint: "Tops first, then outer layers" },
   bottom: { title: "Bottom", hint: "Tap to try it on" },
@@ -119,6 +128,56 @@ const EXTRA_GROUPS: { key: string; label: string; list: DM.Item[]; dim: keyof Av
   { key: "carry", label: "Bags", list: DM.carries, dim: "carry", crop: CROP.CAR },
 ];
 
+const FACE_GROUPS = [
+  { key: "skin", label: "Skin" },
+  { key: "shape", label: "Shape" },
+  { key: "eyes", label: "Eyes/brows" },
+  { key: "noseLip", label: "Nose/lips" },
+  { key: "details", label: "Details" },
+] as const;
+type FaceGroupKey = typeof FACE_GROUPS[number]["key"];
+
+const HAIR_GROUPS = [
+  { key: "loose", label: "Loose", ids: ["wavyM", "straightL", "layers", "bigBlowout", "curtain"] },
+  { key: "up", label: "Up", ids: ["halfUp", "lowPony", "highPony", "lowBun", "highBun", "sleekBun", "messyBun", "clawClip"] },
+  { key: "braid", label: "Braids/curls", ids: ["braid", "pigtails", "definedCurls"] },
+  { key: "short", label: "Short", ids: ["bob", "pixie", "shortCrop", "taperFade", "buzzCut", "shaved", "bald"] },
+] as const;
+type HairGroupKey = typeof HAIR_GROUPS[number]["key"];
+
+const TOP_GROUPS = [
+  { key: "comfort", label: "Comfort", ids: ["hoodie", "sweatshirt", "plainTee", "boxyTee", "longSleeveTee"] },
+  { key: "knit", label: "Knits", ids: ["sweater", "cardigan", "buttonCardigan", "asymKnit", "wrapTop"] },
+  { key: "shirt", label: "Shirts", ids: ["button", "flannel", "jersey"] },
+  { key: "statement", label: "Statement", ids: ["ribTank", "babyTee", "meshLayer", "cropCorset", "slipDress", "bomber"] },
+  { key: "layer", label: "Layers", ids: ["none", "drapedShirt", "denimJacket", "blazer", "utility", "shell"] },
+] as const;
+type TopGroupKey = typeof TOP_GROUPS[number]["key"];
+
+const BOTTOM_GROUPS = [
+  { key: "denim", label: "Denim", ids: ["barrelJean", "straightJean", "wideDenim", "jorts"] },
+  { key: "soft", label: "Soft", ids: ["joggers", "trackPant", "parachute", "leggings", "bikeShorts", "shorts"] },
+  { key: "trouser", label: "Trousers", ids: ["wideTrouser", "cargo", "chinos", "dressPants"] },
+  { key: "skirt", label: "Skirts", ids: ["miniSkirt", "midiSkirt", "pleatedSkirt", "slipSkirt", "cargoMaxi", "maxiSkirt"] },
+] as const;
+type BottomGroupKey = typeof BOTTOM_GROUPS[number]["key"];
+
+const PNG_SLICE = {
+  body: new Set(["balanced"]),
+  hair: new Set(["wavyM", "definedCurls"]),
+  top: new Set(["hoodie"]),
+  layer: new Set(["none"]),
+  bottom: new Set(["barrelJean"]),
+  shoes: new Set(["classicSneaker"]),
+  faceShape: new Set(["oval"]),
+  brow: new Set(["soft"]),
+  eye: new Set(["almond"]),
+  nose: new Set(["rounded"]),
+  lip: new Set(["soft"]),
+  makeup: new Set(["none", "natural"]),
+  mobility: new Set(["wheelchair"]),
+};
+
 const ICON: Record<string, string> = {
   hair: '<path d="M4 13.5C4 8.3 7.6 5 12 5s8 3.3 8 8.5"/><path d="M6.5 13.5c.8 2.2 2.8 3.8 5.5 3.8s4.7-1.6 5.5-3.8"/><path d="M9 9.6c.7.8 1.8 1.3 3 1.3s2.3-.5 3-1.3"/>',
   face: '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1.2 2.1 1.8 3.5 1.8s2.6-.6 3.5-1.8"/><path d="M9 9.5h.01"/><path d="M15 9.5h.01"/>',
@@ -147,8 +206,12 @@ const copyAv = (av: Av): Av => {
 };
 
 const avKey = (av: Av) => JSON.stringify(copyAv(av));
-const isAv = (value: unknown): value is Av =>
-  !!value && typeof value === "object" && AV_KEYS.every((key) => typeof (value as Record<string, unknown>)[key] === "string");
+const normalizeAv = (value: unknown): Av | null => {
+  if (!value || typeof value !== "object") return null;
+  const merged = { ...DM.defaultAv, ...(value as Record<string, unknown>) };
+  if (!AV_KEYS.every((key) => typeof merged[key] === "string")) return null;
+  return copyAv(merged as Av);
+};
 
 function parseLooks(raw: string | null): SavedLook[] {
   if (!raw) return [];
@@ -158,8 +221,9 @@ function parseLooks(raw: string | null): SavedLook[] {
   const out: SavedLook[] = [];
   const seen = new Set<string>();
   for (const item of parsed) {
-    if (!item || typeof item !== "object" || !isAv((item as any).av)) continue;
-    const av = copyAv((item as any).av);
+    if (!item || typeof item !== "object") continue;
+    const av = normalizeAv((item as any).av);
+    if (!av) continue;
     const key = avKey(av);
     if (seen.has(key)) continue;
     seen.add(key);
@@ -184,12 +248,16 @@ export default function AvatarStudio() {
   const [av, setAv] = useState<Av>(() => DM.shuffleAv(DM.defaultAv));
   const [region, setRegion] = useState<Region | null>(null);
   const [extrasTab, setExtrasTab] = useState(EXTRA_GROUPS[0].key);
+  const [faceTab, setFaceTab] = useState<FaceGroupKey>("skin");
+  const [hairTab, setHairTab] = useState<HairGroupKey>("loose");
+  const [topTab, setTopTab] = useState<TopGroupKey>("comfort");
+  const [bottomTab, setBottomTab] = useState<BottomGroupKey>("denim");
   const [history, setHistory] = useState<Av[]>([]);
   const [looks, setLooks] = useState<SavedLook[]>([]);
   const [lookbookOpen, setLookbookOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [bump, setBump] = useState(0);
-  const [engineMode, setEngineMode] = useState<"svg" | "png">("svg");
+  const [engineMode, setEngineMode] = useState<AvatarEngine>("svg");
   const [hydrated, setHydrated] = useState(false);
   const [vibeOpen, setVibeOpen] = useState(false);
   const [explored, setExplored] = useState(true); // true until storage says otherwise
@@ -197,6 +265,8 @@ export default function AvatarStudio() {
   const reduceMotion = useReducedMotion();
 
   const { width: W, height: H } = useWindowDimensions();
+  const narrowHeader = W < 640;
+  const headerH = narrowHeader ? 124 : HDR;
   const settle = useRef(new Animated.Value(1)).current;
   const breathe = useRef(new Animated.Value(0)).current;
   const pulse = useRef(new Animated.Value(0)).current;
@@ -248,7 +318,8 @@ export default function AvatarStudio() {
       .then((raw) => {
         if (!mounted || !raw) return;
         const parsed = JSON.parse(raw);
-        if (isAv(parsed)) setAv(copyAv(parsed));
+        const restored = normalizeAv(parsed);
+        if (restored) setAv(restored);
       })
       .catch(() => {})
       .finally(() => {
@@ -343,21 +414,26 @@ export default function AvatarStudio() {
   // The card must fit the space *left over* when a tray is open — otherwise the
   // page overflows and the browser scrolls the header (Save/Shuffle/Undo) off-screen.
   const sheetOpen = !!region || lookbookOpen;
-  const stageH = H - HDR - (sheetOpen ? TRAY_H - 40 : 0);
-  let cardH = Math.min(stageH - 36, 780);
+  const stageH = H - headerH - (sheetOpen ? TRAY_H - 40 : 0);
+  let cardH = Math.min(stageH - 28, W >= 1024 ? 860 : 780);
   let cardW = (cardH * 62) / 100;
   const maxW = W - 48;
   if (cardW > maxW) {
     cardW = maxW;
     cardH = (cardW * 100) / 62;
   }
-  const wrapH = cardH * 0.9;
+  const wrapH = cardH * (W >= 900 ? 0.94 : 0.9);
   const wrapW = (wrapH * 240) / 490;
   const trayTranslate = tray.interpolate({ inputRange: [0, 1], outputRange: [TRAY_H + 28, 0] });
   const lookbookTranslate = lookbook.interpolate({ inputRange: [0, 1], outputRange: [TRAY_H + 28, 0] });
   const scrimOpacity = Animated.add(tray, lookbook).interpolate({ inputRange: [0, 1], outputRange: [0, 0.3], extrapolate: "clamp" });
   const breatheY = breathe.interpolate({ inputRange: [0, 1], outputRange: [0, -4] });
   const chipPulseOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.55] });
+  const pngMode = engineMode === "png";
+  const activeExtraGroups = pngMode ? EXTRA_GROUPS.filter((g) => g.key === "mobility") : EXTRA_GROUPS;
+  const activeHairGroups = pngMode ? HAIR_GROUPS.filter((g) => g.key === "loose") : HAIR_GROUPS;
+  const activeTopGroups = pngMode ? TOP_GROUPS.filter((g) => g.key === "comfort") : TOP_GROUPS;
+  const activeBottomGroups = pngMode ? BOTTOM_GROUPS.filter((g) => g.key === "denim") : BOTTOM_GROUPS;
 
   const persistLooks = (next: SavedLook[]) => {
     AsyncStorage.setItem(LOOKBOOK_KEY, JSON.stringify(next))
@@ -414,8 +490,8 @@ export default function AvatarStudio() {
     }
     setLookbookOpen(false);
     if (r === "extras" && region !== "extras") {
-      const worn = EXTRA_GROUPS.find((g) => (av as any)[g.dim] !== "none");
-      setExtrasTab((worn || EXTRA_GROUPS[0]).key);
+      const worn = activeExtraGroups.find((g) => (av as any)[g.dim] !== "none");
+      setExtrasTab((worn || activeExtraGroups[0] || EXTRA_GROUPS[0]).key);
     }
     setRegion((cur) => (cur === r ? null : r));
   };
@@ -427,15 +503,48 @@ export default function AvatarStudio() {
   const colorRowsFor = (r: Region): ColorRow[] => {
     const mk = (list: DM.ColorOpt[], sel: string, key: keyof Av, title: string) =>
       list.map((c) => ({ v: c.v, aria: `${title}: ${c.label}`, sel: sel === c.v, onTap: () => apply({ [key]: c.v } as Partial<Av>) }));
-    if (r === "hair") return [{ key: "hairColor", title: "Hair color", colors: mk(DM.hairColors, av.hairColor, "hairColor", "Hair color") }];
-    if (r === "face") return [{ key: "skin", title: "Skin tone", colors: mk(DM.skins, av.skin, "skin", "Skin tone") }];
-    if (r === "bottom") return [{ key: "bottomColor", title: "Bottom color", colors: mk(DM.garmentColors, av.bottomColor, "bottomColor", "Bottom color") }];
+    const band = (key: string, title: string, colors: DM.ColorOpt[], sel: string, dim: keyof Av) => ({
+      key, title, colors: mk(colors, sel, dim, title),
+    });
+    const skinA = DM.skins.slice(0, 7);
+    const skinB = DM.skins.slice(7);
+    const hairA = DM.hairColors.slice(0, 10);
+    const hairB = DM.hairColors.slice(10);
+    const garmentA = DM.garmentColors.slice(0, 8);
+    const garmentB = DM.garmentColors.slice(8);
+
+    if (r === "hair") {
+      return [
+        band("hairColor_natural", "Natural hair colors", hairA, av.hairColor, "hairColor"),
+        band("hairColor_silverBright", "Silver and expressive", hairB, av.hairColor, "hairColor"),
+      ];
+    }
+    if (r === "face") {
+      if (faceTab === "skin") {
+        return [
+          band("skin_deep", "Deep to chestnut", skinA, av.skin, "skin"),
+          band("skin_warm", "Golden to fair", skinB, av.skin, "skin"),
+        ];
+      }
+      if (faceTab === "eyes") return [band("eyeColor", "Eye color", DM.eyeColors, av.eyeColor, "eyeColor")];
+      if (faceTab === "details" && av.makeup !== "none") {
+        return [band("makeupColor", "Makeup color", DM.makeupColors, av.makeupColor, "makeupColor")];
+      }
+      return [];
+    }
+    if (r === "bottom") {
+      return [
+        band("bottomColor_soft", "Soft and warm", garmentA, av.bottomColor, "bottomColor"),
+        band("bottomColor_cool", "Cool and deep", garmentB, av.bottomColor, "bottomColor"),
+      ];
+    }
     if (r === "top") {
       const rows: ColorRow[] = [
-        { key: "topColor", title: "Top color", colors: mk(DM.garmentColors, av.topColor, "topColor", "Top color") },
+        band("topColor_soft", "Soft and warm", garmentA, av.topColor, "topColor"),
+        band("topColor_cool", "Cool and deep", garmentB, av.topColor, "topColor"),
       ];
       if (av.layer !== "none") {
-        rows.push({ key: "layerColor", title: "Layer color", colors: mk(DM.garmentColors, av.layerColor, "layerColor", "Layer color") });
+        rows.push(band("layerColor", "Layer color", DM.garmentColors, av.layerColor, "layerColor"));
       }
       return rows;
     }
@@ -445,16 +554,50 @@ export default function AvatarStudio() {
   const tilesFor = (r: Region): Tile[] => {
     const T = (key: string, label: string, aria: string, ov: Partial<Av>, crop: string | undefined, sel: boolean, onTap: () => void): Tile =>
       ({ key, label, aria, ov, crop, sel, onTap });
-    if (r === "hair")
-      return DM.hairStyles.map((h) => T("h_" + h.id, h.label, h.label, { hair: h.id }, CROP.HAIR, av.hair === h.id, () => apply({ hair: h.id })));
+    const visible = (dim: keyof typeof PNG_SLICE, id: string) => !pngMode || PNG_SLICE[dim].has(id);
+
+    if (r === "hair") {
+      const group = HAIR_GROUPS.find((g) => g.key === hairTab) || HAIR_GROUPS[0];
+      return DM.hairStyles
+        .filter((h) => group.ids.includes(h.id as never))
+        .filter((h) => visible("hair", h.id))
+        .map((h) => T("h_" + h.id, h.label, h.label, { hair: h.id }, CROP.HAIR, av.hair === h.id, () => apply({ hair: h.id })));
+    }
     if (r === "face") {
-      const ex = DM.expressions.map((e) => T("e_" + e.id, e.label, `${e.label} expression`, { expression: e.id }, CROP.FACE, av.expression === e.id, () => apply({ expression: e.id })));
-      const ft = DM.features.filter((f) => f.id !== "none").map((f) =>
+      if (faceTab === "skin") return [];
+      if (faceTab === "shape") {
+        return DM.faceShapes
+          .filter((x) => visible("faceShape", x.id))
+          .map((x) => T("fs_" + x.id, x.label, `Face shape ${x.label}`, { faceShape: x.id }, CROP.FACE, av.faceShape === x.id, () => apply({ faceShape: x.id })));
+      }
+      if (faceTab === "eyes") {
+        const browTiles = DM.brows
+          .filter((x) => visible("brow", x.id))
+          .map((x) => T("br_" + x.id, x.label, `Brow ${x.label}`, { brow: x.id }, CROP.FACE, av.brow === x.id, () => apply({ brow: x.id })));
+        const eyeTiles = DM.eyes
+          .filter((x) => visible("eye", x.id))
+          .map((x) => T("ey_" + x.id, x.label, `Eye shape ${x.label}`, { eye: x.id }, CROP.FACE, av.eye === x.id, () => apply({ eye: x.id })));
+        return [...browTiles, ...eyeTiles];
+      }
+      if (faceTab === "noseLip") {
+        const noseTiles = DM.noses
+          .filter((x) => visible("nose", x.id))
+          .map((x) => T("no_" + x.id, x.label, `Nose ${x.label}`, { nose: x.id }, CROP.FACE, av.nose === x.id, () => apply({ nose: x.id })));
+        const lipTiles = DM.lips
+          .filter((x) => visible("lip", x.id))
+          .map((x) => T("li_" + x.id, x.label, `Lip ${x.label}`, { lip: x.id }, CROP.FACE, av.lip === x.id, () => apply({ lip: x.id })));
+        return [...noseTiles, ...lipTiles];
+      }
+      const makeupTiles = DM.makeups
+        .filter((x) => visible("makeup", x.id))
+        .map((x) => T("mk_" + x.id, x.id === "none" ? "No makeup" : x.label, x.id === "none" ? "No makeup" : `Makeup ${x.label}`,
+          { makeup: x.id }, CROP.FACE, av.makeup === x.id, () => apply({ makeup: x.id })));
+      const featureTiles = pngMode ? [] : DM.features.filter((f) => f.id !== "none").map((f) =>
         T("f_" + f.id, f.label, f.label, { feature: f.id }, CROP.FACE, av.feature === f.id, () => apply({ feature: av.feature === f.id ? "none" : f.id })));
-      return [...ex, ...ft];
+      return [...makeupTiles, ...featureTiles];
     }
     if (r === "body") {
-      const shapes = DM.bodyShapes.map((b) => T(
+      const shapes = DM.bodyShapes.filter((b) => visible("body", b.id)).map((b) => T(
         "body_" + b.id, b.label, `Body shape ${b.label}`, { body: b.id }, undefined,
         av.body === b.id, () => apply({ body: b.id }),
       ));
@@ -465,19 +608,38 @@ export default function AvatarStudio() {
       return [...shapes, ...heights];
     }
     if (r === "top") {
-      const topTiles = DM.tops.map((t) => T("t_" + t.id, t.label, t.label, { top: t.id }, CROP.TOP, av.top === t.id, () => apply({ top: t.id })));
-      const layerTiles = DM.layers.map((l) => T(
-        "l_" + l.id,
-        l.id === "none" ? "No layer" : l.label,
-        l.id === "none" ? "No outer layer" : `Outer layer ${l.label}`,
-        { layer: l.id }, CROP.TOP, av.layer === l.id, () => apply({ layer: l.id }),
-      ));
-      return [...topTiles, ...layerTiles];
+      const group = TOP_GROUPS.find((g) => g.key === topTab) || TOP_GROUPS[0];
+      if (group.key === "layer") {
+        return DM.layers
+          .filter((l) => group.ids.includes(l.id as never))
+          .filter((l) => visible("layer", l.id))
+          .map((l) => T(
+            "l_" + l.id,
+            l.id === "none" ? "No layer" : l.label,
+            l.id === "none" ? "No outer layer" : `Outer layer ${l.label}`,
+            { layer: l.id }, CROP.TOP, av.layer === l.id, () => apply({ layer: l.id }),
+          ));
+      }
+      return DM.tops
+        .filter((t) => group.ids.includes(t.id as never))
+        .filter((t) => visible("top", t.id))
+        .map((t) => T("t_" + t.id, t.label, t.label, { top: t.id }, CROP.TOP, av.top === t.id, () => apply({ top: t.id })));
     }
-    if (r === "bottom") return DM.bottoms.map((b) => T("b_" + b.id, b.label, b.label, { bottom: b.id }, CROP.BOT, av.bottom === b.id, () => apply({ bottom: b.id })));
-    if (r === "shoes") return DM.shoes.map((s) => T("s_" + s.id, s.label, s.label, { shoes: s.id }, CROP.SHOE, av.shoes === s.id, () => apply({ shoes: s.id })));
-    const group = EXTRA_GROUPS.find((g) => g.key === extrasTab) || EXTRA_GROUPS[0];
+    if (r === "bottom") {
+      const group = BOTTOM_GROUPS.find((g) => g.key === bottomTab) || BOTTOM_GROUPS[0];
+      return DM.bottoms
+        .filter((b) => group.ids.includes(b.id as never))
+        .filter((b) => visible("bottom", b.id))
+        .map((b) => T("b_" + b.id, b.label, b.label, { bottom: b.id }, CROP.BOT, av.bottom === b.id, () => apply({ bottom: b.id })));
+    }
+    if (r === "shoes") {
+      return DM.shoes
+        .filter((s) => visible("shoes", s.id))
+        .map((s) => T("s_" + s.id, s.label, s.label, { shoes: s.id }, CROP.SHOE, av.shoes === s.id, () => apply({ shoes: s.id })));
+    }
+    const group = activeExtraGroups.find((g) => g.key === extrasTab) || activeExtraGroups[0] || EXTRA_GROUPS[0];
     return group.list.filter((x) => x.id !== "none").map((x) =>
+      !pngMode || group.dim !== "mobility" || PNG_SLICE.mobility.has(x.id) ? x : null).filter((x): x is DM.Item => !!x).map((x) =>
       T(group.key + "_" + x.id, x.label, x.label, { [group.dim]: x.id } as Partial<Av>, group.crop,
         (av as any)[group.dim] === x.id,
         () => apply({ [group.dim]: (av as any)[group.dim] === x.id ? "none" : x.id } as Partial<Av>)));
@@ -485,34 +647,52 @@ export default function AvatarStudio() {
 
   const tiles = region ? tilesFor(region) : [];
   const colorRows = region ? colorRowsFor(region) : [];
+  const subTabs = (() => {
+    if (region === "face") {
+      return FACE_GROUPS.map((g) => ({ key: g.key, label: g.label, active: faceTab === g.key, worn: false, onPress: () => setFaceTab(g.key) }));
+    }
+    if (region === "hair") {
+      return activeHairGroups.map((g) => ({ key: g.key, label: g.label, active: hairTab === g.key, worn: false, onPress: () => setHairTab(g.key) }));
+    }
+    if (region === "top") {
+      return activeTopGroups.map((g) => ({ key: g.key, label: g.label, active: topTab === g.key, worn: g.key === "layer" && av.layer !== "none", onPress: () => setTopTab(g.key) }));
+    }
+    if (region === "bottom") {
+      return activeBottomGroups.map((g) => ({ key: g.key, label: g.label, active: bottomTab === g.key, worn: false, onPress: () => setBottomTab(g.key) }));
+    }
+    if (region === "extras") {
+      return activeExtraGroups.map((g) => ({ key: g.key, label: g.label, active: extrasTab === g.key, worn: (av as any)[g.dim] !== "none", onPress: () => setExtrasTab(g.key) }));
+    }
+    return [];
+  })();
 
   return (
     <LinearGradient colors={["#f6f0e4", "#ece7dc", "#dcd4c5"]} locations={[0, 0.55, 1]}
       start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={styles.root}>
-      <View style={styles.header}>
+      <View style={[styles.header, { height: headerH }, narrowHeader && styles.headerNarrow]}>
         <View>
           <Text style={styles.wordmark}>
             design<Text style={styles.wordmarkMe}>Me</Text>
           </Text>
           <Text style={styles.tagline}>make a you</Text>
         </View>
-        <View style={styles.headerActions}>
-          <HeaderIconBtn icon="vibe" label="Vibes" onPress={() => { setRegion(null); setLookbookOpen(false); setVibeOpen(true); }} />
-          <HeaderIconBtn icon="shuffle" label="Shuffle" onPress={shuffle} />
-          <HeaderIconBtn icon="looks" label="Looks" onPress={openLooks} badge={looks.length > 0 ? looks.length : undefined} />
-          <HeaderIconBtn icon="undo" label="Undo" onPress={undo} disabled={history.length === 0} />
+        <View style={[styles.headerActions, narrowHeader && styles.headerActionsNarrow]}>
+          <HeaderIconBtn icon="vibe" label="Vibes" onPress={() => { setRegion(null); setLookbookOpen(false); setVibeOpen(true); }} compact={narrowHeader} />
+          <HeaderIconBtn icon="shuffle" label="Shuffle" onPress={shuffle} compact={narrowHeader} />
+          <HeaderIconBtn icon="looks" label="Looks" onPress={openLooks} badge={looks.length > 0 ? looks.length : undefined} compact={narrowHeader} />
+          <HeaderIconBtn icon="undo" label="Undo" onPress={undo} disabled={history.length === 0} compact={narrowHeader} />
           <UIPressable
             accessibilityRole="button"
             accessibilityLabel="Save to lookbook"
             onPress={save}
             lift
             radius={theme.radius.pill}
-            style={styles.savePill}
+            style={[styles.savePill, narrowHeader && styles.savePillNarrow]}
           >
             <Hairline inset={16} />
             <View style={{ zIndex: 1, flexDirection: "row", alignItems: "center", gap: 9 }} pointerEvents="none">
               <Icon name="heart" stroke={theme.color.onAccent} size={21} />
-              <Text style={styles.savePillText}>Save</Text>
+              {narrowHeader ? null : <Text style={styles.savePillText}>Save</Text>}
             </View>
           </UIPressable>
         </View>
@@ -575,6 +755,10 @@ export default function AvatarStudio() {
           ) : null}
         </View>
 
+        {looks.length && !sheetOpen && W > 780 ? (
+          <MiniLookStrip looks={looks.slice(0, 3)} engine={engineMode} onWear={wearLook} />
+        ) : null}
+
         {/* Always mounted so the live region exists before a message lands (aria-live
             regions added together with their content are often not announced). */}
         <View style={styles.toastWrap} accessibilityLiveRegion="polite" pointerEvents="none">
@@ -592,15 +776,25 @@ export default function AvatarStudio() {
         </View>
       </View>
 
-      {__DEV__ ? (
+      {__DEV__ && ENGINE_LAB_MODES.length > 1 ? (
         <UIPressable
           accessibilityRole="button"
-          accessibilityLabel={`Avatar art: ${engineMode === "png" ? "PNG layers" : "SVG engine"}. Tap to switch.`}
-          onPress={() => setEngineMode((m) => (m === "png" ? "svg" : "png"))}
+          accessibilityLabel={`Avatar art: ${engineMode}. Tap to switch.`}
+          onPress={() => setEngineMode((m) => {
+            const current = ENGINE_LAB_MODES.indexOf(m);
+            const next = ENGINE_LAB_MODES[(current + 1) % ENGINE_LAB_MODES.length] || "svg";
+            if (next === "png") {
+              setHairTab("loose");
+              setTopTab("comfort");
+              setBottomTab("denim");
+              setExtrasTab("mobility");
+            }
+            return next;
+          })}
           radius={theme.radius.pill}
           style={styles.devToggle}
         >
-          <Text style={styles.devToggleText}>{engineMode === "png" ? "PNG" : "SVG"}</Text>
+          <Text style={styles.devToggleText}>{engineMode.toUpperCase()}</Text>
         </UIPressable>
       ) : null}
 
@@ -651,23 +845,22 @@ export default function AvatarStudio() {
               </UIPressable>
             </View>
 
-            {region === "extras" ? (
+            {subTabs.length ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subTabScroll} contentContainerStyle={styles.subTabRow}>
-                {EXTRA_GROUPS.map((g) => {
-                  const active = extrasTab === g.key;
-                  const worn = (av as any)[g.dim] !== "none";
+                {subTabs.map((g) => {
+                  const active = g.active;
                   return (
                     <UIPressable
                       key={g.key}
                       accessibilityRole="button"
                       accessibilityLabel={`${g.label} options`}
                       accessibilityState={{ selected: active }}
-                      onPress={() => setExtrasTab(g.key)}
+                      onPress={g.onPress}
                       radius={theme.radius.pill}
                       style={[styles.subTab, active && styles.subTabActive]}
                     >
                       <Text style={[styles.subTabText, active && styles.subTabTextActive]}>{g.label}</Text>
-                      {worn ? <View style={[styles.subTabDot, active && { backgroundColor: theme.color.onAccent }]} /> : null}
+                      {g.worn ? <View style={[styles.subTabDot, active && { backgroundColor: theme.color.onAccent }]} /> : null}
                     </UIPressable>
                   );
                 })}
@@ -685,6 +878,7 @@ export default function AvatarStudio() {
                   aria={t.aria}
                   selected={t.sel}
                   onPress={t.onTap}
+                  engine={engineMode}
                 />
               ))}
             </ScrollView>
@@ -725,7 +919,7 @@ export default function AvatarStudio() {
             </View>
 
             {looks.length ? (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.lookRow}>
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.lookGrid}>
                 {looks.map((look, index) => (
                   <UIPressable
                     key={look.id}
@@ -738,7 +932,7 @@ export default function AvatarStudio() {
                   >
                     <LinearGradient colors={["#ffffff", theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.lg - 2 }]} pointerEvents="none" />
                     <View style={styles.lookPreview} pointerEvents="none">
-                      <AvatarCanvas av={look.av} />
+                      <AvatarCanvas av={look.av} engine={engineMode} />
                     </View>
                     <Text style={styles.lookTitle} numberOfLines={1}>{lookLabel(look.savedAt)}</Text>
                   </UIPressable>
@@ -797,8 +991,8 @@ function Chip({ k, active, pulseOpacity, onPress }: {
   );
 }
 
-function HeaderIconBtn({ icon, label, onPress, disabled, badge }: {
-  icon: string; label: string; onPress: () => void; disabled?: boolean; badge?: number;
+function HeaderIconBtn({ icon, label, onPress, disabled, badge, compact }: {
+  icon: string; label: string; onPress: () => void; disabled?: boolean; badge?: number; compact?: boolean;
 }) {
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
@@ -815,7 +1009,7 @@ function HeaderIconBtn({ icon, label, onPress, disabled, badge }: {
       onHoverOut={() => setHover(false)}
       onFocus={() => setFocus(true)}
       onBlur={() => setFocus(false)}
-      style={[styles.iconBtn, disabled && styles.iconBtnDisabled]}
+      style={[styles.iconBtn, compact && styles.iconBtnCompact, disabled && styles.iconBtnDisabled]}
     >
       <LinearGradient colors={["#ffffff", theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.pill }]} pointerEvents="none" />
       <Hairline inset={14} />
@@ -833,6 +1027,32 @@ function HeaderIconBtn({ icon, label, onPress, disabled, badge }: {
   );
 }
 
+function MiniLookStrip({ looks, engine, onWear }: {
+  looks: SavedLook[];
+  engine: AvatarEngine;
+  onWear: (look: SavedLook) => void;
+}) {
+  return (
+    <View style={styles.miniLooks}>
+      {looks.map((look, index) => (
+        <UIPressable
+          key={look.id}
+          accessibilityRole="button"
+          accessibilityLabel={`Wear saved look ${index + 1}`}
+          onPress={() => onWear(look)}
+          lift
+          radius={theme.radius.md}
+          style={styles.miniLookCard}
+        >
+          <View style={styles.miniLookPreview} pointerEvents="none">
+            <AvatarCanvas av={look.av} engine={engine} />
+          </View>
+        </UIPressable>
+      ))}
+    </View>
+  );
+}
+
 const ringStyle = (r: [number, number, number, number]) => ({
   left: `${r[0] - 2}%` as any,
   top: `${r[1] - 1.4}%` as any,
@@ -845,15 +1065,18 @@ const styles = StyleSheet.create({
   // clip they extend the document and the browser can scroll the header off-screen.
   root: { flex: 1, backgroundColor: theme.color.bg, overflow: "hidden" },
 
-  header: { height: HDR, flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 32, gap: 16, zIndex: 30 },
+  headerNarrow: { flexDirection: "column", alignItems: "stretch", justifyContent: "flex-start", paddingHorizontal: 20, paddingTop: 16, gap: 10 },
   wordmark: { fontFamily: theme.font.serif, fontSize: theme.type.display, color: theme.color.ink, lineHeight: 34 },
   wordmarkMe: { fontStyle: "italic", fontWeight: "600" },
   tagline: { fontSize: theme.type.md, fontWeight: "600", color: theme.color.inkSoft, marginTop: -2 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 12 },
+  headerActionsNarrow: { alignSelf: "stretch", justifyContent: "flex-end", gap: 8 },
 
   iconBtn: { width: 56, height: 56, borderRadius: theme.radius.pill, alignItems: "center", justifyContent: "center",
     borderWidth: 1, borderColor: theme.color.line, backgroundColor: theme.color.surface, ...theme.shadow.sm },
+  iconBtnCompact: { width: 52, height: 52 },
   iconBtnDisabled: { opacity: 0.45 },
   btnTip: { position: "absolute", top: 60, backgroundColor: theme.color.ink, paddingHorizontal: 10, paddingVertical: 4,
     borderRadius: theme.radius.pill },
@@ -861,6 +1084,7 @@ const styles = StyleSheet.create({
   savePill: { height: 64, minWidth: 118, paddingHorizontal: 24, borderRadius: theme.radius.pill,
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9,
     backgroundColor: theme.color.terra, borderWidth: 1, borderColor: theme.color.terraDeep, ...theme.shadow.sm },
+  savePillNarrow: { width: 64, minWidth: 64, paddingHorizontal: 0 },
   savePillText: { color: theme.color.onAccent, fontSize: 19, fontWeight: "800" },
   hBadge: { position: "absolute", top: -6, right: -6, minWidth: 22, height: 22, paddingHorizontal: 6, borderRadius: theme.radius.pill,
     backgroundColor: theme.color.sageDeep, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#f6f0e4" },
@@ -869,6 +1093,11 @@ const styles = StyleSheet.create({
   stage: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
   card: { backgroundColor: theme.color.surface, borderRadius: theme.radius.mat, borderWidth: 1, borderColor: "#e4d8c6",
     alignItems: "center", justifyContent: "center", ...theme.shadow.lg },
+  miniLooks: { position: "absolute", right: 30, top: 28, gap: 10, padding: 8, borderRadius: theme.radius.lg,
+    backgroundColor: "rgba(251,248,242,0.66)", borderWidth: 1, borderColor: "rgba(221,208,189,0.8)", ...theme.shadow.md },
+  miniLookCard: { width: 76, height: 96, borderRadius: theme.radius.md, backgroundColor: theme.color.surface,
+    borderWidth: 1, borderColor: theme.color.line, overflow: "hidden", alignItems: "center", justifyContent: "center" },
+  miniLookPreview: { width: 58, height: 86 },
 
   hintPill: { position: "absolute", bottom: 20, alignSelf: "center", backgroundColor: "rgba(251,248,242,0.85)",
     borderWidth: 1, borderColor: theme.color.line, paddingHorizontal: 18, paddingVertical: 10,
@@ -927,10 +1156,10 @@ const styles = StyleSheet.create({
   colorEyebrow: { ...theme.eyebrow, color: theme.color.inkSoft, marginBottom: 6, marginLeft: 2 },
   colorRow: { alignItems: "center", gap: 10, paddingHorizontal: 2, paddingBottom: 8 },
 
-  lookRow: { alignItems: "center", gap: 16, paddingVertical: 14 },
-  lookCard: { width: 136, height: 208, borderRadius: theme.radius.lg, borderWidth: 2, borderColor: theme.color.line,
+  lookGrid: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 16, paddingVertical: 14, paddingBottom: 28 },
+  lookCard: { width: 148, height: 224, borderRadius: theme.radius.lg, borderWidth: 2, borderColor: theme.color.line,
     backgroundColor: theme.color.surface2, alignItems: "center", padding: 10, ...theme.shadow.md, overflow: "hidden" },
-  lookPreview: { width: 108, height: 148, overflow: "hidden" },
+  lookPreview: { width: 118, height: 164, overflow: "hidden" },
   lookTitle: { marginTop: 10, fontSize: theme.type.md, fontWeight: "800", color: theme.color.ink },
   emptyLookbook: { flex: 1, minHeight: 210, alignItems: "center", justifyContent: "center" },
   emptyTitle: { fontSize: theme.type.lg, fontWeight: "800", color: theme.color.ink },

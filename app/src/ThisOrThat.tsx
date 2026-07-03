@@ -4,7 +4,7 @@
 // rounds; deterministic. A vibe only changes clothes — never the person.
 // Each card's mat is tinted from its own outfit colors (the VibeCard pattern).
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import AvatarCanvas from "./AvatarCanvas";
@@ -15,9 +15,37 @@ import { theme, mix } from "./theme";
 import * as DM from "./dm";
 import type { Av } from "./dm";
 
-// Curated for spread: everyday / comfort / street / polished / soft / active.
-const POOL_IDS = ["v_weekend", "v_cozyknit", "v_softstreet", "v_tailoring", "v_romantic", "v_athleisure"];
 const BEZ = Easing.bezier(...theme.motion.bezier);
+
+function balancedVibes(vibes: DM.Vibe[]): DM.Vibe[] {
+  const tags: string[] = [];
+  const byTag = new Map<string, DM.Vibe[]>();
+  for (const vibe of vibes) {
+    if (!byTag.has(vibe.tag)) {
+      byTag.set(vibe.tag, []);
+      tags.push(vibe.tag);
+    }
+    byTag.get(vibe.tag)!.push(vibe);
+  }
+  const out: DM.Vibe[] = [];
+  for (let depth = 0; out.length < vibes.length; depth += 1) {
+    let added = false;
+    for (const tag of tags) {
+      const vibe = byTag.get(tag)![depth];
+      if (vibe) {
+        out.push(vibe);
+        added = true;
+      }
+    }
+    if (!added) break;
+  }
+  return out;
+}
+
+function nextChallengerIndex(queue: DM.Vibe[], winner: DM.Vibe): number {
+  const sameTag = queue.findIndex((vibe) => vibe.tag === winner.tag);
+  return sameTag >= 0 ? sameTag : 0;
+}
 
 export default function ThisOrThat({
   av, onWear, onClose,
@@ -26,13 +54,13 @@ export default function ThisOrThat({
   onWear: (vibe: DM.Vibe) => void;
   onClose: () => void;
 }) {
-  const pool = POOL_IDS
-    .map((id) => DM.vibes.find((v) => v.id === id))
-    .filter((v): v is DM.Vibe => !!v);
-  const [champ, setChamp] = useState(0);
-  const [round, setRound] = useState(0); // challenger = pool[round + 1]
+  const initialPool = useMemo(() => balancedVibes(DM.vibes), []);
+  const [champ, setChamp] = useState(initialPool[0]);
+  const [challenger, setChallenger] = useState(initialPool[1]);
+  const [queue, setQueue] = useState(() => initialPool.slice(2));
+  const [round, setRound] = useState(0);
   const [done, setDone] = useState(false);
-  const { height: H } = useWindowDimensions();
+  const { width: W, height: H } = useWindowDimensions();
   const reduce = useReducedMotion();
   const enter = useRef(new Animated.Value(0)).current;
 
@@ -45,15 +73,21 @@ export default function ThisOrThat({
     Animated.timing(enter, { toValue: 1, duration: theme.motion.dur.base, easing: BEZ, useNativeDriver: false }).start();
   }, [round, done, reduce, enter]);
 
-  const challenger = round + 1;
-  const totalRounds = pool.length - 1;
-  const pick = (idx: number) => {
-    setChamp(idx);
-    if (challenger >= pool.length - 1) setDone(true);
-    else setRound((r) => r + 1);
+  const totalRounds = initialPool.length - 1;
+  const pick = (winner: DM.Vibe) => {
+    setChamp(winner);
+    if (!queue.length) {
+      setDone(true);
+      return;
+    }
+    const nextIndex = nextChallengerIndex(queue, winner);
+    setChallenger(queue[nextIndex]);
+    setQueue((q) => q.filter((_, i) => i !== nextIndex));
+    setRound((r) => r + 1);
   };
-  const cardH = Math.min(H - 310, 520);
-  const cardW = (cardH * 62) / 100;
+  const narrow = W < 760;
+  const cardH = narrow ? Math.max(210, Math.min((H - 210) / 2, 360)) : Math.min(H - 250, 620);
+  const cardW = narrow ? Math.min(W - 44, cardH * 0.78) : Math.min((W - 104) / 2, cardH * 0.68);
 
   return (
     <View style={styles.root} accessibilityViewIsModal>
@@ -70,9 +104,9 @@ export default function ThisOrThat({
 
       {!done ? (
         <>
-          <Animated.View style={[styles.pair, { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>
-            <VibeCard av={av} vibe={pool[champ]} w={cardW} h={cardH} onPress={() => pick(champ)} />
-            <VibeCard av={av} vibe={pool[challenger]} w={cardW} h={cardH} onPress={() => pick(challenger)} />
+          <Animated.View style={[styles.pair, narrow && styles.pairNarrow, { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>
+            <VibeCard av={av} vibe={champ} w={cardW} h={cardH} onPress={() => pick(champ)} />
+            <VibeCard av={av} vibe={challenger} w={cardW} h={cardH} onPress={() => pick(challenger)} />
           </Animated.View>
           <View style={styles.dots} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             {Array.from({ length: totalRounds }, (_, i) => (
@@ -82,10 +116,10 @@ export default function ThisOrThat({
         </>
       ) : (
         <Animated.View style={[styles.result, { opacity: enter }]}>
-          <VibeCard av={av} vibe={pool[champ]} w={cardW} h={cardH} />
+              <VibeCard av={av} vibe={champ} w={cardW} h={cardH} />
           <View style={styles.resultBtns}>
-            <UIPressable accessibilityRole="button" accessibilityLabel={`Wear ${pool[champ].label}`}
-              onPress={() => onWear(pool[champ])} lift radius={theme.radius.pill}
+            <UIPressable accessibilityRole="button" accessibilityLabel={`Wear ${champ.label}`}
+              onPress={() => onWear(champ)} lift radius={theme.radius.pill}
               style={[styles.bigBtn, styles.bigBtnPrimary]}>
               <Hairline inset={16} />
               <Text style={styles.bigBtnTextPrimary}>Wear it</Text>
@@ -121,8 +155,8 @@ function VibeCard({ av, vibe, w, h, onPress }: {
       <View style={styles.tagPill}>
         <Text style={styles.tagText}>{vibe.tag}</Text>
       </View>
-      <View style={{ width: w - 28, height: h - 66 }} pointerEvents="none">
-        <AvatarCanvas av={av} ov={vibe.ov} />
+      <View style={{ width: w - 22, height: h }} pointerEvents="none">
+        <AvatarCanvas av={av} ov={vibe.ov} engine="svg" />
       </View>
       <Text style={styles.cardLabel}>{vibe.label}</Text>
       <Text style={styles.cardNote} numberOfLines={1}>{vibe.note}</Text>
@@ -155,6 +189,7 @@ const styles = StyleSheet.create({
   closeText: { fontSize: theme.type.body, fontWeight: "800", color: theme.color.ink },
 
   pair: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 28, paddingHorizontal: 24 },
+  pairNarrow: { flexDirection: "column", gap: 14, paddingHorizontal: 16 },
   card: { alignItems: "center", paddingTop: 14, borderRadius: theme.radius.xl, backgroundColor: theme.color.surface,
     borderWidth: 1, borderColor: "#e4d8c6", overflow: "hidden", ...theme.shadow.lg },
   tagPill: { alignSelf: "center", backgroundColor: "rgba(47,40,35,0.08)", paddingHorizontal: 12, paddingVertical: 4,
@@ -163,7 +198,7 @@ const styles = StyleSheet.create({
   cardLabel: { marginTop: 4, fontSize: theme.type.lg, fontWeight: "800", color: theme.color.ink },
   cardNote: { marginTop: 1, marginBottom: 12, fontSize: theme.type.md, fontWeight: "600", color: theme.color.inkSoft, paddingHorizontal: 10 },
 
-  dots: { flexDirection: "row", justifyContent: "center", gap: 9, paddingVertical: 18 },
+  dots: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 7, paddingVertical: 14, paddingHorizontal: 24 },
   dot: { width: 9, height: 9, borderRadius: theme.radius.pill, backgroundColor: theme.color.line2 },
   dotDone: { backgroundColor: theme.color.sage },
   dotNow: { backgroundColor: theme.color.sageDeep },

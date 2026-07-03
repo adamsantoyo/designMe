@@ -8,10 +8,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing, View, StyleSheet } from "react-native";
 import SvgString from "./SvgString";
 import PngFigure from "./PngFigure";
+import FoundryHeroFigure from "./FoundryHeroFigure";
 import dmFigure from "./engine/dmFigure";
+import { supportsFoundryAv } from "./engine/dmFigureV2";
 import useReducedMotion from "./useReducedMotion";
 import { theme } from "./theme";
 import { buildOpts, type Av } from "./dm";
+import { coverage } from "./parts/layers";
+
+export type AvatarEngine = "svg" | "png" | "foundry";
 
 export default function AvatarCanvas({
   av, ov, crop, style, engine = "svg", crossfade = false,
@@ -20,10 +25,26 @@ export default function AvatarCanvas({
   ov?: Partial<Av>;
   crop?: string; // viewBox string, e.g. "74 14 92 94"
   style?: any;
-  engine?: "svg" | "png"; // "png" = the layered-PNG compositor; default stays the SVG engine
+  engine?: AvatarEngine; // "foundry" and "png" are explicit lab paths; SVG is the product default
   crossfade?: boolean;
 }) {
+  if (engine === "foundry") {
+    if (!supportsFoundryAv(av, ov) || crop) {
+      if (crossfade) return <CrossfadeCanvas av={av} ov={ov} crop={crop} style={style} />;
+      return <SvgCanvas av={av} ov={ov} crop={crop} style={style} />;
+    }
+    return <FoundryHeroFigure style={style} />;
+  }
+
   if (engine === "png") {
+    const cov = coverage(av, ov);
+    if (cov.have < cov.want) {
+      // Never present a partial PNG stack as the product. Unsupported catalog
+      // combinations stay complete through the deterministic SVG fallback until
+      // their PNG layers exist.
+      if (crossfade) return <CrossfadeCanvas av={av} ov={ov} crop={crop} style={style} />;
+      return <SvgCanvas av={av} ov={ov} crop={crop} style={style} />;
+    }
     return (
       <View style={[styles.fill, style]} pointerEvents="none">
         <PngFigure av={av} ov={ov} crop={crop} />
@@ -34,17 +55,23 @@ export default function AvatarCanvas({
   return <SvgCanvas av={av} ov={ov} crop={crop} style={style} />;
 }
 
+function applyCrop(svg: string, crop?: string) {
+  if (!crop) return svg;
+  return svg
+    .replace(/viewBox="[^"]+"/, `viewBox="${crop}"`)
+    .replace(/preserveAspectRatio="[^"]+"/, 'preserveAspectRatio="xMidYMid meet"');
+}
+
+function fillSvg(svg: string) {
+  return svg.replace('width="100%"', 'width="100%" height="100%"');
+}
+
 function useXml(av: Av, ov?: Partial<Av>, crop?: string) {
   return useMemo(() => {
     let svg = dmFigure(buildOpts(av, ov));
-    if (crop) {
-      svg = svg
-        .replace(/viewBox="[^"]+"/, `viewBox="${crop}"`)
-        .replace(/preserveAspectRatio="[^"]+"/, 'preserveAspectRatio="xMidYMid meet"');
-    }
+    svg = applyCrop(svg, crop);
     // ensure the <svg> fills its box in both dimensions
-    svg = svg.replace('width="100%"', 'width="100%" height="100%"');
-    return svg;
+    return fillSvg(svg);
   }, [av, ov, crop]);
 }
 

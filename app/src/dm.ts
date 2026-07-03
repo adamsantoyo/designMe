@@ -33,6 +33,20 @@ export const hairColors: ColorOpt[] = [
   { v: "#3f8a78", label: "Teal" }, { v: "#c0708f", label: "Rose" },
 ];
 
+export const eyeColors: ColorOpt[] = [
+  { v: "#2f221b", label: "Deep brown" }, { v: "#5a3b27", label: "Warm brown" },
+  { v: "#7c6b3e", label: "Hazel" }, { v: "#46604b", label: "Green" },
+  { v: "#3f6f8a", label: "Blue" }, { v: "#6b6f73", label: "Gray" },
+  { v: "#6f4a72", label: "Amethyst" },
+];
+
+export const makeupColors: ColorOpt[] = [
+  { v: "#9d5f59", label: "Rosewood" }, { v: "#bd7a6b", label: "Soft rose" },
+  { v: "#8a5430", label: "Cocoa" }, { v: "#7a5570", label: "Plum" },
+  { v: "#c08457", label: "Clay" }, { v: "#3c3a38", label: "Charcoal" },
+  { v: "#46604b", label: "Pine" }, { v: "#3f6f8a", label: "Ocean" },
+];
+
 export const garmentColors: ColorOpt[] = [
   { v: "#e6dcc6", label: "Oat" }, { v: "#f1e9d8", label: "Cream" }, { v: "#c08457", label: "Clay" }, { v: "#a8553a", label: "Rust" },
   { v: "#bd6f4f", label: "Terracotta" }, { v: "#7d8254", label: "Olive" }, { v: "#8aa382", label: "Sage" }, { v: "#46604b", label: "Pine" },
@@ -42,6 +56,31 @@ export const garmentColors: ColorOpt[] = [
 
 export const expressions: Item[] = [
   { id: "smile", label: "Smile" }, { id: "soft", label: "Soft" }, { id: "calm", label: "Calm" },
+];
+export const faceShapes: Item[] = [
+  { id: "oval", label: "Soft oval" }, { id: "round", label: "Round" }, { id: "square", label: "Square" },
+  { id: "heart", label: "Heart" }, { id: "long", label: "Long" }, { id: "diamond", label: "Diamond" },
+];
+export const brows: Item[] = [
+  { id: "soft", label: "Soft brow" }, { id: "straight", label: "Straight" }, { id: "arched", label: "Arched" },
+  { id: "bold", label: "Bold" }, { id: "fine", label: "Fine" },
+];
+export const eyes: Item[] = [
+  { id: "almond", label: "Almond" }, { id: "round", label: "Round" }, { id: "monolid", label: "Monolid" },
+  { id: "hooded", label: "Hooded" }, { id: "wide", label: "Wide" },
+];
+export const noses: Item[] = [
+  { id: "rounded", label: "Rounded" }, { id: "button", label: "Button" }, { id: "wide", label: "Wide" },
+  { id: "narrow", label: "Narrow" }, { id: "long", label: "Long" },
+];
+export const lips: Item[] = [
+  { id: "soft", label: "Soft" }, { id: "full", label: "Full" }, { id: "wide", label: "Wide" },
+  { id: "petite", label: "Petite" }, { id: "bow", label: "Bow" },
+];
+export const makeups: Item[] = [
+  { id: "none", label: "None" }, { id: "natural", label: "Natural" }, { id: "liner", label: "Liner" },
+  { id: "smoky", label: "Smoky" }, { id: "bold", label: "Bold" }, { id: "glam", label: "Glam" },
+  { id: "graphic", label: "Graphic" }, { id: "lashes", label: "Lashes" },
 ];
 export const bodyShapes: Item[] = [
   { id: "lean", label: "Lean" }, { id: "balanced", label: "Balanced" }, { id: "broad", label: "Broad" },
@@ -175,6 +214,8 @@ export const shoes: Item[] = [
 export type Av = {
   skin: string; body: string; height: string;
   hair: string; hairColor: string; expression: string; feature: string;
+  faceShape: string; brow: string; eye: string; eyeColor: string; nose: string; lip: string;
+  makeup: string; makeupColor: string;
   glasses: string; hearing: string; headwear: string; jewelry: string;
   tool: string; aac: string; mobility: string; carry: string;
   top: string; topColor: string; pattern: string;
@@ -184,12 +225,14 @@ export type Av = {
 
 export const defaultAv: Av = {
   skin: "#a87c58", body: "balanced", height: "medium",
-  hair: "wavyM", hairColor: "#3f2b1f", expression: "smile", feature: "none",
+  hair: "wavyM", hairColor: "#3f2b1f", expression: "soft", feature: "none",
+  faceShape: "oval", brow: "soft", eye: "almond", eyeColor: "#2f221b", nose: "rounded", lip: "soft",
+  makeup: "none", makeupColor: "#9d5f59",
   glasses: "none", hearing: "none", headwear: "none", jewelry: "none",
   tool: "none", aac: "none", mobility: "none", carry: "none",
-  top: "boxyTee", topColor: "#e6dcc6", pattern: "none",
+  top: "hoodie", topColor: "#8aa382", pattern: "none",
   bottom: "barrelJean", bottomColor: "#5a6f8c",
-  layer: "none", layerColor: "#5a6f8c", shoes: "sneaker",
+  layer: "none", layerColor: "#5a6f8c", shoes: "classicSneaker",
 };
 
 // Vibes are recipes, not images: garments + colors only. A vibe NEVER changes the
@@ -229,6 +272,8 @@ export function buildOpts(av: Av, ov?: Partial<Av>): Record<string, any> {
   const ly = layers.find((x) => x.id === a.layer);
   return {
     skin: a.skin, hair: a.hair, hairColor: a.hairColor, expression: a.expression,
+    faceShape: a.faceShape, brow: a.brow, eye: a.eye, eyeColor: a.eyeColor,
+    nose: a.nose, lip: a.lip, makeup: a.makeup, makeupColor: a.makeupColor,
     feature: a.feature, glasses: a.glasses, hearing: a.hearing, headwear: a.headwear,
     jewelry: a.jewelry, tool: a.tool, aac: a.aac, mobility: a.mobility,
     carry: a.carry, body: a.body, height: a.height,
@@ -242,6 +287,43 @@ export function buildOpts(av: Av, ov?: Partial<Av>): Record<string, any> {
 const R = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 const some = (arr: Item[], p: number) => (Math.random() < p ? R(arr.filter((x) => x.id !== "none")).id : "none");
 
+export function shuffleLovableAv(prev: Av): Av {
+  return {
+    ...prev,
+    skin: R(skins).v,
+    hair: "wavyM",
+    hairColor: R(hairColors).v,
+    body: "balanced",
+    height: R(heights).id,
+    expression: "soft",
+    faceShape: "oval",
+    brow: "soft",
+    eye: "almond",
+    eyeColor: R(eyeColors).v,
+    nose: "rounded",
+    lip: "soft",
+    makeup: Math.random() < 0.28 ? "natural" : "none",
+    makeupColor: R(makeupColors).v,
+    feature: "none",
+    top: "hoodie",
+    topColor: R(garmentColors).v,
+    bottom: "barrelJean",
+    bottomColor: R(garmentColors).v,
+    layer: "none",
+    layerColor: R(garmentColors).v,
+    shoes: "classicSneaker",
+    pattern: "none",
+    glasses: "none",
+    hearing: "none",
+    headwear: "none",
+    jewelry: "none",
+    tool: "none",
+    aac: "none",
+    mobility: Math.random() < 0.12 ? "wheelchair" : "none",
+    carry: "none",
+  };
+}
+
 // Randomized non-default look (shuffle writes random *state*; render stays
 // deterministic). Assistive tech and cultural expression appear at ordinary,
 // unremarkable rates — present in the world, never a spectacle.
@@ -251,6 +333,9 @@ export function shuffleAv(prev: Av): Av {
     skin: R(skins).v, hair: R(hairStyles).id, hairColor: R(hairColors).v,
     body: R(bodyShapes).id, height: R(heights).id,
     expression: R(expressions).id,
+    faceShape: R(faceShapes).id, brow: R(brows).id, eye: R(eyes).id, eyeColor: R(eyeColors).v,
+    nose: R(noses).id, lip: R(lips).id,
+    makeup: some(makeups, 0.18), makeupColor: R(makeupColors).v,
     feature: some(features, 0.22),
     top: R(tops).id, topColor: R(garmentColors).v,
     bottom: R(bottoms).id, bottomColor: R(garmentColors).v,

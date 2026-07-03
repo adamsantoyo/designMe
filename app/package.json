@@ -7,12 +7,15 @@
     "start": "expo start",
     "web": "expo start --web",
     "ios": "expo start --ios",
-    "android": "expo start --android"
+    "android": "expo start --android",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.1",
     "@react-native-async-storage/async-storage": "1.23.1",
+    "@shopify/react-native-skia": "1.2.3",
     "expo": "~51.0.28",
+    "expo-dev-client": "~4.0.29",
     "expo-linear-gradient": "~13.0.2",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",

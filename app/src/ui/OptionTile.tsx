@@ -6,12 +6,12 @@ import { View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Path } from "react-native-svg";
 import UIPressable from "./Pressable";
-import AvatarCanvas from "../AvatarCanvas";
+import AvatarCanvas, { type AvatarEngine } from "../AvatarCanvas";
 import { theme } from "../theme";
 import type { Av } from "../dm";
 
 export default function OptionTile({
-  av, ov, crop, label, aria, selected, onPress, size = 130,
+  av, ov, crop, label, aria, selected, onPress, size = 130, engine = "svg",
 }: {
   av: Av;
   ov?: Partial<Av>;
@@ -21,6 +21,7 @@ export default function OptionTile({
   selected: boolean;
   onPress: () => void;
   size?: number;
+  engine?: AvatarEngine;
 }) {
   return (
     <UIPressable
@@ -41,7 +42,7 @@ export default function OptionTile({
         <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, styles.selWash]} />
       ) : null}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <AvatarCanvas av={av} ov={ov} crop={crop} />
+        <AvatarCanvas av={av} ov={ov} crop={crop} engine={engine} />
       </View>
       <View pointerEvents="none" style={styles.labelWrap}>
         <Text style={styles.label} numberOfLines={1}>{label}</Text>
