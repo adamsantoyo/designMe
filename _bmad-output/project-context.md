@@ -67,7 +67,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Parts registry (`src/parts/registry.ts`)
 
 - Metro cannot dynamic-`require()` — every PNG needs a static `require` line here, keyed `"{category}/{id}"`.
-- The registry is intentionally EMPTY: quarantined. Only approved art enters, via `tools/art-lab/ingest.py`. Never bulk-wire PNGs from `assets/parts/`, even if present.
+- The registry carries ONLY contact-sheet-approved art (97 P0 parts as of 2026-07-03), entering via tools/art-gen (generate -> qa.py -> contact sheet -> ingest-approved.mjs). Never wire a PNG that skipped that path; file presence in assets/parts/ alone means nothing.
 
 ### Catalog
 

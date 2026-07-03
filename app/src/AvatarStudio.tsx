@@ -29,6 +29,7 @@ import OptionTile from "./ui/OptionTile";
 import ColorSwatch from "./ui/ColorSwatch";
 import useReducedMotion from "./useReducedMotion";
 import * as DM from "./dm";
+import { hasPart } from "./parts/registry";
 import type { Av } from "./dm";
 
 type Region = "hair" | "face" | "body" | "top" | "bottom" | "shoes" | "extras";
@@ -162,21 +163,17 @@ const BOTTOM_GROUPS = [
 ] as const;
 type BottomGroupKey = typeof BOTTOM_GROUPS[number]["key"];
 
-const PNG_SLICE = {
-  body: new Set(["balanced"]),
-  hair: new Set(["wavyM", "definedCurls"]),
-  top: new Set(["hoodie"]),
-  layer: new Set(["none"]),
-  bottom: new Set(["barrelJean"]),
-  shoes: new Set(["classicSneaker"]),
-  faceShape: new Set(["oval"]),
-  brow: new Set(["soft"]),
-  eye: new Set(["almond"]),
-  nose: new Set(["rounded"]),
-  lip: new Set(["soft"]),
-  makeup: new Set(["none", "natural"]),
-  mobility: new Set(["wheelchair"]),
+// PNG mode shows an option only when its art is registered (the registry is the
+// single source of truth for approved art). "none" is always offerable.
+const PNG_DIM_CATEGORY: Record<string, string> = {
+  body: "body", hair: "hair", top: "top", layer: "top", bottom: "bottom",
+  shoes: "shoe", faceShape: "faceShape", brow: "brow", eye: "eye", nose: "nose",
+  lip: "lip", makeup: "makeup", mobility: "mobility", headwear: "accessory",
+  glasses: "glasses", hearing: "hearing", jewelry: "jewelry", carry: "carry",
+  tool: "tool", aac: "aac", feature: "feature",
 };
+const pngHasArt = (dim: keyof typeof PNG_DIM_CATEGORY, id: string) =>
+  id === "none" || hasPart(`${PNG_DIM_CATEGORY[dim]}/${id}`);
 
 const ICON: Record<string, string> = {
   hair: '<path d="M4 13.5C4 8.3 7.6 5 12 5s8 3.3 8 8.5"/><path d="M6.5 13.5c.8 2.2 2.8 3.8 5.5 3.8s4.7-1.6 5.5-3.8"/><path d="M9 9.6c.7.8 1.8 1.3 3 1.3s2.3-.5 3-1.3"/>',
@@ -430,10 +427,10 @@ export default function AvatarStudio() {
   const breatheY = breathe.interpolate({ inputRange: [0, 1], outputRange: [0, -4] });
   const chipPulseOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.55] });
   const pngMode = engineMode === "png";
-  const activeExtraGroups = pngMode ? EXTRA_GROUPS.filter((g) => g.key === "mobility") : EXTRA_GROUPS;
-  const activeHairGroups = pngMode ? HAIR_GROUPS.filter((g) => g.key === "loose") : HAIR_GROUPS;
-  const activeTopGroups = pngMode ? TOP_GROUPS.filter((g) => g.key === "comfort") : TOP_GROUPS;
-  const activeBottomGroups = pngMode ? BOTTOM_GROUPS.filter((g) => g.key === "denim") : BOTTOM_GROUPS;
+  const activeExtraGroups = EXTRA_GROUPS;
+  const activeHairGroups = HAIR_GROUPS;
+  const activeTopGroups = TOP_GROUPS;
+  const activeBottomGroups = BOTTOM_GROUPS;
 
   const persistLooks = (next: SavedLook[]) => {
     AsyncStorage.setItem(LOOKBOOK_KEY, JSON.stringify(next))
@@ -554,7 +551,7 @@ export default function AvatarStudio() {
   const tilesFor = (r: Region): Tile[] => {
     const T = (key: string, label: string, aria: string, ov: Partial<Av>, crop: string | undefined, sel: boolean, onTap: () => void): Tile =>
       ({ key, label, aria, ov, crop, sel, onTap });
-    const visible = (dim: keyof typeof PNG_SLICE, id: string) => !pngMode || PNG_SLICE[dim].has(id);
+    const visible = (dim: keyof typeof PNG_DIM_CATEGORY, id: string) => !pngMode || pngHasArt(dim, id);
 
     if (r === "hair") {
       const group = HAIR_GROUPS.find((g) => g.key === hairTab) || HAIR_GROUPS[0];
@@ -639,7 +636,7 @@ export default function AvatarStudio() {
     }
     const group = activeExtraGroups.find((g) => g.key === extrasTab) || activeExtraGroups[0] || EXTRA_GROUPS[0];
     return group.list.filter((x) => x.id !== "none").map((x) =>
-      !pngMode || group.dim !== "mobility" || PNG_SLICE.mobility.has(x.id) ? x : null).filter((x): x is DM.Item => !!x).map((x) =>
+      !pngMode || pngHasArt(group.dim as keyof typeof PNG_DIM_CATEGORY, x.id) ? x : null).filter((x): x is DM.Item => !!x).map((x) =>
       T(group.key + "_" + x.id, x.label, x.label, { [group.dim]: x.id } as Partial<Av>, group.crop,
         (av as any)[group.dim] === x.id,
         () => apply({ [group.dim]: (av as any)[group.dim] === x.id ? "none" : x.id } as Partial<Av>)));
