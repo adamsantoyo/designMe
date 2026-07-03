@@ -5,7 +5,10 @@
   "description": "A no-typing, recognition-first avatar creator and style explorer built for self-expression and autonomy.",
   "scripts": {
     "playwright": "playwright",
-    "validate:catalog": "node tools/validate-catalog.js"
+    "foundry": "node tools/avatar-foundry/cli.mjs",
+    "foundry:check": "node tools/avatar-foundry/cli.mjs check",
+    "validate:catalog": "node tools/validate-catalog.js",
+    "visual:matrix": "node tools/visual-matrix.mjs"
   },
   "repository": {
     "type": "git",
@@ -18,6 +21,7 @@
   },
   "homepage": "https://github.com/adamsantoyo/designMe#readme",
   "devDependencies": {
-    "playwright": "^1.61.0"
+    "playwright": "^1.61.0",
+    "pngjs": "^7.0.0"
   }
 }

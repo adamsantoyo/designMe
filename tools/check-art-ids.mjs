@@ -38,6 +38,12 @@ const CATALOG_FOLDERS = {
   carries: "carry",
   features: "feature",
   bodyShapes: "body",
+  faceShapes: "faceShape",
+  brows: "brow",
+  eyes: "eye",
+  noses: "nose",
+  lips: "lip",
+  makeups: "makeup",
 };
 const catalog = new Map(); // "folder/id" -> source array
 for (const [arr, folder] of Object.entries(CATALOG_FOLDERS)) {

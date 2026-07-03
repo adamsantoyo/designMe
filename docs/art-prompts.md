@@ -126,7 +126,7 @@ Format: `- [ ] filename — one-line prompt` · `(P1)`/`(P2)` marks lower priori
 
 ### Skin & body  *(neutral tone for recoloring · base figure, no clothing/hair/face)*
 
-- [ ] `skin/base.png` — the base figure body + head, neutral front stand, flat skin, no features
+- [ ] `skin/base.png` — the base figure: a friendly, dignified adult mannequin (body + head), neutral front stand; ONE flat warm near-white paper tone over the whole figure (recolor master — not a realistic skin color) plus only the two soft shading tones; smooth simplified surface, no anatomical detail (no chest/nipple/navel/muscle marks); completely blank face — no eyes, brows, nose, mouth, or ears drawn (facial features are separate overlay parts); die-cut sticker edge: the silhouette outline is crisp and the surrounding transparency is 100% empty — absolutely no soft outer glow, bloom, halo, backlight, vignette, or light rays around the figure (override any soft-lighting instruction for this item)
 - [ ] `body/lean.png` — base figure with a lean build
 - [ ] `body/balanced.png` — base figure with a balanced build
 - [ ] `body/broad.png` — base figure with a broad build
@@ -137,12 +137,39 @@ Format: `- [ ] filename — one-line prompt` · `(P1)`/`(P2)` marks lower priori
 
 ### Face  *(bust scope · isolated overlays on the canonical face · calm neutral expression)*
 
-- [ ] `faceShape/round.png` … plus `oval` `square` `heart` `long` `diamond` — head-shape masters (6)
-- [ ] `brow/soft.png` … plus `straight` `arched` `bold` `fine` — brow shapes, tint to hair color (5)
-- [ ] `eye/round.png` … plus `almond` `monolid` `hooded` `wide` — eye shapes; iris recolored to brown/hazel/green/blue/gray/amethyst (5 assets)
-- [ ] `nose/button.png` … plus `rounded` `wide` `narrow` `long` — nose shapes (5)
-- [ ] `lip/full.png` … plus `wide` `petite` `bow` `soft` — lip shapes, skin-toned (5)
-- [ ] `makeup/natural.png` … plus `liner` `smoky` `bold` `glam` `graphic` `lashes` — makeup overlays, tint to the 10 makeup colors (7)
+- [ ] `faceShape/oval.png` — soft oval head-shape master
+- [ ] `faceShape/round.png` — round head-shape master
+- [ ] `faceShape/square.png` — square head-shape master
+- [ ] `faceShape/heart.png` — heart head-shape master
+- [ ] `faceShape/long.png` — long head-shape master
+- [ ] `faceShape/diamond.png` — diamond head-shape master
+- [ ] `brow/soft.png` — soft brow shape, tint to hair color
+- [ ] `brow/straight.png` — straight brow shape, tint to hair color
+- [ ] `brow/arched.png` — arched brow shape, tint to hair color
+- [ ] `brow/bold.png` — bold brow shape, tint to hair color
+- [ ] `brow/fine.png` — fine brow shape, tint to hair color
+- [ ] `eye/almond.png` — almond eye shape; iris recolored to brown/hazel/green/blue/gray/amethyst
+- [ ] `eye/round.png` — round eye shape; iris recolored to brown/hazel/green/blue/gray/amethyst
+- [ ] `eye/monolid.png` — monolid eye shape; iris recolored to brown/hazel/green/blue/gray/amethyst
+- [ ] `eye/hooded.png` — hooded eye shape; iris recolored to brown/hazel/green/blue/gray/amethyst
+- [ ] `eye/wide.png` — wide eye shape; iris recolored to brown/hazel/green/blue/gray/amethyst
+- [ ] `nose/rounded.png` — rounded nose shape
+- [ ] `nose/button.png` — button nose shape
+- [ ] `nose/wide.png` — wide nose shape
+- [ ] `nose/narrow.png` — narrow nose shape
+- [ ] `nose/long.png` — long nose shape
+- [ ] `lip/soft.png` — soft lip shape, skin-toned
+- [ ] `lip/full.png` — full lip shape, skin-toned
+- [ ] `lip/wide.png` — wide lip shape, skin-toned
+- [ ] `lip/petite.png` — petite lip shape, skin-toned
+- [ ] `lip/bow.png` — bow lip shape, skin-toned
+- [ ] `makeup/natural.png` — natural makeup overlay, tint to the makeup colors
+- [ ] `makeup/liner.png` — liner makeup overlay, tint to the makeup colors
+- [ ] `makeup/smoky.png` — smoky makeup overlay, tint to the makeup colors
+- [ ] `makeup/bold.png` — bold makeup overlay, tint to the makeup colors
+- [ ] `makeup/glam.png` — glam makeup overlay, tint to the makeup colors
+- [ ] `makeup/graphic.png` — graphic makeup overlay, tint to the makeup colors
+- [ ] `makeup/lashes.png` — lashes makeup overlay, tint to the makeup colors
 
 ### Skin features  *(subtle, dignified, transparent face overlays)*
 

@@ -17,3 +17,13 @@ _ds_*
 _adherence*
 .thumbnail
 scraps/
+tools/visual-matrix/out/
+
+# Avatar Foundry generated/lab artifacts
+tools/avatar-foundry/runs/
+app/assets/parts/
+app/public/canvaskit.wasm
+
+# art-gen staging (generated candidates; approved art is ingested to app/assets/parts/)
+_art_staging/
+tools/art-gen/refs/
