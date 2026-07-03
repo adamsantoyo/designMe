@@ -49,6 +49,20 @@ POSITION = {
     "lip":       ((200, 360), (220, 400)),
 }
 BORDER = 8
+
+# art-bible §3 — palette lock (paper/brand + skin + hair + garment + eyes + makeup)
+PALETTE = [
+    "#ece7dc", "#fbf8f2", "#2f2823", "#6b5f53", "#6f8f6a", "#3f5c3b", "#bd7a4f", "#8a5430",
+    "#3b2a21", "#4a3328", "#5c3f30", "#6d4733", "#7c5a45", "#8a5a3f", "#9c6f4e", "#a87c58",
+    "#bd8a5f", "#c99a6e", "#bca079", "#d3b48f", "#e3c4a2", "#efd4b8",
+    "#211c1a", "#2e221b", "#3f2b1f", "#5a3b27", "#6f4a2f", "#8a5a34", "#a87f4e", "#c8a968",
+    "#dcc07a", "#e7ddc4", "#9a958d", "#cfcac3", "#9a4a36", "#c0673a", "#6f4a72", "#3f6f8a",
+    "#3f8a78", "#c0708f",
+    "#e6dcc6", "#c08457", "#a8553a", "#7d8254", "#8aa382", "#46604b", "#3f8a86", "#8aa7bd",
+    "#5a6f8c", "#7a5570", "#d39aa3", "#cda14e", "#5e4334", "#3c3a38", "#f1e9d8", "#bd6f4f",
+    "#47321e", "#705436", "#4b6348", "#608694", "#7c858a", "#644b7a",
+    "#c4607a", "#b23b43", "#8a3a5e", "#d9745e", "#b07b66", "#a86b3f", "#7a5fb0",
+]
 MAX_SAT_NEUTRAL = 0.30   # mean saturation ceiling for recolor masters
 MAX_COVERAGE = 0.85      # more opaque than this = background almost certainly baked
 MIN_COVERAGE = 0.005     # less than this = generation came back essentially empty
@@ -131,6 +145,27 @@ for p in pngs:
     # at torso height, which every other check would pass. bbox is computed on
     # solid alpha only (≥140, the ingest clean_halo cut) so stray near-invisible
     # pixels don't widen it.
+    # palette proximity (art-bible §8 "on-palette"): fixed-color items should stay
+    # near §3 values. Warning-level — neutral masters are covered by the sat check,
+    # and per-color judgment stays human (contact sheet).
+    if cat not in neutral_cats and cat not in {"skin", "body"}:
+        from PIL import ImageStat
+        mask = alpha.point(lambda v: 255 if v >= 200 else 0)
+        if opaque:
+            mr, mg, mb = ImageStat.Stat(im.convert("RGB"), mask=mask).mean
+            def dist(hx):
+                r2, g2, b2 = int(hx[1:3], 16), int(hx[3:5], 16), int(hx[5:7], 16)
+                return ((mr - r2) ** 2 + (mg - g2) ** 2 + (mb - b2) ** 2) ** 0.5
+            nearest = min(PALETTE, key=dist)
+            if dist(nearest) > 90:
+                warn_palette = f"mean color ({mr:.0f},{mg:.0f},{mb:.0f}) is {dist(nearest):.0f} from nearest §3 hex {nearest}"
+            else:
+                warn_palette = None
+        else:
+            warn_palette = None
+    else:
+        warn_palette = None
+
     bbox = alpha.point(lambda v: 255 if v >= 140 else 0).getbbox()
     if bbox and cat in POSITION and (w, h) == (1024, 1536):
         rule_top, rule_bottom = POSITION[cat]
@@ -145,6 +180,8 @@ for p in pngs:
     warn = []
     if abs(center_dx) > CENTER_TOL:
         warn.append(f"bbox midline {center_dx:+.0f}px off center")
+    if warn_palette:
+        warn.append(warn_palette)
 
     fails = {k: v for k, v in checks.items() if v is not True}
     report.append({

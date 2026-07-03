@@ -24,6 +24,11 @@ Your whole job: turn each catalog item into **one transparent PNG named by its i
 
 > **Supersedes the old constraints.** Earlier docs (`catalog-bible.md`, `catalog-integrity-report.md`) assumed "inline SVG only, PNGs dev-reference only, one self-contained file." That direction is retired. Raster parts generated to this spec **are** the production assets, composited at runtime by the engine on web and iPad. Determinism, recognition, dignity, and calm still hold — the file/format constraints do not.
 
+> **Technique update (2026-07-03, verified in production runs — supersedes the per-category "item only" templates in §7):**
+> 1. **Worn parts are generated on the figure, not in isolation.** Prompting a lone part ("hair only, no body") reliably breaks registration — the model centers and oversizes it. The pipeline (`tools/art-gen/generate.mjs`) instead renders the item WORN on the canonical base figure with the figure painted solid chroma-green; `key.py` strips the green deterministically, leaving the part pixel-registered. Face features come from ONE complete-face render split into layers (`face-split.py`).
+> 2. **Everything is full-frame 1024×1536.** The §4 bust scope (1024×1024) is retired until the runtime engine has a head-box transform — it currently draws every layer full-frame.
+> 3. **Hair renders as a full wig in front of the figure** (nothing occluded behind the head/back), because occluded strands are lost with the keyed mannequin. Consequence: the engine has a single front hair slot; the §4 hair-back layer waits for a back-slot + back-capture technique.
+
 ---
 
 ## 1. Non-negotiables (read before generating anything)

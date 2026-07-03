@@ -107,7 +107,7 @@ Format: `- [ ] filename — one-line prompt` · `(P1)`/`(P2)` marks lower priori
 - [ ] `hair/bigBlowout.png` — a rounded high-volume blowout
 - [ ] `hair/curtain.png` — center-parted curtain bangs framing the face
 - [ ] `hair/halfUp.png` — a half-up tie with waves down
-- [ ] `hair/lowPony.png` — a low ponytail at the nape
+- [ ] `hair/lowPony.png` — a relaxed ponytail tied low behind the head, tail resting over one shoulder
 - [ ] `hair/highPony.png` — a high ponytail with volume
 - [ ] `hair/lowBun.png` — a smooth low bun at the nape
 - [ ] `hair/highBun.png` — a bun high above the crown

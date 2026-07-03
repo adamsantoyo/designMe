@@ -70,9 +70,15 @@ def measure(img, test):
     return y0, y1, min(x[0] for x in xs), max(x[1] for x in xs)
 
 src = Path(sys.argv[1])
+# --whole cat/id: the render carries ONE overlay (makeup, skin feature) — extract
+# every non-green head component as a single layer, no classification.
+WHOLE = len(sys.argv) > 2 and sys.argv[2] == "--whole"
 targets = {}
-for t in sys.argv[2:]:
-    targets[t.split("/")[0]] = t
+if WHOLE:
+    targets["whole"] = sys.argv[3]
+else:
+    for t in sys.argv[2:]:
+        targets[t.split("/")[0]] = t
 
 im = Image.open(src).convert("RGBA")
 px = im.load()
@@ -113,7 +119,11 @@ for yy in range(max(0, gy0 - pad), min(im.height, gy1 + pad)):
             xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
             comps.append({"pts": pts, "cx": sum(xs)/len(xs), "cy": sum(ys)/len(ys), "area": len(pts)})
 
-if len(comps) < 3:
+if WHOLE:
+    if not comps:
+        sys.exit("FACE SPLIT FAIL: no overlay content found in the head")
+    assign = {"whole": comps}
+elif len(comps) < 3:
     sys.exit(f"FACE SPLIT FAIL: only {len(comps)} feature components found in the head")
 
 # cluster by cy (gap > 4% of head height starts a new row), top -> bottom
@@ -124,19 +134,20 @@ for c in comps[1:]:
     (rows[-1] if c["cy"] - rows[-1][-1]["cy"] <= gap else rows.append([]) or rows[-1]).append(c)
 
 mid = (gx0 + gx1) / 2
-assign = {}
-pairs = [r for r in rows if len(r) >= 2 and any(c["cx"] < mid for c in r) and any(c["cx"] >= mid for c in r)]
+assign = {"whole": comps} if WHOLE else {}
+pairs = [] if WHOLE else [r for r in rows if len(r) >= 2 and any(c["cx"] < mid for c in r) and any(c["cx"] >= mid for c in r)]
 singles = [c for r in rows for c in r if not any(r is p for p in pairs)]
-if len(pairs) >= 2:
-    assign["brow"], assign["eye"] = pairs[0], pairs[1]
-elif len(pairs) == 1:
-    assign["eye"] = pairs[0]
-central = sorted([c for c in singles if abs(c["cx"] - mid) < (gx1 - gx0) * 0.2], key=lambda c: c["cy"])
-central = [c for c in central if "eye" not in assign or c["cy"] > max(e["cy"] for e in assign["eye"])]
-if len(central) >= 2:
-    assign["nose"], assign["lip"] = [central[0]], [central[-1]]
-elif len(central) == 1:
-    assign["lip"] = [central[0]]
+if not WHOLE:
+    if len(pairs) >= 2:
+        assign["brow"], assign["eye"] = pairs[0], pairs[1]
+    elif len(pairs) == 1:
+        assign["eye"] = pairs[0]
+    central = sorted([c for c in singles if abs(c["cx"] - mid) < (gx1 - gx0) * 0.2], key=lambda c: c["cy"])
+    central = [c for c in central if "eye" not in assign or c["cy"] > max(e["cy"] for e in assign["eye"])]
+    if len(central) >= 2:
+        assign["nose"], assign["lip"] = [central[0]], [central[-1]]
+    elif len(central) == 1:
+        assign["lip"] = [central[0]]
 
 # Nose rescue: the model tends to draw the nose line as DARK green ink
 # harmonized to the green face (bright matte green has value ~0.78; line art
