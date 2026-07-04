@@ -46,6 +46,7 @@ Deliberately small — the *"avatar is the menu"* model collapses every catalog 
 - **Avatar = a layered-PNG compositor:** transparent part images stacked in the z-order from `docs/art-bible.md` §4, with neutral parts tinted at runtime to the palette colors (`react-native-svg` / Image layers). See `art-bible.md` §3a (recolor) and §5 (assets/naming).
 - **Catalog data** (ids, categories, vibes) ported from the existing `index.html` / `docs/catalog-bible.md`.
 - **Art assets** generated separately in ChatGPT per `docs/art-prompts.md`, dropped into `assets/parts/{category}/{id}.png`. Placeholders are fine until generated.
+- **iPad target:** Skia requires a custom dev build (not Expo Go), cloud-built via EAS — see `docs/ipad-dev-build.md` for the repeatable workflow.
 
 ## Flow
 

@@ -1,0 +1,85 @@
+# generated: 2026-07-04
+# last_updated: 2026-07-04
+# project: designMe
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; sprint-status surfaces open ones
+#
+# SEEDED STATUSES (brownfield truth at generation, per readiness report 2026-07-04):
+# - 1-2-asset-optimization-in-ingest: done — landed as commit 820347b (16MB→1.7MB, 89%)
+# - 1-1-art-direction-fixes-from-the-slice-review: in-progress — wavyM re-rolled/approved
+#   (commits 3050fd7, 61e9d89); definedCurls re-roll, shoe-coverage and faceShape-seam
+#   prompt fixes still open
+# - 1-0-ipad-dev-build-enabler: backlog — added by readiness remediation; schedule first
+
+generated: 2026-07-04
+last_updated: 2026-07-04
+project: designMe
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: in-progress
+  1-0-ipad-dev-build-enabler: in-progress
+  1-1-art-direction-fixes-from-the-slice-review: in-progress
+  1-2-asset-optimization-in-ingest: done
+  1-3-p0-batch-generated-and-reviewed: backlog
+  1-4-p1-p2-breadth-batch: backlog
+  epic-1-retrospective: optional
+  epic-2: backlog
+  2-1-full-slot-coverage-in-the-manifest: backlog
+  2-2-height-crop-and-tray-tile-behavior-in-png-mode: backlog
+  2-3-default-engine-flip: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-this-or-that-end-to-end-flow: backlog
+  3-2-second-door-reachability-and-a11y: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-pixel-faithful-re-wear: backlog
+  4-2-persistence-contract-tests: backlog
+  epic-4-retrospective: optional
+  epic-5: backlog
+  5-1-randomized-non-default-start-verified: backlog
+  5-2-full-accessibility-audit-pass: backlog
+  epic-5-retrospective: optional
+  epic-6: backlog
+  6-1-ipad-dev-build-runs-the-slice: backlog
+  6-2-web-deploy-target: backlog
+  epic-6-retrospective: optional
