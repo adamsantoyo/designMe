@@ -27,3 +27,4 @@ app/public/canvaskit.wasm
 # art-gen staging (generated candidates; approved art is ingested to app/assets/parts/)
 _art_staging/
 tools/art-gen/refs/
+.claude/.story-automator-active

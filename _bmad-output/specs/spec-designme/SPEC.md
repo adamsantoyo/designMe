@@ -84,7 +84,9 @@ A brand-new user — no instructions, no typing — in about one minute (1) make
 
 ## Open Questions
 
-- **Id reconciliation:** `check-art-ids.mjs` reports 21/61 catalog↔worksheet mismatches. Which side is canonical — `app/src/dm.ts` ids or `art-prompts.md` filenames?
-- **Primary art lane:** is the Firefly workflow (verified July 2026) now primary, demoting the ChatGPT PREFIX worksheet to fallback?
-- **Deep-tone recolor:** multiply crushes shading on black hair and the deepest skins; given "never a light default," is the planned ramp/SVG runtime fix a ship-blocker or a post-MVP improvement?
-- **Exemplar status:** are the 3 style exemplars (`definedCurls`, `hoodie`, `wheelchair`) and `skin/base` locked? Mass generation is gated on them (art-bible §8).
+All four questions raised at distillation are RESOLVED (see architecture §9 decisions log):
+
+- **Id reconciliation:** RESOLVED — catalog↔worksheet ids reconciled; `check-art-ids.mjs` green is now a hard gate before any generation (passing since 2026-07-02).
+- **Primary art lane:** RESOLVED 2026-07-02 — OpenAI Images API (gpt-image-1) is the PRIMARY lane; Firefly demoted to fallback.
+- **Deep-tone recolor:** RESOLVED 2026-07-03 — multiply recolor proven on deep tones; question closed, no ramp/SVG runtime fix needed.
+- **Exemplar status:** RESOLVED 2026-07-03 — approved slice registered (97 P0 parts as of 3c43b61; wavyM re-rolled and approved); `body/balanced` is the approved base figure.

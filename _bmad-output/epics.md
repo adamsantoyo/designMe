@@ -86,6 +86,20 @@ The UX design contract lives at `ux-designs/ux-designme-2026-07-03/` (DESIGN.md 
 
 Every remaining catalog item becomes approved, registered art through the verified pipeline, so the trays are real instead of placeholders.
 
+### Story 1.0: iPad dev build enabler (environment)
+
+As the maker,
+I want an Expo dev build installed and launching on the iPad,
+So that every story's both-target definition of done (architecture §7) is satisfiable from the first story instead of deferred to Epic 6.
+
+**Acceptance Criteria:**
+
+**Given** the app/ Expo project
+**When** a dev build (Skia included) is installed on the iPad
+**Then** the app launches and renders the Studio on the device
+**And** subsequent stories can run their iPad-side verification against this build
+**And** full-slice verification remains Story 6.1's scope — this story only establishes the environment.
+
 ### Story 1.1: Art-direction fixes from the slice review
 
 As an operator (Adam),
@@ -202,6 +216,7 @@ So that I can express taste without pointing or navigating.
 **When** the user completes the rounds using only two switch actions (next/select)
 **Then** each round presents exactly two looks rendered by the product engine
 **And** the flow converges to a "your starting style" result within a bounded number of rounds
+**And** pair sequencing is deterministic: the same choice sequence from the same starting state reproduces the same pairs and the same result — no unseeded randomness (NFR4; EXPERIENCE.md Flow 2)
 **And** selecting the result applies it to the avatar and returns to the Studio
 **And** no time pressure, scoring, or forced completion exists — exit is always available.
 

@@ -4,6 +4,7 @@
   "private": true,
   "description": "A no-typing, recognition-first avatar creator and style explorer built for self-expression and autonomy.",
   "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
     "playwright": "playwright",
     "foundry": "node tools/avatar-foundry/cli.mjs",
     "foundry:check": "node tools/avatar-foundry/cli.mjs check",
