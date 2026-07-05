@@ -67,6 +67,12 @@
 #   (keys to empty), top/meshLayer (renders full-length, wrong for a torso 'top' slot). Spend ≈ $5.
 # - NOTE: app/assets/parts/ is gitignored — registry.ts wires the PNGs but the assets are not
 #   version-controlled (same as the 97 P0). Reproducibility gap worth revisiting (force-add or LFS).
+# - 2-4 (NEW 2026-07-04): Vector SVG render path. Story created ready-for-dev. Proven this session:
+#   all 157 PNGs auto-traced 1:1 to SVG; 3 composited avatars confirm premium/cohesive look; bypasses
+#   the SkiaFigure fit="fill" distortion (SkiaFigure.tsx:61). Open gaps the story closes: recolor
+#   (trace neutral master + feColorMatrix/fill-swap tint — spike-gated) and size (13.4MB raw →
+#   posterize+SVGO to ~2MB). RESHAPES Epic 2: 2.1/2.2 renderer-agnostic (still apply); 2.3 (PNG-default
+#   flip) SUPERSEDED; FR5/CAP-5 (PNG-first) need a rewrite once svgparts ships.
 
 generated: 2026-07-04
 last_updated: 2026-07-04
@@ -83,10 +89,11 @@ development_status:
   1-3-p0-batch-generated-and-reviewed: in-progress
   1-4-p1-p2-breadth-batch: in-progress
   epic-1-retrospective: optional
-  epic-2: backlog
+  epic-2: in-progress
   2-1-full-slot-coverage-in-the-manifest: backlog
   2-2-height-crop-and-tray-tile-behavior-in-png-mode: backlog
   2-3-default-engine-flip: backlog
+  2-4-vector-svg-render-path: ready-for-dev
   epic-2-retrospective: optional
   epic-3: backlog
   3-1-this-or-that-end-to-end-flow: backlog

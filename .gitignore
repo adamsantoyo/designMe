@@ -21,6 +21,7 @@ tools/visual-matrix/out/
 
 # Avatar Foundry generated/lab artifacts
 tools/avatar-foundry/runs/
+tools/art-lab/out/
 app/assets/parts/
 app/public/canvaskit.wasm
 
