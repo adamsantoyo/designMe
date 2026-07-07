@@ -268,6 +268,14 @@ export default function AvatarStudio() {
   const [vibeOpen, setVibeOpen] = useState(false);
   const [explored, setExplored] = useState(true); // true until storage says otherwise
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Focus management: land the keyboard inside a tray on open, return it to the chip
+  // that opened it on close (WCAG focus order). Web-only refs to the host nodes.
+  // keyboardNavRef gates the focus MOVE to keyboard/switch users so a mouse click
+  // doesn't leave a stray focus ring on the tray close button.
+  const chipRefs = useRef<Partial<Record<Region, any>>>({});
+  const trayCloseRef = useRef<any>(null);
+  const prevRegionRef = useRef<Region | null>(null);
+  const keyboardNavRef = useRef(false);
   const reduceMotion = useReducedMotion();
 
   const { width: W, height: H } = useWindowDimensions();
@@ -512,6 +520,52 @@ export default function AvatarStudio() {
     setRegion(null);
     setLookbookOpen(false);
   };
+
+  // Track the input modality so focus only *moves* for keyboard/switch users (a mouse
+  // click shouldn't paint a focus ring on the tray). Capture-phase so it runs first.
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (["Tab", "Enter", " ", "Escape", "ArrowRight", "ArrowLeft"].includes(e.key)) {
+        keyboardNavRef.current = true;
+      }
+    };
+    const onPointerDown = () => { keyboardNavRef.current = false; };
+    window.addEventListener("keydown", onKeyDown, true);
+    window.addEventListener("pointerdown", onPointerDown, true);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("pointerdown", onPointerDown, true);
+    };
+  }, []);
+
+  // Move focus into a tray when it opens, and back to the chip that opened it on close
+  // (web keyboard/screen-reader focus order — the trigger-return dialog pattern).
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const wasKeyboard = keyboardNavRef.current;
+    const focus = (el: any) => el && typeof el.focus === "function" && el.focus();
+    if (region) {
+      prevRegionRef.current = region;
+      if (wasKeyboard) requestAnimationFrame(() => focus(trayCloseRef.current));
+    } else if (prevRegionRef.current) {
+      const k = prevRegionRef.current;
+      prevRegionRef.current = null;
+      if (wasKeyboard) requestAnimationFrame(() => focus(chipRefs.current[k]));
+    }
+  }, [region]);
+
+  // Esc dismisses whatever overlay is open (this-or-that, then trays/lookbook).
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (vibeOpen) setVibeOpen(false);
+      else if (region || lookbookOpen) closeSheets();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [region, lookbookOpen, vibeOpen]);
 
   const colorRowsFor = (r: Region): ColorRow[] => {
     const mk = (list: DM.ColorOpt[], sel: string, key: keyof Av, title: string) =>
@@ -768,6 +822,7 @@ export default function AvatarStudio() {
                 active={region === k}
                 pulseOpacity={!explored ? chipPulseOpacity : undefined}
                 onPress={() => selectRegion(k)}
+                chipRef={(el) => { chipRefs.current[k] = el; }}
               />
             ))}
           </Animated.View>
@@ -826,12 +881,13 @@ export default function AvatarStudio() {
         pointerEvents={sheetOpen ? "auto" : "none"}
         style={[styles.scrim, { opacity: scrimOpacity }]}
       >
-        <Pressable
+        <UIPressable
           accessibilityRole="button"
           accessibilityLabel="Close options"
           focusable={sheetOpen}
           importantForAccessibility={sheetOpen ? "auto" : "no-hide-descendants"}
           onPress={closeSheets}
+          pressScale={false}
           style={{ flex: 1 }}
         />
       </Animated.View>
@@ -865,7 +921,7 @@ export default function AvatarStudio() {
                 <Text style={styles.trayTitle}>{META[region].title}</Text>
                 <Text style={styles.trayHint}>{META[region].hint}</Text>
               </View>
-              <UIPressable accessibilityRole="button" accessibilityLabel="Close options" onPress={() => setRegion(null)} radius={theme.radius.pill} style={styles.closeBtn}>
+              <UIPressable ref={trayCloseRef} accessibilityRole="button" accessibilityLabel="Close options" onPress={() => setRegion(null)} radius={theme.radius.pill} style={styles.closeBtn}>
                 <Icon name="close" stroke={theme.color.ink} size={22} />
               </UIPressable>
             </View>
@@ -976,11 +1032,12 @@ export default function AvatarStudio() {
   );
 }
 
-function Chip({ k, active, pulseOpacity, onPress }: {
+function Chip({ k, active, pulseOpacity, onPress, chipRef }: {
   k: Region;
   active: boolean;
   pulseOpacity?: Animated.AnimatedInterpolation<number> | undefined;
   onPress: () => void;
+  chipRef?: (el: any) => void;
 }) {
   const [hover, setHover] = useState(false);
   const [focus, setFocus] = useState(false);
@@ -988,6 +1045,7 @@ function Chip({ k, active, pulseOpacity, onPress }: {
   const showLabel = hover || focus || active;
   return (
     <UIPressable
+      ref={chipRef}
       accessibilityRole="button"
       accessibilityLabel={`Change ${CHIP_LABEL[k].toLowerCase()}`}
       accessibilityState={{ selected: active }}

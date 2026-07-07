@@ -9,7 +9,7 @@ import useReducedMotion from "../useReducedMotion";
 
 const APressable = Animated.createAnimatedComponent(RNPressable);
 
-export default function Pressable({
+function Pressable({
   style,
   radius = theme.radius.md,
   lift = false,
@@ -22,7 +22,7 @@ export default function Pressable({
   onFocus,
   onBlur,
   ...props
-}: any) {
+}: any, ref: any) {
   const [focused, setFocused] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
   const press = React.useRef(new Animated.Value(0)).current;
@@ -47,6 +47,7 @@ export default function Pressable({
 
   return (
     <APressable
+      ref={ref}
       {...props}
       onFocus={(e: any) => {
         setFocused(true);
@@ -89,6 +90,8 @@ export default function Pressable({
     </APressable>
   );
 }
+
+export default React.forwardRef(Pressable);
 
 const styles = StyleSheet.create({
   ring: {
