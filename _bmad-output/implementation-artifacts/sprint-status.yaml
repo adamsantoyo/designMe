@@ -100,6 +100,18 @@
 # - App icon + splash: script-generated typographic mark (tools/gen-app-icon.mjs).
 # - Verified web + visual:matrix (12/12, 3 viewports). Native (fonts, splash/icon, VoiceOver,
 #   Dynamic Type, touch feel) flagged for iOS Simulator / physical iPad.
+#
+# PREMIUM OVERHAUL — PHASE 3 DONE (2026-07-07): UX completion.
+# - Bounded this-or-that: tournament helpers extracted to dm.ts (+ node --test locking
+#   determinism BEFORE the pool change); pool sliced to 8 -> ~7 calm rounds (was 23 dots).
+# - Lookbook delete: quiet corner affordance -> calm inline confirm (Keep encouraged),
+#   removeLook reuses persistLooks. Empty lookbook shows a low-opacity silhouette +
+#   "Your looks will live here". Advances Epic 3 (3-1/3-2) + Epic 4 lookbook UX.
+# - "Describe my look": pure describeLook(av) sentence (node --test: never leaks undefined,
+#   only names present extras) announced via the existing aria-live toast.
+# - OptionTile labels wrap to 2 lines (140px) — "Noise-reducing headphones" no longer clips.
+# - Decisions recorded: expression/pattern are engine-only, not premium slots (architecture
+#   §9); storage errors surface via a calm toast, never silent (EXPERIENCE.md reconciled).
 
 generated: 2026-07-04
 last_updated: 2026-07-07

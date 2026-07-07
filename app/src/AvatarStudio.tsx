@@ -193,6 +193,7 @@ const ICON: Record<string, string> = {
   undo: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
   close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   vibe: '<rect x="3" y="5" width="8" height="14" rx="2.5"/><rect x="13" y="5" width="8" height="14" rx="2.5"/><path d="M7 11v2M17 11v2"/>',
+  describe: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7A2.5 2.5 0 0 1 17.5 15H9l-4 4v-4H6.5A2.5 2.5 0 0 1 4 12.5Z"/><path d="M8 8h8"/><path d="M8 11h5"/>',
 };
 const svgIcon = (name: string, stroke: string, sw = 2) =>
   `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="${stroke}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${ICON[name]}</svg>`;
@@ -500,10 +501,21 @@ export default function AvatarStudio() {
     setBump((b) => b + 1);
     showToast("Look restored");
   };
+  const removeLook = (id: string) => {
+    setLooks((prev) => {
+      const next = prev.filter((look) => look.id !== id);
+      persistLooks(next);
+      return next;
+    });
+    showToast("Look removed");
+  };
   const openLooks = () => {
     setRegion(null);
     setLookbookOpen(true);
   };
+  // Screen-reader (and everyone) aid: speak/show a plain-language description of the
+  // current avatar. showToast already announces (native explicit, web aria-live region).
+  const describeMyLook = () => showToast(DM.describeLook(av));
   const selectRegion = (r: Region) => {
     if (!explored) {
       setExplored(true);
@@ -758,6 +770,7 @@ export default function AvatarStudio() {
           <HeaderIconBtn icon="vibe" label="Vibes" onPress={() => { setRegion(null); setLookbookOpen(false); setVibeOpen(true); }} compact={narrowHeader} />
           <HeaderIconBtn icon="shuffle" label="Shuffle" onPress={shuffle} compact={narrowHeader} />
           <HeaderIconBtn icon="looks" label="Looks" onPress={openLooks} badge={looks.length > 0 ? looks.length : undefined} compact={narrowHeader} />
+          <HeaderIconBtn icon="describe" label="Describe my look" onPress={describeMyLook} compact={narrowHeader} />
           <HeaderIconBtn icon="undo" label="Undo" onPress={undo} disabled={history.length === 0} compact={narrowHeader} />
           <UIPressable
             accessibilityRole="button"
@@ -1002,26 +1015,25 @@ export default function AvatarStudio() {
             {looks.length ? (
               <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.lookGrid}>
                 {looks.map((look, index) => (
-                  <UIPressable
+                  <LookCard
                     key={look.id}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Wear saved look ${index + 1}`}
-                    onPress={() => wearLook(look)}
-                    lift
-                    radius={theme.radius.lg}
-                    style={styles.lookCard}
-                  >
-                    <LinearGradient colors={[theme.color.surface, theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.lg - 2 }]} pointerEvents="none" />
-                    <View style={styles.lookPreview} pointerEvents="none">
-                      <AvatarCanvas av={look.av} engine={engineMode} />
-                    </View>
-                    <Text style={styles.lookTitle} numberOfLines={1}>{lookLabel(look.savedAt)}</Text>
-                  </UIPressable>
+                    look={look}
+                    index={index}
+                    engine={engineMode}
+                    onWear={() => wearLook(look)}
+                    onRemove={() => removeLook(look.id)}
+                  />
                 ))}
               </ScrollView>
             ) : (
               <View style={styles.emptyLookbook}>
-                <Text style={styles.emptyTitle}>No saved looks yet</Text>
+                {/* One low-opacity sample slot — "a saved look will live here". */}
+                <View style={[styles.lookCard, styles.lookSilhouette]} pointerEvents="none">
+                  <View style={styles.lookPreview}>
+                    <AvatarCanvas av={DM.defaultAv} engine={engineMode} />
+                  </View>
+                </View>
+                <Text style={styles.emptyTitle}>Your looks will live here</Text>
                 <Text style={styles.emptyText}>Save a look when it feels right.</Text>
               </View>
             )}
@@ -1107,6 +1119,54 @@ function HeaderIconBtn({ icon, label, onPress, disabled, badge, compact }: {
         </View>
       ) : null}
     </UIPressable>
+  );
+}
+
+// A saved-look card: tap to wear; a quiet corner "x" reveals a calm inline confirm
+// (no modal). Deletion is allowed but never prominent — "Keep" is the encouraged action.
+function LookCard({ look, index, engine, onWear, onRemove }: {
+  look: SavedLook;
+  index: number;
+  engine: AvatarEngine;
+  onWear: () => void;
+  onRemove: () => void;
+}) {
+  const [confirming, setConfirming] = useState(false);
+  return (
+    <View style={styles.lookCard}>
+      <UIPressable
+        accessibilityRole="button"
+        accessibilityLabel={`Wear saved look ${index + 1}`}
+        onPress={() => (confirming ? setConfirming(false) : onWear())}
+        radius={theme.radius.lg}
+        style={styles.lookWear}
+      >
+        <LinearGradient colors={[theme.color.surface, theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.lg - 2 }]} pointerEvents="none" />
+        <View style={styles.lookPreview} pointerEvents="none">
+          <AvatarCanvas av={look.av} engine={engine} />
+        </View>
+        <Text style={styles.lookTitle} numberOfLines={1}>{lookLabel(look.savedAt)}</Text>
+      </UIPressable>
+
+      {confirming ? (
+        <View style={styles.lookConfirm} pointerEvents="box-none">
+          <UIPressable accessibilityRole="button" accessibilityLabel={`Confirm remove saved look ${index + 1}`}
+            onPress={onRemove} radius={theme.radius.pill} style={[styles.confirmBtn, styles.confirmRemove]}>
+            <Text style={styles.confirmRemoveText}>Remove</Text>
+          </UIPressable>
+          <UIPressable accessibilityRole="button" accessibilityLabel="Keep look"
+            onPress={() => setConfirming(false)} radius={theme.radius.pill} style={[styles.confirmBtn, styles.confirmKeep]}>
+            <Text style={styles.confirmKeepText}>Keep</Text>
+          </UIPressable>
+        </View>
+      ) : (
+        <UIPressable accessibilityRole="button" accessibilityLabel={`Remove saved look ${index + 1}`}
+          onPress={() => setConfirming(true)} hitSlop={10} pressScale={false}
+          radius={theme.radius.pill} style={styles.lookRemove}>
+          <Icon name="close" stroke={theme.color.inkFaint} size={15} sw={2.4} />
+        </UIPressable>
+      )}
+    </View>
   );
 }
 
@@ -1202,7 +1262,7 @@ const styles = StyleSheet.create({
   toastWrap: { position: "absolute", top: 14, alignSelf: "center", zIndex: 40 },
   toast: { flexDirection: "row", alignItems: "center", gap: 9,
     backgroundColor: theme.color.ink, paddingHorizontal: 20, paddingVertical: 12, borderRadius: theme.radius.pill, ...theme.shadow.xl },
-  toastText: { color: theme.color.surface, fontSize: theme.type.base, fontWeight: "700" },
+  toastText: { color: theme.color.surface, fontSize: theme.type.base, fontWeight: "700", maxWidth: 300, flexShrink: 1 },
 
   devToggle: { position: "absolute", left: 14, bottom: 12, zIndex: 24, height: 34, paddingHorizontal: 12,
     borderRadius: theme.radius.pill, alignItems: "center", justifyContent: "center",
@@ -1244,9 +1304,19 @@ const styles = StyleSheet.create({
   lookGrid: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 16, paddingVertical: 14, paddingBottom: 28 },
   lookCard: { width: 148, height: 224, borderRadius: theme.radius.lg, borderWidth: 2, borderColor: theme.color.line,
     backgroundColor: theme.color.surface2, alignItems: "center", padding: 10, ...theme.shadow.md, overflow: "hidden" },
+  lookWear: { ...StyleSheet.absoluteFillObject, alignItems: "center", padding: 10, borderRadius: theme.radius.lg },
   lookPreview: { width: 118, height: 164, overflow: "hidden" },
   lookTitle: { marginTop: 10, fontSize: theme.type.md, fontWeight: "800", color: theme.color.ink },
-  emptyLookbook: { flex: 1, minHeight: 210, alignItems: "center", justifyContent: "center" },
-  emptyTitle: { fontSize: theme.type.lg, fontWeight: "800", color: theme.color.ink },
+  lookRemove: { position: "absolute", top: 7, right: 7, width: 30, height: 30, borderRadius: theme.radius.pill,
+    alignItems: "center", justifyContent: "center", backgroundColor: theme.color.surface, borderWidth: 1, borderColor: theme.color.line },
+  lookConfirm: { position: "absolute", left: 8, right: 8, bottom: 8, flexDirection: "row", gap: 8, justifyContent: "center" },
+  confirmBtn: { flex: 1, minHeight: 44, borderRadius: theme.radius.pill, alignItems: "center", justifyContent: "center", borderWidth: 1 },
+  confirmRemove: { backgroundColor: theme.color.surface, borderColor: theme.color.line },
+  confirmRemoveText: { color: theme.color.inkSoft, fontSize: theme.type.md, fontWeight: "800" },
+  confirmKeep: { backgroundColor: theme.color.sage, borderColor: theme.color.sageDeep },
+  confirmKeepText: { color: theme.color.onAccent, fontSize: theme.type.md, fontWeight: "800" },
+  lookSilhouette: { opacity: 0.3 },
+  emptyLookbook: { flex: 1, minHeight: 210, alignItems: "center", justifyContent: "center", gap: 4 },
+  emptyTitle: { marginTop: 14, fontSize: theme.type.lg, fontWeight: "800", color: theme.color.ink },
   emptyText: { marginTop: 6, fontSize: theme.type.base, fontWeight: "600", color: theme.color.inkSoft },
 });

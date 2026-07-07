@@ -18,36 +18,6 @@ import type { Av } from "./dm";
 
 const BEZ = Easing.bezier(...theme.motion.bezier);
 
-function balancedVibes(vibes: DM.Vibe[]): DM.Vibe[] {
-  const tags: string[] = [];
-  const byTag = new Map<string, DM.Vibe[]>();
-  for (const vibe of vibes) {
-    if (!byTag.has(vibe.tag)) {
-      byTag.set(vibe.tag, []);
-      tags.push(vibe.tag);
-    }
-    byTag.get(vibe.tag)!.push(vibe);
-  }
-  const out: DM.Vibe[] = [];
-  for (let depth = 0; out.length < vibes.length; depth += 1) {
-    let added = false;
-    for (const tag of tags) {
-      const vibe = byTag.get(tag)![depth];
-      if (vibe) {
-        out.push(vibe);
-        added = true;
-      }
-    }
-    if (!added) break;
-  }
-  return out;
-}
-
-function nextChallengerIndex(queue: DM.Vibe[], winner: DM.Vibe): number {
-  const sameTag = queue.findIndex((vibe) => vibe.tag === winner.tag);
-  return sameTag >= 0 ? sameTag : 0;
-}
-
 export default function ThisOrThat({
   av, onWear, onClose, engine = "svg",
 }: {
@@ -56,7 +26,8 @@ export default function ThisOrThat({
   onClose: () => void;
   engine?: AvatarEngine;
 }) {
-  const initialPool = useMemo(() => balancedVibes(DM.vibes), []);
+  // Bounded, tag-diverse pool -> ~7 calm rounds (EXPERIENCE.md Flow 2), not all 24 vibes.
+  const initialPool = useMemo(() => DM.balancedVibes(DM.vibes).slice(0, DM.THIS_OR_THAT_POOL), []);
   const [champ, setChamp] = useState(initialPool[0]);
   const [challenger, setChallenger] = useState(initialPool[1]);
   const [queue, setQueue] = useState(() => initialPool.slice(2));
@@ -82,7 +53,7 @@ export default function ThisOrThat({
       setDone(true);
       return;
     }
-    const nextIndex = nextChallengerIndex(queue, winner);
+    const nextIndex = DM.nextChallengerIndex(queue, winner);
     setChallenger(queue[nextIndex]);
     setQueue((q) => q.filter((_, i) => i !== nextIndex));
     setRound((r) => r + 1);

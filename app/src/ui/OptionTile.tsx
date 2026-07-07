@@ -12,7 +12,7 @@ import { theme } from "../theme";
 import type { Av } from "../dm";
 
 export default function OptionTile({
-  av, ov, crop, label, aria, selected, onPress, size = 130, engine = "svg",
+  av, ov, crop, label, aria, selected, onPress, size = 140, engine = "svg",
 }: {
   av: Av;
   ov?: Partial<Av>;
@@ -46,7 +46,7 @@ export default function OptionTile({
         <AvatarCanvas av={av} ov={ov} crop={crop} engine={engine} />
       </View>
       <View pointerEvents="none" style={styles.labelWrap}>
-        <Text style={styles.label} numberOfLines={1}>{label}</Text>
+        <Text style={styles.label} numberOfLines={2}>{label}</Text>
       </View>
       {selected ? (
         <View pointerEvents="none" style={styles.check}>
@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
   selWash: { backgroundColor: "rgba(111,143,106,0.10)", borderRadius: theme.radius.lg - 2 },
   labelWrap: { position: "absolute", left: 8, right: 8, bottom: 8, alignItems: "center" },
   label: { maxWidth: "100%", color: theme.color.ink, backgroundColor: "rgba(251,248,242,0.9)",
-    borderRadius: theme.radius.pill, overflow: "hidden", paddingHorizontal: 10, paddingVertical: 3.5,
-    fontSize: theme.type.sm, fontWeight: "800" },
+    borderRadius: theme.radius.lg, overflow: "hidden", paddingHorizontal: 10, paddingVertical: 3.5,
+    fontSize: theme.type.sm, fontWeight: "800", textAlign: "center" },
   check: { position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: theme.radius.pill,
     backgroundColor: theme.color.sage, alignItems: "center", justifyContent: "center",
     borderWidth: 2, borderColor: theme.color.surface },

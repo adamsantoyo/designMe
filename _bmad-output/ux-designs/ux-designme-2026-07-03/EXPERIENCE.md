@@ -93,9 +93,12 @@ toggles remain dev-only chrome, hidden from users).
   celebration animation beyond the settle.
 - **Crash/restart:** current avatar and all saved looks survive (local
   persistence); reopening resumes exactly where the user was.
-- **Errors:** storage or render failures recover to the last good state
-  silently; CalmBoundary remounts a crashed tree — never a dead screen, never
-  an error dialog asking the user to decide something technical.
+- **Errors:** render failures recover to the last good state silently, and
+  CalmBoundary remounts a crashed tree — never a dead screen. A *storage* failure
+  (a save or load that didn't persist) is surfaced only via a calm one-line toast
+  ("Could not save look" / "Could not load saved looks") — never a dialog, never a
+  technical decision. A silently-lost save is the worse dignity violation: the user
+  deserves to know their look wasn't kept.
 
 ## Interaction Primitives
 

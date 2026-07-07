@@ -120,3 +120,12 @@ sclera); brow/nose/lip fixed baked ink/lip tones; body/faceShape/hair/garments m
   string-build time (fill-swap), NOT `<feColorMatrix>`: react-native-svg 15.2.0 (Expo
   SDK 51 pin) silently drops `<filter>` on native. Same manifest z-order, same recolor
   matrix, byte-deterministic. Epic 2's PNG-default premise inverted; Story 2.3 superseded.
+- 2026-07-07 — Premium overhaul: **svgparts is the product default** (was a `__DEV__`
+  toggle). Manifest 98→152 covers every renderable svg part; tray gating + a premium-safe
+  shuffle keep every reachable look fully rendered so the stage never drops to the
+  procedural complete-fallback in normal use.
+- 2026-07-07 — `expression` and `pattern` are NOT premium-rendered slots and get NO new
+  art. Neither has a `LAYER_SLOTS` entry: `expression` is baked into the dmFigure face
+  and carries no svgparts asset; `pattern` only flows into `top.pattern` for dmFigure
+  (e.g. flannel plaid) and is not a compositable layer. They remain catalog/engine-only
+  by design — do not re-litigate by adding manifest/registry entries for them.

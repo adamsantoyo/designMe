@@ -264,6 +264,43 @@ export const vibes: Vibe[] = [
   { id: "v_familyParty", label: "Family Party", tag: "Night", note: "wrap top, midi skirt, comfortable shoes", ov: { top: "wrapTop", topColor: "#d39aa3", bottom: "midiSkirt", bottomColor: "#7a5570", layer: "none", shoes: "mary", pattern: "none" } },
 ];
 
+// This-or-that tournament helpers (pure + deterministic — no randomness, so the same
+// vibes always seed the same bracket). Kept here (not in the .tsx) so node --test can
+// import them directly.
+// Interleave by tag (round-robin) so the pool is mood-diverse, never front-loaded with
+// one tag. THIS_OR_THAT_POOL bounds how many reach the bracket (calm, ~7 rounds).
+export const THIS_OR_THAT_POOL = 8;
+
+export function balancedVibes(list: Vibe[]): Vibe[] {
+  const tags: string[] = [];
+  const byTag = new Map<string, Vibe[]>();
+  for (const vibe of list) {
+    if (!byTag.has(vibe.tag)) {
+      byTag.set(vibe.tag, []);
+      tags.push(vibe.tag);
+    }
+    byTag.get(vibe.tag)!.push(vibe);
+  }
+  const out: Vibe[] = [];
+  for (let depth = 0; out.length < list.length; depth += 1) {
+    let added = false;
+    for (const tag of tags) {
+      const vibe = byTag.get(tag)![depth];
+      if (vibe) {
+        out.push(vibe);
+        added = true;
+      }
+    }
+    if (!added) break;
+  }
+  return out;
+}
+
+export function nextChallengerIndex(queue: Vibe[], winner: Vibe): number {
+  const sameTag = queue.findIndex((vibe) => vibe.tag === winner.tag);
+  return sameTag >= 0 ? sameTag : 0;
+}
+
 // Resolve avatar state (+ optional override) into dmFigure options.
 export function buildOpts(av: Av, ov?: Partial<Av>): Record<string, any> {
   const a = { ...av, ...(ov || {}) };
@@ -282,6 +319,52 @@ export function buildOpts(av: Av, ov?: Partial<Av>): Record<string, any> {
     layer: ly ? ly.attrs : { style: "none" }, layerColor: a.layerColor,
     shoes: a.shoes,
   };
+}
+
+// A plain-language sentence describing an avatar — the "describe my look" affordance,
+// announced to screen readers (and shown as a toast). Pure Av -> string; extras appear
+// only when present, so the person is never described as lacking anything.
+export function describeLook(av: Av): string {
+  const byId = (list: { id: string; label: string }[], id: string) =>
+    list.find((x) => x.id === id)?.label?.toLowerCase();
+  const byVal = (list: ColorOpt[], v: string) =>
+    list.find((c) => c.v === v)?.label?.toLowerCase();
+  const list = (items: (string | undefined)[]) => {
+    const xs = items.filter(Boolean) as string[];
+    if (xs.length <= 1) return xs.join("");
+    if (xs.length === 2) return `${xs[0]} and ${xs[1]}`;
+    return `${xs.slice(0, -1).join(", ")}, and ${xs[xs.length - 1]}`;
+  };
+
+  const seg: string[] = [];
+  const skin = byVal(skins, av.skin);
+  if (av.hair === "bald") seg.push(`${skin} skin, no hair`);
+  else seg.push(`${skin} skin, ${byVal(hairColors, av.hairColor)} ${byId(hairStyles, av.hair)}`);
+
+  const outfit = list([
+    av.top !== "none" ? `a ${byVal(garmentColors, av.topColor)} ${byId(tops, av.top)}` : undefined,
+    av.layer !== "none" ? `a ${byVal(garmentColors, av.layerColor)} ${byId(layers, av.layer)}` : undefined,
+    av.bottom !== "none" ? `${byVal(garmentColors, av.bottomColor)} ${byId(bottoms, av.bottom)}` : undefined,
+    av.shoes !== "none" ? byId(shoes, av.shoes) : undefined,
+  ]);
+  if (outfit) seg.push(`wearing ${outfit}`);
+
+  const extras = list([
+    av.glasses !== "none" ? `${byId(glasses, av.glasses)} glasses` : undefined,
+    av.headwear !== "none" ? `a ${byId(headwear, av.headwear)}` : undefined,
+    av.hearing !== "none" ? byId(hearing, av.hearing) : undefined,
+    av.jewelry !== "none" ? byId(jewelry, av.jewelry) : undefined,
+    av.makeup !== "none" ? `${byId(makeups, av.makeup)} makeup` : undefined,
+    av.feature !== "none" ? byId(features, av.feature) : undefined,
+    av.tool !== "none" ? byId(tools, av.tool) : undefined,
+    av.aac !== "none" ? byId(aacs, av.aac) : undefined,
+    av.mobility !== "none" ? `using a ${byId(mobilities, av.mobility)}` : undefined,
+    av.carry !== "none" ? `carrying a ${byId(carries, av.carry)}` : undefined,
+  ]);
+  if (extras) seg.push(extras);
+
+  const sentence = seg.join(", ") + ".";
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }
 
 const R = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
