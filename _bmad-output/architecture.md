@@ -110,3 +110,13 @@ sclera); brow/nose/lip fixed baked ink/lip tones; body/faceShape/hair/garments m
 - 2026-07-03 — Multiply recolor proven on deep tones; recolor question CLOSED.
 - 2026-07-03 — `PNG_LAB_ENABLED` re-enabled; registry carries the approved slice;
   `body/balanced` asset is the approved base figure.
+- 2026-07-05 — ROOT CAUSE of the "broken" PNG look: `SkiaFigure` draws every layer
+  `fit="fill"` (SkiaFigure.tsx:61) — a non-uniform stretch with no aspect check. The
+  art itself is fine (a 1:1 composite of the same parts renders perfectly).
+- 2026-07-05 — Story 2.4 shipped the **svgparts** engine as the premium render path:
+  approved PNG masters posterized to exact tones → vtracer → SVGO (12.9 MB raw →
+  0.87 MB; 154/154 registered parts QA-passed) → generated `svgRegistry.js` + `.d.ts`
+  (committed — the SVG path is self-contained in source). Tint = per-fill multiply at
+  string-build time (fill-swap), NOT `<feColorMatrix>`: react-native-svg 15.2.0 (Expo
+  SDK 51 pin) silently drops `<filter>` on native. Same manifest z-order, same recolor
+  matrix, byte-deterministic. Epic 2's PNG-default premise inverted; Story 2.3 superseded.

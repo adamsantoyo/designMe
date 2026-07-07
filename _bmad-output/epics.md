@@ -25,7 +25,7 @@ FR3: Users save looks to a Lookbook gallery and tap a saved look to wear it agai
 
 FR4: First launch lands directly in an interactive Studio with a randomized, non-default avatar — no interstitial, tutorial, sign-up, or gate; repeated fresh launches produce varied starts that are never the light-skin default. (CAP-4)
 
-FR5: The avatar engine composites transparent PNG parts in the fixed manifest z-order, recoloring neutral masters at runtime via multiply tint, as a pure function of avatar state + catalog; a missing asset renders the deterministic SVG fallback (complete figure, never a partial PNG stack). (CAP-5)
+FR5: The avatar engine composites approved catalog parts — engine-neutral: raster PNG masters or their traced SVG twins (Story 2.4 svgparts, the premium path) — in the fixed manifest z-order, recoloring neutral masters at runtime via multiply tint, as a pure function of avatar state + catalog; a missing asset renders the deterministic procedural SVG fallback (complete figure, never a partial stack). (CAP-5) <!-- rewritten 2026-07-05 per Story 2.4: was PNG-first-with-SVG-fallback -->
 
 FR6: The catalog is palette-locked (14 skins / 18 hair / 16 garment colors) with assistive tech, skin features, and cultural expression as ordinary options; ids match catalog-bible/worksheet exactly (checker-gated); every item is available to every avatar; vibes compose real part layers, never baked images. (CAP-6)
 
@@ -66,7 +66,7 @@ The UX design contract lives at `ux-designs/ux-designme-2026-07-03/` (DESIGN.md 
 | Requirement | Epic |
 |---|---|
 | FR7, NFR7 (catalog art to completion) | Epic 1 |
-| FR5, NFR4, NFR5 (PNG engine to product default) | Epic 2 |
+| FR5, NFR4, NFR5 (parts engine to product default — svgparts premium path per Story 2.4) | Epic 2 |
 | FR2, NFR1, NFR2 (second door) | Epic 3 |
 | FR3, NFR6 (lookbook + persistence) | Epic 4 |
 | FR4, FR1, NFR1–NFR3 (first-run + studio polish + a11y audit) | Epic 5 (FR1's interaction shell is brownfield-done; 1.4 verifies tray reachability per batch, 5.2 audits operability) |
@@ -156,9 +156,16 @@ So that the catalog reaches its curated breadth.
 **Then** the same QA→review→ingest loop completes
 **And** every registered id appears in a Studio tray on both targets.
 
-## Epic 2: PNG is the product
+## Epic 2: Parts are the product
 
-The PNG engine graduates from dev-toggle lab to the product's default renderer, with SVG as the deterministic fallback only.
+The approved parts catalog graduates from dev-toggle lab to the product's default renderer, with the procedural SVG engine as the deterministic fallback only.
+
+> **Reshaped 2026-07-05 (Story 2.4):** the premium render path is now **svgparts** — the
+> approved PNG masters auto-traced to SVG twins, tinted at composite time — because
+> `SkiaFigure`'s `fit="fill"` non-uniform stretch distorted the PNG composite (the art was
+> proven fine; the compositor was the fault). 2.1 and 2.2 are renderer-agnostic and still
+> apply (manifest coverage and crop/height/crossfade serve both engines); 2.3 is
+> **superseded** by 2.4's engine.
 
 ### Story 2.1: Full slot coverage in the manifest
 
@@ -188,7 +195,11 @@ So that direct manipulation feels identical in both engines.
 **And** heightScaleY renders without seam artifacts at all five heights
 **And** crossfade soft-swap works (or reduced-motion snaps) on part change.
 
-### Story 2.3: Default-engine flip
+### Story 2.3: Default-engine flip — SUPERSEDED by Story 2.4
+
+> Superseded 2026-07-05: the "flip the default to PNG" premise is inverted by Story 2.4
+> (vector svgparts is the premium path; the eventual default-flip decision now targets
+> svgparts, gated on 2.1 manifest coverage + owner sign-off). Kept for history.
 
 As the product owner,
 I want PNG to become the default renderer once coverage crosses the product bar,

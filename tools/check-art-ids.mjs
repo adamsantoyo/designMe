@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-// Cross-validates the three places a part id must agree before ANY mass art
+// Cross-validates the places a part id must agree before ANY mass art
 // generation happens:
 //   1. app/src/dm.ts            — the app catalog (what the trays offer)
 //   2. docs/art-prompts.md      — the worksheet filenames the art will be saved as
 //   3. app/src/parts/registry.ts — the require() wiring that loads a PNG
+//   4. app/src/parts/svgRegistry.js — the generated SVG twin (Story 2.4)
 //
-// A PNG only renders if worksheet filename == catalog id == registry key.
+// A part only renders if worksheet filename == catalog id == registry key, and
+// the SVG twin must never carry a key the PNG pipeline didn't approve.
 // Run: node tools/check-art-ids.mjs   (exit 1 if the catalog would get no art)
 
 import { readFileSync } from "node:fs";
@@ -60,17 +62,29 @@ const registry = [...read("app/src/parts/registry.ts").matchAll(/^\s*"([^"]+)":\
   (m) => m[1],
 );
 
+// ---- 4. svg registry keys (generated; absent until the first trace run)
+let svgKeys = [];
+try {
+  svgKeys = [...read("app/src/parts/svgRegistry.js").matchAll(/^\s*"([^"]+)":\s*`/gm)].map(
+    (m) => m[1],
+  );
+} catch {
+  // no svg registry generated yet — the svg checks below are vacuous
+}
+
 // ---- report
 const catalogNoArt = [...catalog.keys()].filter((k) => !worksheet.has(k));
 const artNoCatalog = [...worksheet].filter((k) => !catalog.has(k));
 const registryOrphans = registry.filter((k) => !catalog.has(k));
+const pngSet = new Set(registry);
+const svgOrphans = svgKeys.filter((k) => !catalog.has(k) || !pngSet.has(k));
 
 const say = (title, items, note) => {
   console.log(`\n${title} (${items.length})${note ? ` — ${note}` : ""}`);
   for (const k of items.sort()) console.log(`  ${k}${catalog.has(k) ? `   [${catalog.get(k)}]` : ""}`);
 };
 
-console.log(`catalog ids checked: ${catalog.size} · worksheet files: ${worksheet.size} · registry keys: ${registry.length}`);
+console.log(`catalog ids checked: ${catalog.size} · worksheet files: ${worksheet.size} · registry keys: ${registry.length} · svg keys: ${svgKeys.length}`);
 
 say(
   "✗ CATALOG ITEMS WITH NO WORKSHEET PROMPT",
@@ -87,8 +101,13 @@ say(
   registryOrphans,
   "wired PNGs no state can ever select",
 );
+say(
+  "✗ SVG keys not backed by catalog + PNG registry",
+  svgOrphans,
+  "the SVG twin may only transcode approved, catalog-selectable parts",
+);
 
-if (catalogNoArt.length || registryOrphans.length) {
+if (catalogNoArt.length || registryOrphans.length || svgOrphans.length) {
   console.log("\nFAIL: fix the ✗ sections before mass-generating art.");
   process.exit(1);
 }

@@ -38,9 +38,9 @@ A vision to realize and a pain to solve: autistic people, AAC/multimodal communi
   - **intent:** A brand-new user lands directly in play with a randomized, non-default avatar — no tutorial, no sign-up, no gate of any kind.
   - **success:** First launch to interactive Studio with no interstitial; repeated fresh launches produce varied (never light-skin-default) starting avatars.
 
-- **CAP-5 Deterministic layered avatar engine**
-  - **intent:** The app composites transparent PNG parts in the fixed z-order (art-bible §4), recoloring neutral masters at runtime via multiply tint (per-color bakes for hard cases), as a pure function of avatar state + catalog.
-  - **success:** Same state → same pixels, verifiable by harness (`tools/engine-smoke.mjs`, `visual:matrix`); a missing asset renders a neutral placeholder silhouette so the app runs before art exists.
+- **CAP-5 Deterministic layered avatar engine** <!-- engine-neutral since 2026-07-05 (Story 2.4): was PNG-first -->
+  - **intent:** The app composites approved catalog parts — raster PNG masters or their traced SVG twins (svgparts, the premium path) — in the fixed z-order (art-bible §4), recoloring neutral masters at runtime via multiply tint (per-color bakes for hard cases), as a pure function of avatar state + catalog.
+  - **success:** Same state → same output, verifiable by harness (`tools/engine-smoke.mjs`, `tools/engine-smoke-svgparts.mjs`, `visual:matrix`); a missing asset renders the complete deterministic procedural fallback (never a partial stack) so the app runs before art exists.
 
 - **CAP-6 Representative curated catalog**
   - **intent:** User picks from a palette-locked catalog (14 skin tones, 18 hair colors, 16 garment colors) where assistive tech, skin features, and cultural expression are ordinary options alongside fashion, and vibes are whole-look recipes assembled from parts.

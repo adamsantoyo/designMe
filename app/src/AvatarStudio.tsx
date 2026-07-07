@@ -53,11 +53,14 @@ const EXPLORED_KEY = "designMe.explored.v1";
 const LOOKBOOK_CAP = 24;
 // re-enabled 2026-07-03: registry carries the approved art-gen slice
 const PNG_LAB_ENABLED = true;
+// Story 2.4: vector twin of the approved catalog (svgRegistry) — the premium path
+const SVGPARTS_LAB_ENABLED = true;
 const FOUNDRY_ENGINE_ENABLED = typeof process !== "undefined" && process.env?.EXPO_PUBLIC_FOUNDRY_ENGINE === "1";
 const ENGINE_LAB_MODES: AvatarEngine[] = [
   "svg",
   ...(FOUNDRY_ENGINE_ENABLED ? ["foundry" as const] : []),
   ...(PNG_LAB_ENABLED ? ["png" as const] : []),
+  ...(SVGPARTS_LAB_ENABLED ? ["svgparts" as const] : []),
 ];
 const AV_KEYS: (keyof Av)[] = [
   "skin", "body", "height", "hair", "hairColor", "expression", "feature",

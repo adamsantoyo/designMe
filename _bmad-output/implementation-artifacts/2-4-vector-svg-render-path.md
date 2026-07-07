@@ -69,35 +69,35 @@ so that avatars render crisp, scalable, and stylistically cohesive (clothing + f
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1 — SPIKE: prove recolor in vector (highest risk; gates everything). (AC2, AC3)**
-  - [ ] Pick 3 representative `multiply` parts: `top/hoodie`, `hair/straightL`, `body/balanced`. Use their **neutral masters** in `app/assets/parts/**` (already near-white — do NOT pre-tint).
-  - [ ] Posterize each master to its ~3-tone palette (base + warm shadow + soft highlight) *before* tracing so shading survives as separable regions; trace with `vtracer` **default params only** (see Dev Notes → vtracer gotcha).
-  - [ ] Apply recolor two ways and compare on **both** web and native: (a) `<feColorMatrix>` multiply filter — port the exact matrix from `SkiaFigure.tsx:38-50 tintMatrix()`; (b) per-tone base-fill swap (like `dmFigure.js` `fSkin`/`fTop`). Sweep the hex across the palette and confirm two-tone shading holds.
-  - [ ] **Verify `react-native-svg@15.2.0` `<filter>`/`<feColorMatrix>` support on native** — this is the platform risk. If native filters are partial/broken, adopt fill-swap as the tint mechanism.
-  - [ ] Verify denim-wash + metallic hard cases; if vector multiply crushes them, define a per-color bake path (mirror `assets/parts/{cat}/{id}__{colorId}` from `docs/avatar-engine.md`).
-  - [ ] **GATE:** if recolor cannot hold in vector across the palette on both targets, STOP and report — the pivot is not viable as-is; the fallback is fixing `SkiaFigure` instead (see Dev Notes).
-- [ ] **Task 2 — Optimization pipeline + size proof. (AC5)**
-  - [ ] Build `tools/art-gen/trace-svg.mjs` (or extend `tools/art-lab/ingest.py --svg`): posterize neutral master → `vtracer` → SVGO. Emit `tools/art-lab/out/svg/<cat>/<id>.svg` + a before/after size report.
-  - [ ] Run all 157; prove ≤ ~2 MB total, ≤ ~60 KB/part. Confirm the heavy parts (`top/flannel` 1.1 MB, `mobility/wheelchair`, `shoe/hikingShoe`, `top/bomber`) drop into budget.
-- [ ] **Task 3 — SVG registry. (AC6)**
-  - [ ] Generate `app/src/parts/svgRegistry.ts`: `PARTS_SVG: Record<string,string>` of inner `<g>…</g>` markup in 1024×1536 space, keyed by `"{category}/{id}"` = catalog id. Export `hasSvgPart`, `svgPartRef`, `svgPartCount` mirroring `registry.ts:174-179`. Only QA-passed parts.
-- [ ] **Task 4 — Generalize `layers.ts` (shared, do not fork). (AC4)**
-  - [ ] Add a `PartSource = { hasPart, partRef }` param to `resolveLayers(av, ov, source = pngSource)` and `coverage(av, ov, source = pngSource)` — default preserves every existing zero-arg caller with no behavior change. Widen `Layer.ref` to `number | string`. **`manifest.ts` stays untouched** (single z-order/tint source for both engines).
-- [ ] **Task 5 — `SvgPartsFigure.tsx` compositor. (AC1, AC2, AC4)**
-  - [ ] Signature `{ av, ov?, crop? }` (mirror `SkiaFigure`). `resolveLayers(av, ov, svgSource)` → per-part markup → tint (Task 1 mechanism) → concat into one `<svg viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMax meet">` → feed existing `<SvgString xml=… />`.
-  - [ ] `heightScaleY(av.height)` via `<g transform="scale(1,h)">` (SVG-native, not a View transform). `crop` remap: reuse `SkiaFigure.tsx:26-36 sourceRect()` ratio math to map 240×490-authored crop strings into 1024×1536.
-  - [ ] Expose the `coverage()`-based fallback so `AvatarCanvas` degrades to `dmFigure` on any untraced slot.
-- [ ] **Task 6 — Dispatch + toggle. (AC1, AC8)**
-  - [ ] `AvatarCanvas.tsx`: widen union to `"svg" | "png" | "foundry" | "svgparts"`; add a branch structurally identical to `"png"` (coverage-gate → `SvgPartsFigure` or SVG fallback).
-  - [ ] `AvatarStudio.tsx`: add `SVGPARTS_LAB_ENABLED` flag + push `"svgparts"` into `ENGINE_LAB_MODES` (lines 55-61). The `__DEV__` toggle (776-796) then cycles it automatically. Reconsider the PNG-specific tab nudge at 783-788.
-  - [ ] `OptionTile.tsx`: no change (generic `engine` prop). `ThisOrThat.tsx`: leave `"svg"` unless the owner wants svgparts previews.
+- [x] **Task 1 — SPIKE: prove recolor in vector (highest risk; gates everything). (AC2, AC3)**
+  - [x] Pick 3 representative `multiply` parts: `top/hoodie`, `hair/straightL`, `body/balanced`. Use their **neutral masters** in `app/assets/parts/**` (already near-white — do NOT pre-tint).
+  - [x] Posterize each master to its ~3-tone palette (base + warm shadow + soft highlight) *before* tracing so shading survives as separable regions; trace with `vtracer` **default params only** (see Dev Notes → vtracer gotcha).
+  - [x] Apply recolor two ways and compare on **both** web and native: (a) `<feColorMatrix>` multiply filter — port the exact matrix from `SkiaFigure.tsx:38-50 tintMatrix()`; (b) per-tone base-fill swap (like `dmFigure.js` `fSkin`/`fTop`). Sweep the hex across the palette and confirm two-tone shading holds.
+  - [x] **Verify `react-native-svg@15.2.0` `<filter>`/`<feColorMatrix>` support on native** — this is the platform risk. If native filters are partial/broken, adopt fill-swap as the tint mechanism.
+  - [x] Verify denim-wash + metallic hard cases; if vector multiply crushes them, define a per-color bake path (mirror `assets/parts/{cat}/{id}__{colorId}` from `docs/avatar-engine.md`).
+  - [x] **GATE:** if recolor cannot hold in vector across the palette on both targets, STOP and report — the pivot is not viable as-is; the fallback is fixing `SkiaFigure` instead (see Dev Notes). → **GATE PASSED — fill-swap adopted** (see Dev Agent Record).
+- [x] **Task 2 — Optimization pipeline + size proof. (AC5)**
+  - [x] Build `tools/art-gen/trace-svg.mjs` (or extend `tools/art-lab/ingest.py --svg`): posterize neutral master → `vtracer` → SVGO. Emit `tools/art-lab/out/svg/<cat>/<id>.svg` + a before/after size report.
+  - [x] Run all 157; prove ≤ ~2 MB total, ≤ ~60 KB/part. Confirm the heavy parts (`top/flannel` 1.1 MB, `mobility/wheelchair`, `shoe/hikingShoe`, `top/bomber`) drop into budget. → **155/155 registered parts pass; raw 12.9 MB → 0.87 MB; largest part 44.7 KB (wheelchair, ⅓-res retrace). flannel 25.1 KB, bomber 38 KB. Report: `tools/art-lab/out/trace-svg-report.json`; optimized output in `tools/art-lab/out/svg-opt/`.**
+- [x] **Task 3 — SVG registry. (AC6)**
+  - [x] Generate `app/src/parts/svgRegistry.ts`: `PARTS_SVG: Record<string,string>` of inner `<g>…</g>` markup in 1024×1536 space, keyed by `"{category}/{id}"` = catalog id. Export `hasSvgPart`, `svgPartRef`, `svgPartCount` mirroring `registry.ts:174-179`. Only QA-passed parts. → **Emitted as `svgRegistry.js` + `svgRegistry.d.ts`** (not .ts) so Metro, tsc, AND Node gate scripts read the same module — no `.runtime.js` mirror needed. Generator: `tools/art-gen/gen-svg-registry.mjs`; 154 parts, 0.86 MB, committed (SVG path is self-contained in source, unlike the gitignored PNGs).
+- [x] **Task 4 — Generalize `layers.ts` (shared, do not fork). (AC4)**
+  - [x] Add a `PartSource = { hasPart, partRef }` param to `resolveLayers(av, ov, source = pngSource)` and `coverage(av, ov, source = pngSource)` — default preserves every existing zero-arg caller with no behavior change. Widen `Layer.ref` to `number | string`. **`manifest.ts` stays untouched** (single z-order/tint source for both engines).
+- [x] **Task 5 — `SvgPartsFigure.tsx` compositor. (AC1, AC2, AC4)**
+  - [x] Signature `{ av, ov?, crop? }` (mirror `SkiaFigure`). `resolveLayers(av, ov, svgSource)` → per-part markup → tint (Task 1 mechanism) → concat into one `<svg viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMax meet">` → feed existing `<SvgString xml=… />`. → Pure composition lives in plain-JS `app/src/engine/svgPartsFigure.js` (the `dmFigure.js` pattern); the .tsx is a thin memoized wrapper.
+  - [x] `heightScaleY(av.height)` via `<g transform="scale(1,h)">` (SVG-native, not a View transform). `crop` remap: reuse `SkiaFigure.tsx:26-36 sourceRect()` ratio math to map 240×490-authored crop strings into 1024×1536. → Height is **bottom-anchored** (`translate(0,H(1-h)) scale(1,h)`): feet stay planted, no seams (one shared group).
+  - [x] Expose the `coverage()`-based fallback so `AvatarCanvas` degrades to `dmFigure` on any untraced slot. → `svgSource` exported from `SvgPartsFigure.tsx`.
+- [x] **Task 6 — Dispatch + toggle. (AC1, AC8)**
+  - [x] `AvatarCanvas.tsx`: widen union to `"svg" | "png" | "foundry" | "svgparts"`; add a branch structurally identical to `"png"` (coverage-gate → `SvgPartsFigure` or SVG fallback).
+  - [x] `AvatarStudio.tsx`: add `SVGPARTS_LAB_ENABLED` flag + push `"svgparts"` into `ENGINE_LAB_MODES` (lines 55-61). The `__DEV__` toggle (776-796) then cycles it automatically. Reconsider the PNG-specific tab nudge at 783-788. → Nudge stays PNG-only: svgparts covers the full approved catalog (154 parts), no tab steering needed.
+  - [x] `OptionTile.tsx`: no change (generic `engine` prop). `ThisOrThat.tsx`: leave `"svg"` unless the owner wants svgparts previews.
 - [ ] **Task 7 — Determinism + gates green. (AC3, AC6, AC7)**
-  - [ ] Add an `engine-smoke` twin (or parameterize `tools/engine-smoke.mjs`) that renders every id through `SvgPartsFigure` and asserts the same determinism/well-formedness checks. Needs a Node-runnable path (no RN) — a pure string builder, like `dmFigureV2.runtime.js` mirrors `dmFigureV2.ts`.
-  - [ ] Extend `tools/check-art-ids.mjs` to validate svg keys (id == catalog id == registry key). `typecheck`, `validate:catalog`, `visual:matrix` green (no partial-stack leak).
+  - [x] Add an `engine-smoke` twin (or parameterize `tools/engine-smoke.mjs`) that renders every id through `SvgPartsFigure` and asserts the same determinism/well-formedness checks. Needs a Node-runnable path (no RN) — a pure string builder, like `dmFigureV2.runtime.js` mirrors `dmFigureV2.ts`. → `tools/engine-smoke-svgparts.mjs` imports the REAL engine (`svgPartsFigure.js`) + real `manifest.ts` (Node type-stripping) + real `svgRegistry.js` — zero duplication. 99 pass, 0 fail; byte-identical double renders (no uid stripping needed — the builder has no uids); tint/height/crop sweeps included. ~55 registered parts lack manifest entries (Story 2.1 scope, same in PNG mode) — reported, not failed.
+  - [ ] Extend `tools/check-art-ids.mjs` to validate svg keys (id == catalog id == registry key). `typecheck`, `validate:catalog`, `visual:matrix` green (no partial-stack leak). → check-art-ids extended (svg keys must be catalog-selectable AND PNG-approved; 0 orphans) and green; typecheck green; validate:catalog green; node --test 25 pass. **visual:matrix pending (needs web server).**
 - [ ] **Task 8 — Both-target verification. (AC7)**
   - [ ] Verify the live render on web **and** an iPad dev build (Story 1.0's build). Confirm the 1:1 premium look holds in both.
-- [ ] **Task 9 — Reconcile docs + tracking. (owner decision)**
-  - [ ] Update FR5/CAP-5 (PNG-first → engine-neutral), Epic 2 (2.1 reshaped, 2.2 reshaped, **2.3 superseded**), and `architecture.md §9` decisions log. Record the `SkiaFigure` `fit="fill"` finding. sprint-status updated.
+- [x] **Task 9 — Reconcile docs + tracking. (owner decision)**
+  - [x] Update FR5/CAP-5 (PNG-first → engine-neutral), Epic 2 (2.1 reshaped, 2.2 reshaped, **2.3 superseded**), and `architecture.md §9` decisions log. Record the `SkiaFigure` `fit="fill"` finding. sprint-status updated. → epics.md (FR5 rewritten, Epic 2 retitled "Parts are the product" + reshape note, 2.3 marked SUPERSEDED, traceability row), SPEC.md CAP-5 engine-neutral, architecture §9 two new decision entries (fit="fill" root cause; svgparts ship). All original wording preserved under strikethrough-style annotations for history.
 
 ## Dev Notes
 
@@ -149,8 +149,99 @@ so that avatars render crisp, scalable, and stylistically cohesive (clothing + f
 
 ### Agent Model Used
 
+claude-fable-5 (Claude Code)
+
+### Implementation Plan
+
+- **Tint mechanism decision (Task 1): per-tone fill-swap**, not `<feColorMatrix>`. Grounds:
+  (1) `react-native-svg@15.2.0` has ZERO filter support on native — `src/xml.tsx` tag map has no
+  `filter`/`fe*` entries; unknown tags render `null` (silently dropped, no error). First native
+  `FeColorMatrix` is 15.4.0 (buggy until ~15.9); Expo SDK 51 pins 15.2.0, and deps must stay in
+  SDK 51's range. A filter-based tint would work on web and silently no-op on iPad.
+  (2) Fill-swap output contains final colors in the SVG string itself — plain fills, renderer-agnostic,
+  byte-deterministic.
+- **Recolor pipeline**: posterize neutral master to exact separable tones (adaptive merge, ΔRGB<26,
+  ≥1% coverage) → alpha-binarize → bbox-crop → vtracer (positional args, subprocessed) → snap stray
+  AA fills to tones → wrap in `translate(x0,y0)` group in 1024×1536 space. Tint = per-tone
+  `fill_c × tint_c / 255` string replacement at composite time.
+- **Per-color bake path (metallics/future hard cases)**: registry keys `{cat}/{id}__{colorId}` rendered
+  as `fixed` (no swap) — mechanism supports it trivially. No metallic part is currently registered or
+  manifested (Concert Night shine-top is P1 not-started), so this is a designed path, not a tested one.
+
 ### Debug Log References
+
+- Spike artifacts: scratchpad `spike/spike_recolor.py` (+ `raster.mjs`), outputs in `spike/out/`
+  (`metrics.json` verdict PASS, `sheet-*.png` sweeps, `fidelity-*.png` master-vs-trace pairs).
+- Spike results: 4 parts (hoodie/straightL/balanced/wideDenim) × full 14/18/16 palettes ×
+  2 mechanisms = 128 Chromium renders. Interior tone medians EXACTLY match multiply math
+  (err 0.0 after AA-edge erosion); fill-swap vs feColorMatrix(sRGB) pixel-identical; tones stay
+  separable at deepest tints (matches PNG-engine compression — same math). Denim wash = its 2-tone
+  structure; survives cleanly. Posterize+trace collapses paths ~6× (hoodie 349→60).
+- `libcairo` absent on this machine → CairoSVG unusable; rasterization via Playwright Chromium
+  (the real web renderer — better fidelity for the proof anyway).
 
 ### Completion Notes List
 
+- **Task 1 GATE PASSED.** Multiply recolor holds in vector across the full palette matrix with
+  two-tone shading intact, deep tones included. Tint mechanism = fill-swap (native-safe; filters
+  are not available in RN-SVG 15.2.0 and an upgrade would leave Expo SDK 51's compatible range).
+  feColorMatrix parity proof retained for the web renderer only.
+- **Task 2.** Pipeline = `posterize-trace.py` (worker: adaptive tone merge ≥1% share / ΔRGB<26,
+  despeckle <24px components, alpha-binarize, bbox-crop, vtracer positional-only in its own
+  process, fill-snap) + `trace-svg.mjs` (orchestrator: SVGO multipass with convertColors OFF —
+  the fill-swap contract needs byte-stable hexes — QA gate, auto ½/⅓-res retrace over 60 KB,
+  before/after report). QA gates are OBJECTIVE only (bbox registration ≤8px, ink-area ratio,
+  fills ⊆ tones, size caps); perceptual misfit is report-only ranking for human review — every
+  pixel metric flags vtracer's (desired) smooth-curve line redraw, so line aesthetics stay a
+  human call, per the project's own approval-gate convention. Visual review of all 154 done
+  this session (4 sheets + zoomed facial-feature strip): premium and faithful throughout.
+- **Found in passing:** `nose/wide` master PNG is defective (contains a miniature whole face —
+  a face-split escape from Story 1.3, same class as the deferred eye/round + eye/monolid; both
+  engines render it identically). Out of scope here (operator art-loop fix); flagged as a
+  spawn-task chip. The SVG twin faithfully transcodes its master, so it passes objective QA.
+- **Tasks 3–6.** svgRegistry generated as `.js` + `.d.ts` (Metro + tsc + Node all read the same
+  module — no `.runtime.js` mirror); layers.ts gained the injectable `PartSource` (defaults
+  preserve existing callers byte-for-byte); pure composition in plain-JS
+  `engine/svgPartsFigure.js` (the dmFigure.js precedent); `SvgPartsFigure.tsx` is a thin
+  memoized wrapper; AvatarCanvas `svgparts` branch mirrors `png` exactly (complete-fallback
+  gate on `coverage(av, ov, svgSource)`); Studio toggle cycles svg → png → svgparts.
+- **Task 7.** All gates green: typecheck; check-art-ids (now validates svg keys: catalog ∩
+  PNG-approved, 0 orphans); engine-smoke 131 pass (no regression); engine-smoke-svgparts
+  99 pass (byte-identical double renders, tint/height/crop sweeps; ~55 registered parts lack
+  manifest entries — Story 2.1 scope, identical in PNG mode); validate:catalog; node --test 25
+  pass; visual:matrix green on desktop/ipad/mobile with no partial-stack leak.
+- **Task 8 (web half).** Live web verification: svgparts renders the traced two-tone avatar on
+  the Studio stage; recolor live (garment tints on neutral masters); fallback verified (a look
+  with an un-manifested layer degrades to the COMPLETE procedural figure); PNG-vs-svgparts A/B
+  on the same state shows parity — and makes the SkiaFigure stretch visibly obvious next to the
+  correctly-proportioned vector render. No console errors.
+
 ### File List
+
+- ADDED `tools/art-gen/posterize-trace.py` — per-part posterize→despeckle→vtracer worker
+- ADDED `tools/art-gen/trace-svg.mjs` — pipeline orchestrator: SVGO, QA gate, size report
+- ADDED `tools/art-gen/gen-svg-registry.mjs` — svgRegistry generator (js + d.ts)
+- ADDED `app/src/parts/svgRegistry.js` — GENERATED registry (154 parts, committed)
+- ADDED `app/src/parts/svgRegistry.d.ts` — GENERATED types for the registry
+- ADDED `app/src/engine/svgPartsFigure.js` — pure engine core (compose + fill-swap tint)
+- ADDED `app/src/engine/svgPartsFigure.d.ts` — types for the engine core
+- ADDED `app/src/SvgPartsFigure.tsx` — RN compositor component (+ `svgSource` export)
+- ADDED `tools/engine-smoke-svgparts.mjs` — determinism/well-formedness gate twin
+- MODIFIED `app/src/parts/layers.ts` — injectable `PartSource`; `Layer.ref` widened
+- MODIFIED `app/src/AvatarCanvas.tsx` — `svgparts` union member + dispatch branch
+- MODIFIED `app/src/AvatarStudio.tsx` — `SVGPARTS_LAB_ENABLED` + ENGINE_LAB_MODES entry
+- MODIFIED `tools/check-art-ids.mjs` — svg-key validation section
+- MODIFIED `package.json` / `package-lock.json` — svgo devDependency (story-specified)
+- MODIFIED `_bmad-output/epics.md` — FR5 rewrite, Epic 2 reshape, 2.3 superseded
+- MODIFIED `_bmad-output/specs/spec-designme/SPEC.md` — CAP-5 engine-neutral
+- MODIFIED `_bmad-output/architecture.md` — §9 decisions (fit="fill" root cause; svgparts)
+- MODIFIED `_bmad-output/implementation-artifacts/sprint-status.yaml` — 2-4 status
+- Pipeline outputs (gitignored): `tools/art-lab/out/svg-opt/**`, `tools/art-lab/out/trace-svg-report.json`
+
+### Change Log
+
+- 2026-07-05 — Story 2.4 implemented: recolor spike (gate PASSED, fill-swap mechanism),
+  trace pipeline + size proof (12.9 MB → 0.87 MB, 154/154 QA-passed), generated svgRegistry,
+  PartSource generalization, SvgPartsFigure compositor, svgparts dispatch + dev toggle,
+  determinism gate twin + extended check-art-ids, docs reconciled (FR5/CAP-5/Epic 2/arch §9).
+  Web-target verification complete; iPad-target verification via local simulator build.

@@ -9,6 +9,7 @@ import { Animated, Easing, View, StyleSheet } from "react-native";
 import SvgString from "./SvgString";
 import PngFigure from "./PngFigure";
 import FoundryHeroFigure from "./FoundryHeroFigure";
+import SvgPartsFigure, { svgSource } from "./SvgPartsFigure";
 import dmFigure from "./engine/dmFigure";
 import { supportsFoundryAv } from "./engine/dmFigureV2";
 import useReducedMotion from "./useReducedMotion";
@@ -16,7 +17,7 @@ import { theme } from "./theme";
 import { buildOpts, type Av } from "./dm";
 import { coverage } from "./parts/layers";
 
-export type AvatarEngine = "svg" | "png" | "foundry";
+export type AvatarEngine = "svg" | "png" | "foundry" | "svgparts";
 
 export default function AvatarCanvas({
   av, ov, crop, style, engine = "svg", crossfade = false,
@@ -48,6 +49,21 @@ export default function AvatarCanvas({
     return (
       <View style={[styles.fill, style]} pointerEvents="none">
         <PngFigure av={av} ov={ov} crop={crop} />
+      </View>
+    );
+  }
+
+  if (engine === "svgparts") {
+    const cov = coverage(av, ov, svgSource);
+    if (cov.have < cov.want) {
+      // Same rule as PNG: any untraced slot degrades to the COMPLETE procedural
+      // engine — never a partial stack.
+      if (crossfade) return <CrossfadeCanvas av={av} ov={ov} crop={crop} style={style} />;
+      return <SvgCanvas av={av} ov={ov} crop={crop} style={style} />;
+    }
+    return (
+      <View style={[styles.fill, style]} pointerEvents="none">
+        <SvgPartsFigure av={av} ov={ov} crop={crop} />
       </View>
     );
   }
