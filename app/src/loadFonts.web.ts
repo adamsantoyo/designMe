@@ -18,4 +18,9 @@ if (typeof document !== "undefined" && !document.getElementById("dm-fonts")) {
     "https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,500;1,600&family=Nunito:wght@400;500;600;700;800;900&display=swap";
   document.head.appendChild(css);
 }
-export {};
+
+// Web fonts come from the CDN above (no bundled TTFs), so there is nothing to await —
+// report ready immediately. Same signature as the native useFonts-backed hook.
+export function useAppFonts(): [boolean, Error | null] {
+  return [true, null];
+}

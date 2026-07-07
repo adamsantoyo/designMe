@@ -1,20 +1,22 @@
 // Resolve avatar state -> an ordered list of part layers (back -> front).
 // The manifest owns the product contract: category, id, scope, tint behavior, and
-// z-order. A PartSource wires the assets: PNG Metro refs (default) or SVG markup
-// strings (svgparts engine) — same manifest, same z-order, either source.
+// z-order. A PartSource wires the assets to markup: the svgparts registry is the
+// shipping default; callers may inject another source with the same manifest/z-order.
 
 import type { Av } from "../dm";
-import { hasPart, partRef } from "./registry";
+import { hasSvgPart, svgPartRef } from "./svgRegistry";
 import { LAYER_SLOTS, manifestItem, partKey, type PartManifestItem, type TintMode } from "./manifest";
 
-// How a render engine looks up part assets. `ref` is whatever the engine draws:
-// a Metro asset id (PNG) or an SVG markup string (svgparts).
+// How a render engine looks up part assets. `ref` is whatever the engine draws —
+// for the shipping svgparts engine, an SVG markup string.
 export type PartSource = {
   hasPart: (key: string) => boolean;
   partRef: (key: string) => number | string | undefined;
 };
 
-export const pngSource: PartSource = { hasPart, partRef };
+// The shipping part source: traced svg markup per key. Owned here so it is the default
+// for resolveLayers/coverage without a SvgPartsFigure -> layers -> SvgPartsFigure cycle.
+export const svgSource: PartSource = { hasPart: hasSvgPart, partRef: svgPartRef };
 
 // A slot the avatar leaves empty by choice: "none", or "bald" in the hair slot
 // (a valid, complete look — no hair, not a missing part). Treated exactly like an
@@ -34,7 +36,7 @@ export type Layer = {
 
 export type Coverage = { have: number; want: number; missing: string[] };
 
-export function resolveLayers(av: Av, ov?: Partial<Av>, source: PartSource = pngSource): Layer[] {
+export function resolveLayers(av: Av, ov?: Partial<Av>, source: PartSource = svgSource): Layer[] {
   const a = { ...av, ...(ov || {}) };
   const out: Layer[] = [];
   for (const s of LAYER_SLOTS) {
@@ -59,7 +61,7 @@ export function resolveLayers(av: Av, ov?: Partial<Av>, source: PartSource = png
 // Dev aid: how many of the slots this avatar *wants* are actually wired with art.
 // Lets PNG/svgparts mode label partial composites ("3/6 parts") instead of
 // presenting an incomplete figure as if it were the product.
-export function coverage(av: Av, ov?: Partial<Av>, source: PartSource = pngSource): Coverage {
+export function coverage(av: Av, ov?: Partial<Av>, source: PartSource = svgSource): Coverage {
   const a = { ...av, ...(ov || {}) };
   let have = 0;
   let want = 0;

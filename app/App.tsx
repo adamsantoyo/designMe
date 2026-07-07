@@ -1,30 +1,15 @@
 import * as React from "react";
-import { Platform, Pressable, SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
-import {
-  useFonts,
-  Nunito_400Regular,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-  Nunito_800ExtraBold,
-} from "@expo-google-fonts/nunito";
-import { Newsreader_400Regular } from "@expo-google-fonts/newsreader";
+import { Pressable, SafeAreaView, StatusBar, StyleSheet, View } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
-import "./src/loadFonts";
+import { useAppFonts } from "./src/loadFonts";
 import { theme } from "./src/theme";
 import Text from "./src/ui/Text";
 import AvatarStudio from "./src/AvatarStudio";
 
 // Hold the splash until the brand fonts are ready so text never flashes in the system
-// font first (FOUT). Web loads its fonts via the CDN pre-warm in loadFonts.web.ts and
-// has nothing to bundle/await, so it skips the native TTF load entirely.
+// font first (FOUT). The font import + load lives in loadFonts (native loads 5 TTFs;
+// web resolves immediately from the CDN and bundles no TTFs).
 SplashScreen.preventAutoHideAsync().catch(() => {});
-const NATIVE_FONTS = {
-  Nunito_400Regular,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-  Nunito_800ExtraBold,
-  Newsreader_400Regular,
-};
 
 // A crash must never strand the user on a dead screen. Saved looks and the worn
 // avatar live in AsyncStorage, so recovery is a plain re-mount — calm, no jargon.
@@ -64,7 +49,7 @@ class CalmBoundary extends React.Component<
 }
 
 export default function App() {
-  const [fontsLoaded, fontError] = useFonts(Platform.OS === "web" ? {} : NATIVE_FONTS);
+  const [fontsLoaded, fontError] = useAppFonts();
 
   React.useEffect(() => {
     if (fontsLoaded || fontError) SplashScreen.hideAsync().catch(() => {});

@@ -7,17 +7,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing, View, StyleSheet } from "react-native";
 import SvgString from "./SvgString";
-import PngFigure from "./PngFigure";
-import FoundryHeroFigure from "./FoundryHeroFigure";
-import SvgPartsFigure, { svgSource } from "./SvgPartsFigure";
+import SvgPartsFigure from "./SvgPartsFigure";
 import dmFigure from "./engine/dmFigure";
-import { supportsFoundryAv } from "./engine/dmFigureV2";
 import useReducedMotion from "./useReducedMotion";
 import { theme } from "./theme";
 import { buildOpts, type Av } from "./dm";
 import { coverage } from "./parts/layers";
 
-export type AvatarEngine = "svg" | "png" | "foundry" | "svgparts";
+export type AvatarEngine = "svg" | "svgparts";
 
 export default function AvatarCanvas({
   av, ov, crop, style, engine = "svg", crossfade = false,
@@ -26,38 +23,14 @@ export default function AvatarCanvas({
   ov?: Partial<Av>;
   crop?: string; // viewBox string, e.g. "74 14 92 94"
   style?: any;
-  engine?: AvatarEngine; // "foundry" and "png" are explicit lab paths; SVG is the product default
+  engine?: AvatarEngine; // svgparts is the product default; svg is the complete fallback
   crossfade?: boolean;
 }) {
-  if (engine === "foundry") {
-    if (!supportsFoundryAv(av, ov) || crop) {
-      if (crossfade) return <CrossfadeCanvas av={av} ov={ov} crop={crop} style={style} />;
-      return <SvgCanvas av={av} ov={ov} crop={crop} style={style} />;
-    }
-    return <FoundryHeroFigure style={style} />;
-  }
-
-  if (engine === "png") {
+  if (engine === "svgparts") {
     const cov = coverage(av, ov);
     if (cov.have < cov.want) {
-      // Never present a partial PNG stack as the product. Unsupported catalog
-      // combinations stay complete through the deterministic SVG fallback until
-      // their PNG layers exist.
-      if (crossfade) return <CrossfadeCanvas av={av} ov={ov} crop={crop} style={style} />;
-      return <SvgCanvas av={av} ov={ov} crop={crop} style={style} />;
-    }
-    return (
-      <View style={[styles.fill, style]} pointerEvents="none">
-        <PngFigure av={av} ov={ov} crop={crop} />
-      </View>
-    );
-  }
-
-  if (engine === "svgparts") {
-    const cov = coverage(av, ov, svgSource);
-    if (cov.have < cov.want) {
-      // Same rule as PNG: any untraced slot degrades to the COMPLETE procedural
-      // engine — never a partial stack.
+      // Any un-traced slot degrades to the COMPLETE procedural engine — never a
+      // partial stack. (coverage defaults to svgSource, the shipping part source.)
       if (crossfade) return <CrossfadeCanvas av={av} ov={ov} crop={crop} style={style} />;
       return <SvgCanvas av={av} ov={ov} crop={crop} style={style} />;
     }

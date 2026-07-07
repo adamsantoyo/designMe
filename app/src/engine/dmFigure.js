@@ -668,11 +668,16 @@ const window = (typeof globalThis !== "undefined" ? globalThis : {});
       // correctly on every one of the 14 tones (a fixed pink washes out on deep
       // skin and shouts on light skin).
       const blushC = mixc(skin, "#c9584a", 0.4);
+      // Subtle everyday blush for every face — but NOT when the "blush" feature is on:
+      // that feature (extras-identity) draws its own stronger blush, so drawing both
+      // stacked to a double blush. When the feature owns it, skip the base.
+      const baseBlush = o.feature === "blush" ? "" :
+        `<ellipse cx="${hx - 12}" cy="${K.headCy + 9.5}" rx="6" ry="3.6" fill="${blushC}" opacity=".32"/>
+        <ellipse cx="${hx + 12}" cy="${K.headCy + 9.5}" rx="6" ry="3.6" fill="${blushC}" opacity=".32"/>`;
       let f = `<ellipse cx="${hx}" cy="${K.headCy}" rx="${K.headRx}" ry="${K.headRy}" fill="${fSkin}"/>
         <ellipse cx="${hx - K.headRx}" cy="${K.headCy + 4}" rx="5" ry="6" fill="${fSkin}"/>
         <ellipse cx="${hx + K.headRx}" cy="${K.headCy + 4}" rx="5" ry="6" fill="${fSkin}"/>
-        <ellipse cx="${hx - 12}" cy="${K.headCy + 9.5}" rx="6" ry="3.6" fill="${blushC}" opacity=".32"/>
-        <ellipse cx="${hx + 12}" cy="${K.headCy + 9.5}" rx="6" ry="3.6" fill="${blushC}" opacity=".32"/>
+        ${baseBlush}
         ${sideShade(`M${hx - K.headRx} ${K.headCy} a${K.headRx} ${K.headRy} 0 1 0 ${K.headRx * 2} 0 a${K.headRx} ${K.headRy} 0 1 0 ${-K.headRx * 2} 0 Z`)}
         ${eye(-1)}${eye(1)}
         ${brow(-1)}${brow(1)}

@@ -6,10 +6,10 @@
   "scripts": {
     "test": "node --test \"tests/**/*.test.mjs\"",
     "playwright": "playwright",
-    "foundry": "node tools/avatar-foundry/cli.mjs",
-    "foundry:check": "node tools/avatar-foundry/cli.mjs check",
+    "gates": "npm --prefix app run typecheck && node tools/check-art-ids.mjs && node tools/validate-catalog.js && node tools/engine-smoke.mjs && node tools/engine-smoke-svgparts.mjs && node --test \"tests/**/*.test.mjs\"",
     "validate:catalog": "node tools/validate-catalog.js",
-    "visual:matrix": "node tools/visual-matrix.mjs"
+    "visual:matrix": "node tools/visual-matrix.mjs",
+    "gen:icon": "node tools/gen-app-icon.mjs"
   },
   "repository": {
     "type": "git",

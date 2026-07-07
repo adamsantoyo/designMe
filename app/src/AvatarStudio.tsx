@@ -29,13 +29,11 @@ import OptionTile from "./ui/OptionTile";
 import ColorSwatch from "./ui/ColorSwatch";
 import useReducedMotion from "./useReducedMotion";
 import * as DM from "./dm";
-import { hasPart } from "./parts/registry";
 import { isPremiumRenderable } from "./parts/premium";
 import type { Av } from "./dm";
 
 type Region = "hair" | "face" | "body" | "top" | "bottom" | "shoes" | "extras";
 type SavedLook = { id: string; savedAt: number; av: Av };
-declare const process: { env?: Record<string, string | undefined> } | undefined;
 type ColorRow = { key: string; title: string; colors: { v: string; sel: boolean; onTap: () => void; aria: string }[] };
 type Tile = {
   key: string;
@@ -52,17 +50,9 @@ const LOOKBOOK_KEY = "designMe.lookbook.v3";
 const CURRENT_AV_KEY = "designMe.currentAv.v3";
 const EXPLORED_KEY = "designMe.explored.v1";
 const LOOKBOOK_CAP = 24;
-// re-enabled 2026-07-03: registry carries the approved art-gen slice
-const PNG_LAB_ENABLED = true;
-// Story 2.4: vector twin of the approved catalog (svgRegistry) — the premium path
-const SVGPARTS_LAB_ENABLED = true;
-const FOUNDRY_ENGINE_ENABLED = typeof process !== "undefined" && process.env?.EXPO_PUBLIC_FOUNDRY_ENGINE === "1";
-const ENGINE_LAB_MODES: AvatarEngine[] = [
-  "svg",
-  ...(FOUNDRY_ENGINE_ENABLED ? ["foundry" as const] : []),
-  ...(PNG_LAB_ENABLED ? ["png" as const] : []),
-  ...(SVGPARTS_LAB_ENABLED ? ["svgparts" as const] : []),
-];
+// svgparts is the product default; the procedural svg engine stays reachable via the
+// __DEV__ toggle as the complete-fallback reference. (PNG/foundry lab paths retired.)
+const ENGINE_LAB_MODES: AvatarEngine[] = ["svg", "svgparts"];
 const AV_KEYS: (keyof Av)[] = [
   "skin", "body", "height", "hair", "hairColor", "expression", "feature",
   "faceShape", "brow", "eye", "eyeColor", "nose", "lip", "makeup", "makeupColor",
@@ -167,17 +157,16 @@ const BOTTOM_GROUPS = [
 ] as const;
 type BottomGroupKey = typeof BOTTOM_GROUPS[number]["key"];
 
-// PNG mode shows an option only when its art is registered (the registry is the
-// single source of truth for approved art). "none" is always offerable.
-const PNG_DIM_CATEGORY: Record<string, string> = {
+// Maps a tray "dim" (av field) to its part category — the folder the manifest/registry
+// keys live under. Used by premium tray gating and the premium-safe shuffle; a few dims
+// differ from their field name (shoes -> shoe, layer -> top, headwear -> accessory).
+const PART_DIM_CATEGORY: Record<string, string> = {
   body: "body", hair: "hair", top: "top", layer: "top", bottom: "bottom",
   shoes: "shoe", faceShape: "faceShape", brow: "brow", eye: "eye", nose: "nose",
   lip: "lip", makeup: "makeup", mobility: "mobility", headwear: "accessory",
   glasses: "glasses", hearing: "hearing", jewelry: "jewelry", carry: "carry",
   tool: "tool", aac: "aac", feature: "feature",
 };
-const pngHasArt = (dim: keyof typeof PNG_DIM_CATEGORY, id: string) =>
-  id === "none" || hasPart(`${PNG_DIM_CATEGORY[dim]}/${id}`);
 
 const ICON: Record<string, string> = {
   hair: '<path d="M4 13.5C4 8.3 7.6 5 12 5s8 3.3 8 8.5"/><path d="M6.5 13.5c.8 2.2 2.8 3.8 5.5 3.8s4.7-1.6 5.5-3.8"/><path d="M9 9.6c.7.8 1.8 1.3 3 1.3s2.3-.5 3-1.3"/>',
@@ -249,7 +238,7 @@ const lookLabel = (t: number) => {
 export default function AvatarStudio() {
   // The default engine is premium (svgparts), so the first random look must draw only
   // renderable parts — otherwise the stage opens on the complete-fallback placeholder.
-  const [av, setAv] = useState<Av>(() => DM.shufflePremiumAv(DM.defaultAv, isPremiumRenderable, PNG_DIM_CATEGORY));
+  const [av, setAv] = useState<Av>(() => DM.shufflePremiumAv(DM.defaultAv, isPremiumRenderable, PART_DIM_CATEGORY));
   const [region, setRegion] = useState<Region | null>(null);
   const [extrasTab, setExtrasTab] = useState(EXTRA_GROUPS[0].key);
   const [faceTab, setFaceTab] = useState<FaceGroupKey>("skin");
@@ -476,7 +465,7 @@ export default function AvatarStudio() {
     setHistory((h) => [...h, copyAv(av)].slice(-40));
     setAv((a) =>
       engineMode === "svgparts"
-        ? DM.shufflePremiumAv(a, isPremiumRenderable, PNG_DIM_CATEGORY)
+        ? DM.shufflePremiumAv(a, isPremiumRenderable, PART_DIM_CATEGORY)
         : DM.shuffleAv(a));
     setBump((b) => b + 1);
   };
@@ -633,15 +622,10 @@ export default function AvatarStudio() {
   const tilesFor = (r: Region): Tile[] => {
     const T = (key: string, label: string, aria: string, ov: Partial<Av>, crop: string | undefined, sel: boolean, onTap: () => void): Tile =>
       ({ key, label, aria, ov, crop, sel, onTap });
-    // Show an option only when the ACTIVE engine can actually render it: the premium
-    // (svgparts) path needs traced art + a manifest entry, PNG needs a registry ref,
-    // and the procedural svg fallback renders everything.
-    const visible = (dim: keyof typeof PNG_DIM_CATEGORY, id: string) =>
-      engineMode === "svgparts"
-        ? isPremiumRenderable(PNG_DIM_CATEGORY[dim], id)
-        : engineMode === "png"
-          ? pngHasArt(dim, id)
-          : true;
+    // Show an option only when the ACTIVE engine can render it: the premium (svgparts)
+    // path needs traced art + a manifest entry; the procedural svg fallback renders all.
+    const visible = (dim: keyof typeof PART_DIM_CATEGORY, id: string) =>
+      engineMode === "svgparts" ? isPremiumRenderable(PART_DIM_CATEGORY[dim], id) : true;
 
     if (r === "hair") {
       const group = HAIR_GROUPS.find((g) => g.key === hairTab) || HAIR_GROUPS[0];
@@ -729,7 +713,7 @@ export default function AvatarStudio() {
     }
     const group = activeExtraGroups.find((g) => g.key === extrasTab) || activeExtraGroups[0] || EXTRA_GROUPS[0];
     return group.list.filter((x) => x.id !== "none").map((x) =>
-      visible(group.dim as keyof typeof PNG_DIM_CATEGORY, x.id) ? x : null).filter((x): x is DM.Item => !!x).map((x) =>
+      visible(group.dim as keyof typeof PART_DIM_CATEGORY, x.id) ? x : null).filter((x): x is DM.Item => !!x).map((x) =>
       T(group.key + "_" + x.id, x.label, x.label, { [group.dim]: x.id } as Partial<Av>, group.crop,
         (av as any)[group.dim] === x.id,
         () => apply({ [group.dim]: (av as any)[group.dim] === x.id ? "none" : x.id } as Partial<Av>)));
@@ -874,14 +858,7 @@ export default function AvatarStudio() {
           accessibilityLabel={`Avatar art: ${engineMode}. Tap to switch.`}
           onPress={() => setEngineMode((m) => {
             const current = ENGINE_LAB_MODES.indexOf(m);
-            const next = ENGINE_LAB_MODES[(current + 1) % ENGINE_LAB_MODES.length] || "svg";
-            if (next === "png") {
-              setHairTab("loose");
-              setTopTab("comfort");
-              setBottomTab("denim");
-              setExtrasTab("mobility");
-            }
-            return next;
+            return ENGINE_LAB_MODES[(current + 1) % ENGINE_LAB_MODES.length] || "svgparts";
           })}
           radius={theme.radius.pill}
           style={styles.devToggle}

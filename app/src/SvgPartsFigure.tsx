@@ -1,22 +1,18 @@
-// designMe — SVG-parts avatar figure (Story 2.4, the premium vector path).
-// Pure function of state: resolveLayers(av, ov, svgSource) -> tinted part markup
-// -> one <svg> string -> <SvgString> (SvgXml native / innerHTML web). Bypasses
-// the Skia PNG compositor entirely; same manifest z-order, same recolor matrix.
-// `crop` zooms a tray-tile region (240x490-authored string, remapped in the
-// engine core); height renders as an SVG-native bottom-anchored scale.
+// designMe — SVG-parts avatar figure (Story 2.4, the premium vector path — now the
+// product default). Pure function of state: resolveLayers(av, ov) -> tinted part markup
+// -> one <svg> string -> <SvgString> (SvgXml native / innerHTML web). The svg part
+// source is the resolveLayers/coverage default (parts/layers.ts). `crop` zooms a
+// tray-tile region (240x490-authored string, remapped in the engine core); height
+// renders as an SVG-native bottom-anchored scale.
 
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import SvgString from "./SvgString";
 import { buildSvgPartsXml } from "./engine/svgPartsFigure";
-import { coverage, heightScaleY, resolveLayers, type PartSource } from "./parts/layers";
-import { PARTS_SVG_BBOX, hasSvgPart, svgPartCount, svgPartRef } from "./parts/svgRegistry";
+import { coverage, heightScaleY, resolveLayers } from "./parts/layers";
+import { PARTS_SVG_BBOX, svgPartCount } from "./parts/svgRegistry";
 import { theme } from "./theme";
 import type { Av } from "./dm";
-
-// The svgparts asset source: same manifest contract, markup strings for refs.
-// AvatarCanvas uses this for its coverage gate before choosing this engine.
-export const svgSource: PartSource = { hasPart: hasSvgPart, partRef: svgPartRef };
 
 type Props = { av: Av; ov?: Partial<Av>; crop?: string };
 
@@ -25,12 +21,12 @@ export default function SvgPartsFigure({ av, ov, crop }: Props) {
   // would otherwise re-resolve every visible tile's full layer stack on each render.
   const stateKey = `${JSON.stringify(av)}|${ov ? JSON.stringify(ov) : ""}`;
   const layers = useMemo(
-    () => resolveLayers(av, ov, svgSource).map((l) => ({ ...l, bbox: PARTS_SVG_BBOX[l.key] })),
+    () => resolveLayers(av, ov).map((l) => ({ ...l, bbox: PARTS_SVG_BBOX[l.key] })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [stateKey],
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const cov = useMemo(() => coverage(av, ov, svgSource), [stateKey]);
+  const cov = useMemo(() => coverage(av, ov), [stateKey]);
   // ov must win for height too — the body tray previews heights via ov.height.
   const hScale = heightScaleY(String(ov?.height ?? av.height));
   const xml = useMemo(

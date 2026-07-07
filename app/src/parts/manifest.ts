@@ -54,7 +54,7 @@ export const PART_MANIFEST: PartManifestItem[] = [
   { category: "shoe", id: "classicSneaker", slot: "shoes", scope: "full", tintMode: "fixed", z: 30, bakedColorId: "warmWhiteLeather" },
   { category: "top", id: "hoodie", slot: "top", scope: "full", tintMode: "multiply", z: 40 },
   { category: "makeup", id: "natural", slot: "makeup", scope: "bust", tintMode: "multiply", z: 48 },
-  // face parts ship full-frame (SkiaFigure has no bust mapping); eye is fixed —
+  // face parts ship full-frame (the engine has no bust mapping); eye is fixed —
   // the split asset carries natural iris/lash color, and multiply would tint sclera
   { category: "eye", id: "almond", slot: "eye", scope: "full", tintMode: "fixed", z: 52 },
   { category: "brow", id: "soft", slot: "brow", scope: "full", tintMode: "fixed", z: 54, bakedColorId: "softInk" },
