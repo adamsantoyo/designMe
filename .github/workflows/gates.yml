@@ -1,0 +1,25 @@
+name: gates
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # Two package trees: the root (gate scripts + tests) and app/ (the Expo app).
+      - name: Install root deps
+        run: npm ci
+      - name: Install app deps
+        run: npm ci --prefix app
+      # typecheck + check-art-ids + validate:catalog + engine-smoke x2 + tests.
+      - name: Run gates
+        run: npm run gates
+    # NOTE: visual:matrix is intentionally NOT run here — it needs a live Expo web
+    # server + Playwright browsers. Track as a CI follow-up (headless server + install).

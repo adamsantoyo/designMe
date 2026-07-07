@@ -112,6 +112,20 @@
 # - OptionTile labels wrap to 2 lines (140px) — "Noise-reducing headphones" no longer clips.
 # - Decisions recorded: expression/pattern are engine-only, not premium slots (architecture
 #   §9); storage errors surface via a calm toast, never silent (EXPERIENCE.md reconciled).
+#
+# PREMIUM OVERHAUL — PHASE 4 (mostly done 2026-07-07): engineering cleanup.
+# - DELETED the dead PNG/Skia + app-side foundry engines and tools/avatar-foundry; the
+#   PartSource default is svgSource; registry.ts survives Node-side (0 app importers);
+#   expo export confirms the 1.7 MB part PNGs left the bundle. dmFigure double-blush fixed
+#   (node --test). Font bundle regression fixed: web ships 0 TTFs (was 3.8 MB), native
+#   loads 5 via subpath imports. Added `npm run gates` + a GitHub Actions gates workflow.
+# - DEFERRED (owner call, own focused pass): AvatarStudio decomposition + the persistence
+#   contract tests (4-2) that extract with the storage hook — need a full manual regression.
+# - FLAGGED fast-follow: app/assets/parts/ (157 PNGs) stays gitignored; force-adding is
+#   blocked on the registry/approvals divergence (would launder unapproved art). App is
+#   reproducible from committed source (svgRegistry.js) regardless.
+# - Native still owes the iPad pass: fonts, splash/icon, VoiceOver, Dynamic Type, touch,
+#   Guided Access, Switch Control.
 
 generated: 2026-07-04
 last_updated: 2026-07-07

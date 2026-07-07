@@ -360,8 +360,10 @@ function validateMainRendererCoverage() {
     warn(`CAT.${category} is exposed in UI but is not passed through stateToFigureOpts() to the main dmFigure renderer`);
   }
 
-  // mobility is partially wired: cane renders, wheelchair still needs a seated pose.
-  warn('dmFigure renders mobility "cane" but not "wheelchair" (wheelchair needs a seated body pose — dedicated pass)');
+  // The shipping svgparts engine renders mobility/wheelchair (traced part, z0); only the
+  // dmFigure complete-fallback still lacks a seated pose, so a wheelchair look that also
+  // hits an un-traced slot degrades to a standing figure. Cosmetic, fallback-only.
+  warn('dmFigure fallback renders mobility "cane" but not a seated "wheelchair" pose (svgparts renders wheelchair; standing-only fallback is a known dedicated-pass item)');
 }
 
 function printResults(CAT) {

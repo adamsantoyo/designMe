@@ -76,7 +76,7 @@ The UX design contract lives at `ux-designs/ux-designme-2026-07-03/` (DESIGN.md 
 ## Epic List
 
 - **Epic 1 — A full closet:** every catalog item has approved, registered art (P0 batch → review loop → P1/P2), with the art-direction fixes the slice exposed and an asset-size pass so the catalog ships at ~5MB.
-- **Epic 2 — PNG is the product:** grow the PNG engine from lab slice to product default — full slot coverage, height/crop behavior, crossfade, retina decision, and the flip from SVG-default to PNG-default with SVG as fallback only.
+- **Epic 2 — the traced vector engine is the product:** <!-- SUPERSEDED 2026-07-07: was "PNG is the product". The PNG/Skia compositor was retired (fit="fill" distortion); Story 2.4's svgparts vector engine became the product default in the premium overhaul, and the PNG/Skia + foundry engines were deleted. Live status: sprint-status.yaml; decisions: architecture.md §9. --> grow the render engine from lab slice to product default — full slot coverage, height/crop behavior, crossfade, and the flip from SVG-default to the premium svgparts default with the procedural SVG as complete-fallback only.
 - **Epic 3 — The second door works for switch users:** this-or-that completes end-to-end with binary-only input, converges on a starting style, and applies it.
 - **Epic 4 — Looks that survive:** lookbook save/re-wear is pixel-faithful across restart, crash, and app update (id/shape migration safety).
 - **Epic 5 — Calm first minute:** randomized non-default start verified, studio interaction complete for every category, and a full accessibility pass (AA contrast, keyboard, reduced motion, labels).

@@ -129,3 +129,18 @@ sclera); brow/nose/lip fixed baked ink/lip tones; body/faceShape/hair/garments m
   and carries no svgparts asset; `pattern` only flows into `top.pattern` for dmFigure
   (e.g. flannel plaid) and is not a compositable layer. They remain catalog/engine-only
   by design — do not re-litigate by adding manifest/registry entries for them.
+- 2026-07-07 — Two dead render paths DELETED: the PNG/Skia compositor (SkiaFigure /
+  PngFigure — the fit="fill" distortion) and the app-side foundry engine (FoundryHeroFigure
+  / dmFigureV2), plus tools/avatar-foundry. AvatarCanvas is svg + svgparts only. The
+  PartSource default is now `svgSource` (parts/layers.ts, from svgRegistry). `registry.ts`
+  SURVIVES as the Node-side approval ledger (check-art-ids, trace-svg, ingest-approved);
+  it has ZERO app-side importers now, and the 1.7 MB part PNGs left the app bundle.
+- 2026-07-07 — FLAG (fast-follow): `app/assets/parts/` (157 traced-source PNGs, ~2.7 MB)
+  stays gitignored. The app is fully reproducible from committed source (svgRegistry.js
+  ships the vector art; the PNGs are only needed to RE-trace). Force-adding them is
+  blocked on reconciling the registry(157) vs approvals.json divergence — do NOT
+  git add -f the masters until that is resolved, or unapproved art gets laundered in.
+- 2026-07-07 — DEFERRED to a focused pass (owner call): decomposing AvatarStudio (extract
+  useLookbookStorage / TraySheet / LookbookSheet) and the persistence contract tests for
+  parseLooks/normalizeAv (they extract with the storage hook). Needs a full manual
+  regression, so it is intentionally not bundled with the premium overhaul.
