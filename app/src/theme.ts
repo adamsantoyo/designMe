@@ -24,6 +24,8 @@ export const theme = {
     selected: "#355c39",
     focus: "#1f4d2c",
     danger: "#b23b43",
+    // Dim behind an open tray/lookbook (animated 0 → ~0.3). Warm near-black, never gray.
+    scrim: "#362614",
   },
   radius: { sm: 12, md: 18, lg: 22, xl: 26, xxl: 30, mat: 36, pill: 999 },
   // 4px base scale

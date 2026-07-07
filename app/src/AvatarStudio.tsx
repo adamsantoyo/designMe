@@ -420,8 +420,13 @@ export default function AvatarStudio() {
   // The card must fit the space *left over* when a tray is open — otherwise the
   // page overflows and the browser scrolls the header (Save/Shuffle/Undo) off-screen.
   const sheetOpen = !!region || lookbookOpen;
-  const stageH = H - headerH - (sheetOpen ? TRAY_H - 40 : 0);
-  let cardH = Math.min(stageH - 28, W >= 1024 ? 860 : 780);
+  // Tray/lookbook height follows the 40%-of-stage contract, clamped so it never
+  // collapses on a short viewport or swallows the stage on a tall one. TRAY_H is the cap.
+  const trayH = Math.min(TRAY_H, Math.max(260, (H - headerH) * 0.4));
+  // Floor the stage so an open sheet on a short screen can't drive the card sizes
+  // negative (which rendered a broken/inverted stage).
+  const stageH = Math.max(H - headerH - (sheetOpen ? trayH - 40 : 0), 200);
+  let cardH = Math.max(Math.min(stageH - 28, W >= 1024 ? 860 : 780), 220);
   let cardW = (cardH * 62) / 100;
   const maxW = W - 48;
   if (cardW > maxW) {
@@ -430,8 +435,8 @@ export default function AvatarStudio() {
   }
   const wrapH = cardH * (W >= 900 ? 0.94 : 0.9);
   const wrapW = (wrapH * 240) / 490;
-  const trayTranslate = tray.interpolate({ inputRange: [0, 1], outputRange: [TRAY_H + 28, 0] });
-  const lookbookTranslate = lookbook.interpolate({ inputRange: [0, 1], outputRange: [TRAY_H + 28, 0] });
+  const trayTranslate = tray.interpolate({ inputRange: [0, 1], outputRange: [trayH + 28, 0] });
+  const lookbookTranslate = lookbook.interpolate({ inputRange: [0, 1], outputRange: [trayH + 28, 0] });
   const scrimOpacity = Animated.add(tray, lookbook).interpolate({ inputRange: [0, 1], outputRange: [0, 0.3], extrapolate: "clamp" });
   const breatheY = breathe.interpolate({ inputRange: [0, 1], outputRange: [0, -4] });
   const chipPulseOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.55] });
@@ -686,7 +691,7 @@ export default function AvatarStudio() {
   })();
 
   return (
-    <LinearGradient colors={["#f6f0e4", "#ece7dc", "#dcd4c5"]} locations={[0, 0.55, 1]}
+    <LinearGradient colors={[theme.color.surface, theme.color.bg, theme.color.bg2]} locations={[0, 0.55, 1]}
       start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={styles.root}>
       <View style={[styles.header, { height: headerH }, narrowHeader && styles.headerNarrow]}>
         <View>
@@ -717,9 +722,9 @@ export default function AvatarStudio() {
         </View>
       </View>
 
-      <View style={[styles.stage, sheetOpen ? { paddingBottom: TRAY_H - 40 } : null]}>
+      <View style={[styles.stage, sheetOpen ? { paddingBottom: trayH - 40 } : null]}>
         <View style={[styles.card, { width: cardW, height: cardH }]}>
-          <LinearGradient colors={["#ffffff", "#fbf8f2", "#f4eee4"]} locations={[0, 0.44, 1]}
+          <LinearGradient colors={[theme.color.surface, theme.color.surface, theme.color.surface2]} locations={[0, 0.44, 1]}
             start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}
             style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.mat }]} pointerEvents="none" />
           <RadialMat opacity={0.75} />
@@ -788,7 +793,7 @@ export default function AvatarStudio() {
                 { opacity: toastA, transform: [{ translateY: toastA.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }] },
               ]}
             >
-              <Icon name="heart" stroke="#e3a679" size={18} sw={1.5} />
+              <Icon name="heart" stroke={theme.color.terra} size={18} sw={1.5} />
               <Text style={styles.toastText}>{toast}</Text>
             </Animated.View>
           ) : null}
@@ -845,12 +850,12 @@ export default function AvatarStudio() {
       ) : null}
 
       <Animated.View
-        style={[styles.sheet, { transform: [{ translateY: trayTranslate }] }]}
+        style={[styles.sheet, { height: trayH, transform: [{ translateY: trayTranslate }] }]}
         pointerEvents={region ? "auto" : "none"}
         accessibilityElementsHidden={!region}
         importantForAccessibility={region ? "auto" : "no-hide-descendants"}
       >
-        <LinearGradient colors={["#ffffff", theme.color.surface]} style={[StyleSheet.absoluteFill, styles.sheetBg]} pointerEvents="none" />
+        <LinearGradient colors={[theme.color.surface, theme.color.surface2]} style={[StyleSheet.absoluteFill, styles.sheetBg]} pointerEvents="none" />
         <Hairline inset={26} />
         <View style={styles.grip} />
         {region ? (
@@ -861,7 +866,7 @@ export default function AvatarStudio() {
                 <Text style={styles.trayHint}>{META[region].hint}</Text>
               </View>
               <UIPressable accessibilityRole="button" accessibilityLabel="Close options" onPress={() => setRegion(null)} radius={theme.radius.pill} style={styles.closeBtn}>
-                <Icon name="close" stroke="#2f2823" size={22} />
+                <Icon name="close" stroke={theme.color.ink} size={22} />
               </UIPressable>
             </View>
 
@@ -918,12 +923,12 @@ export default function AvatarStudio() {
       </Animated.View>
 
       <Animated.View
-        style={[styles.sheet, { transform: [{ translateY: lookbookTranslate }], zIndex: 22 }]}
+        style={[styles.sheet, { height: trayH, transform: [{ translateY: lookbookTranslate }], zIndex: 22 }]}
         pointerEvents={lookbookOpen ? "auto" : "none"}
         accessibilityElementsHidden={!lookbookOpen}
         importantForAccessibility={lookbookOpen ? "auto" : "no-hide-descendants"}
       >
-        <LinearGradient colors={["#ffffff", theme.color.surface]} style={[StyleSheet.absoluteFill, styles.sheetBg]} pointerEvents="none" />
+        <LinearGradient colors={[theme.color.surface, theme.color.surface2]} style={[StyleSheet.absoluteFill, styles.sheetBg]} pointerEvents="none" />
         <Hairline inset={26} />
         <View style={styles.grip} />
         {lookbookOpen ? (
@@ -934,7 +939,7 @@ export default function AvatarStudio() {
                 <Text style={styles.trayHint}>Saved looks stay on this device</Text>
               </View>
               <UIPressable accessibilityRole="button" accessibilityLabel="Close lookbook" onPress={() => setLookbookOpen(false)} radius={theme.radius.pill} style={styles.closeBtn}>
-                <Icon name="close" stroke="#2f2823" size={22} />
+                <Icon name="close" stroke={theme.color.ink} size={22} />
               </UIPressable>
             </View>
 
@@ -950,7 +955,7 @@ export default function AvatarStudio() {
                     radius={theme.radius.lg}
                     style={styles.lookCard}
                   >
-                    <LinearGradient colors={["#ffffff", theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.lg - 2 }]} pointerEvents="none" />
+                    <LinearGradient colors={[theme.color.surface, theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.lg - 2 }]} pointerEvents="none" />
                     <View style={styles.lookPreview} pointerEvents="none">
                       <AvatarCanvas av={look.av} engine={engineMode} />
                     </View>
@@ -996,12 +1001,12 @@ function Chip({ k, active, pulseOpacity, onPress }: {
       style={[
         styles.chip,
         active && styles.chipActive,
-        { left: `${p[0]}%`, top: `${p[1]}%`, marginLeft: -24, marginTop: -24 },
+        { left: `${p[0]}%`, top: `${p[1]}%`, marginLeft: -theme.tapLg / 2, marginTop: -theme.tapLg / 2 },
         showLabel ? { zIndex: 20 } : null, // label must not hide behind sibling chips
         pulseOpacity && !active ? { opacity: pulseOpacity } : null,
       ]}
     >
-      <Icon name={k} stroke={active ? "#ffffff" : "#3f5c3b"} size={24} />
+      <Icon name={k} stroke={active ? theme.color.onAccent : theme.color.sageDeep} size={24} />
       {showLabel ? (
         <View style={styles.chipLabel} pointerEvents="none">
           <Text style={styles.chipLabelText}>{CHIP_LABEL[k]}</Text>
@@ -1031,11 +1036,11 @@ function HeaderIconBtn({ icon, label, onPress, disabled, badge, compact }: {
       onBlur={() => setFocus(false)}
       style={[styles.iconBtn, compact && styles.iconBtnCompact, disabled && styles.iconBtnDisabled]}
     >
-      <LinearGradient colors={["#ffffff", theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.pill }]} pointerEvents="none" />
+      <LinearGradient colors={[theme.color.surface, theme.color.surface2]} style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.pill }]} pointerEvents="none" />
       <Hairline inset={14} />
       {/* zIndex keeps the icon above the absolutely-positioned gradient fill */}
       <View style={{ zIndex: 1 }} pointerEvents="none">
-        <Icon name={icon} stroke={disabled ? theme.color.inkFaint : "#2f2823"} size={24} />
+        <Icon name={icon} stroke={disabled ? theme.color.inkFaint : theme.color.ink} size={24} />
       </View>
       {badge ? <View pointerEvents="none" style={styles.hBadge}><Text style={styles.hBadgeText}>{badge}</Text></View> : null}
       {(hover || focus) && !disabled ? (
@@ -1103,17 +1108,17 @@ const styles = StyleSheet.create({
   btnTip: { position: "absolute", top: 60, backgroundColor: theme.color.ink, paddingHorizontal: 10, paddingVertical: 4,
     borderRadius: theme.radius.pill },
   btnTipText: { color: theme.color.surface, fontSize: theme.type.sm, fontWeight: "700" },
-  savePill: { height: 64, minWidth: 118, paddingHorizontal: 24, borderRadius: theme.radius.pill,
+  savePill: { height: theme.tapLg, minWidth: 118, paddingHorizontal: 24, borderRadius: theme.radius.pill,
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9,
     backgroundColor: theme.color.terra, borderWidth: 1, borderColor: theme.color.terraDeep, ...theme.shadow.sm },
-  savePillNarrow: { width: 64, minWidth: 64, paddingHorizontal: 0 },
+  savePillNarrow: { width: theme.tapLg, minWidth: theme.tapLg, paddingHorizontal: 0 },
   savePillText: { color: theme.color.onAccent, fontSize: 19, fontWeight: "800" },
   hBadge: { position: "absolute", top: -6, right: -6, minWidth: 22, height: 22, paddingHorizontal: 6, borderRadius: theme.radius.pill,
-    backgroundColor: theme.color.sageDeep, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#f6f0e4" },
+    backgroundColor: theme.color.sageDeep, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: theme.color.surface },
   hBadgeText: { color: "#fff", fontSize: theme.type.xs, fontWeight: "800" },
 
   stage: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
-  card: { backgroundColor: theme.color.surface, borderRadius: theme.radius.mat, borderWidth: 1, borderColor: "#e4d8c6",
+  card: { backgroundColor: theme.color.surface, borderRadius: theme.radius.mat, borderWidth: 1, borderColor: theme.color.line2,
     alignItems: "center", justifyContent: "center", ...theme.shadow.lg },
   miniLooks: { position: "absolute", right: 30, top: 28, gap: 10, padding: 8, borderRadius: theme.radius.lg,
     backgroundColor: "rgba(251,248,242,0.66)", borderWidth: 1, borderColor: "rgba(221,208,189,0.8)", ...theme.shadow.md },
@@ -1129,10 +1134,10 @@ const styles = StyleSheet.create({
   ring: { position: "absolute", borderRadius: 20, zIndex: 6, borderWidth: 3, borderColor: "rgba(111,143,106,0.5)",
     backgroundColor: "rgba(111,143,106,0.06)" },
 
-  chip: { position: "absolute", width: 48, height: 48, borderRadius: theme.radius.pill, alignItems: "center", justifyContent: "center",
+  chip: { position: "absolute", width: theme.tapLg, height: theme.tapLg, borderRadius: theme.radius.pill, alignItems: "center", justifyContent: "center",
     zIndex: 12, borderWidth: 1, borderColor: theme.color.line, backgroundColor: "rgba(251,248,242,0.88)", ...theme.shadow.sm },
   chipActive: { borderColor: theme.color.sage, backgroundColor: theme.color.sage },
-  chipLabel: { position: "absolute", top: 52, backgroundColor: theme.color.ink, paddingHorizontal: 11, paddingVertical: 5,
+  chipLabel: { position: "absolute", top: theme.tapLg + 4, backgroundColor: theme.color.ink, paddingHorizontal: 11, paddingVertical: 5,
     borderRadius: theme.radius.pill },
   chipLabelText: { color: theme.color.surface, fontSize: theme.type.sm, fontWeight: "700" },
 
@@ -1146,7 +1151,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(251,248,242,0.7)", borderWidth: 1, borderColor: theme.color.line },
   devToggleText: { fontSize: theme.type.xs, fontWeight: "800", color: theme.color.inkFaint, letterSpacing: 0.5 },
 
-  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "#362614", zIndex: 14 },
+  scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: theme.color.scrim, zIndex: 14 },
 
   sheet: { position: "absolute", left: 24, right: 24, bottom: 0, height: TRAY_H, paddingHorizontal: 28, paddingTop: 12,
     borderWidth: 1, borderColor: theme.color.line, borderBottomWidth: 0, backgroundColor: theme.color.surface,
@@ -1165,7 +1170,7 @@ const styles = StyleSheet.create({
 
   subTabScroll: { flexGrow: 0, marginTop: 8 },
   subTabRow: { gap: 8, alignItems: "center", paddingVertical: 2 },
-  subTab: { minHeight: 40, paddingHorizontal: 16, borderRadius: theme.radius.pill, flexDirection: "row", alignItems: "center",
+  subTab: { minHeight: theme.tap, paddingHorizontal: 16, borderRadius: theme.radius.pill, flexDirection: "row", alignItems: "center",
     gap: 7, justifyContent: "center", backgroundColor: theme.color.surface, borderWidth: 1, borderColor: theme.color.line2 },
   subTabActive: { backgroundColor: theme.color.sage, borderColor: theme.color.sageDeep },
   subTabText: { fontSize: theme.type.md, fontWeight: "800", color: theme.color.inkSoft },

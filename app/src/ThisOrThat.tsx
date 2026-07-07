@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   pair: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 28, paddingHorizontal: 24 },
   pairNarrow: { flexDirection: "column", gap: 14, paddingHorizontal: 16 },
   card: { alignItems: "center", paddingTop: 14, borderRadius: theme.radius.xl, backgroundColor: theme.color.surface,
-    borderWidth: 1, borderColor: "#e4d8c6", overflow: "hidden", ...theme.shadow.lg },
+    borderWidth: 1, borderColor: theme.color.line2, overflow: "hidden", ...theme.shadow.lg },
   tagPill: { alignSelf: "center", backgroundColor: "rgba(47,40,35,0.08)", paddingHorizontal: 12, paddingVertical: 4,
     borderRadius: theme.radius.pill, marginBottom: 6 },
   tagText: { ...theme.eyebrow, color: theme.color.inkSoft },
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
 
   result: { flex: 1, alignItems: "center", justifyContent: "center", gap: 20, paddingBottom: 18 },
   resultBtns: { flexDirection: "row", gap: 14 },
-  bigBtn: { minHeight: 64, paddingHorizontal: 30, borderRadius: theme.radius.pill, alignItems: "center", justifyContent: "center",
+  bigBtn: { minHeight: theme.tapLg, paddingHorizontal: 30, borderRadius: theme.radius.pill, alignItems: "center", justifyContent: "center",
     backgroundColor: theme.color.surface, borderWidth: 1, borderColor: theme.color.line, ...theme.shadow.sm },
   bigBtnPrimary: { backgroundColor: theme.color.terra, borderColor: theme.color.terraDeep },
   bigBtnText: { fontSize: theme.type.body + 1, fontWeight: "800", color: theme.color.ink },

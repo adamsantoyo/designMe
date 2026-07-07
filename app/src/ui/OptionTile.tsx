@@ -35,7 +35,7 @@ export default function OptionTile({
       style={[styles.tile, { width: size, height: size }, selected && styles.tileSel]}
     >
       <LinearGradient
-        colors={["#ffffff", theme.color.surface2]}
+        colors={[theme.color.surface, theme.color.surface2]}
         style={[StyleSheet.absoluteFill, { borderRadius: theme.radius.lg - 2 }]}
         pointerEvents="none"
       />
@@ -70,5 +70,5 @@ const styles = StyleSheet.create({
     fontSize: theme.type.sm, fontWeight: "800" },
   check: { position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: theme.radius.pill,
     backgroundColor: theme.color.sage, alignItems: "center", justifyContent: "center",
-    borderWidth: 2, borderColor: "#ffffff" },
+    borderWidth: 2, borderColor: theme.color.surface },
 });
