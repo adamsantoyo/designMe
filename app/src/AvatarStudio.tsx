@@ -260,7 +260,10 @@ export default function AvatarStudio() {
   const [lookbookOpen, setLookbookOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [bump, setBump] = useState(0);
-  const [engineMode, setEngineMode] = useState<AvatarEngine>("svg");
+  // Premium vector parts (story 2.4) are now the product default. The procedural
+  // dmFigure remains as the complete-fallback for any un-traced slot, and svg/png stay
+  // reachable via the __DEV__ engine toggle.
+  const [engineMode, setEngineMode] = useState<AvatarEngine>("svgparts");
   const [hydrated, setHydrated] = useState(false);
   const [vibeOpen, setVibeOpen] = useState(false);
   const [explored, setExplored] = useState(true); // true until storage says otherwise

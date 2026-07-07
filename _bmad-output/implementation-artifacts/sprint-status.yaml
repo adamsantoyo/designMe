@@ -73,9 +73,22 @@
 #   (trace neutral master + feColorMatrix/fill-swap tint — spike-gated) and size (13.4MB raw →
 #   posterize+SVGO to ~2MB). RESHAPES Epic 2: 2.1/2.2 renderer-agnostic (still apply); 2.3 (PNG-default
 #   flip) SUPERSEDED; FR5/CAP-5 (PNG-first) need a rewrite once svgparts ships.
+#
+# PREMIUM OVERHAUL — PHASE 1 DONE (2026-07-07, branch feat/premium-pass):
+# - Flipped the product default engine to svgparts; premium vector art now renders on the
+#   stage, tray tiles, this-or-that, and lookbook. dmFigure stays as the complete-fallback.
+# - 2-1 (manifest full-slot coverage): DONE via the +54-entry batch — manifest 98→152 now
+#   covers every renderable svgRegistry part; unmanifested list is exactly the 2 known-broken.
+# - 2-2 (height/crop/tray-tile behavior): DONE for the shipping engine — svgparts owns its own
+#   crop remap + bottom-anchored height (story 2.4), gate-verified; the png-mode variant is moot.
+# - 2-3 (default-engine flip): DONE, but as svgparts (SUPERSEDES the original PNG-default intent).
+# - 2-4 (vector render path): remains the render engine; now the default rather than a lab toggle.
+# - Tray gating hides art-less options in premium mode; shufflePremiumAv keeps every random look
+#   fully renderable (node --test, 1000 iterations). eye/round, eye/monolid, hair/buzzCut,
+#   hair/shaved, top/meshLayer stay catalog-data-only (hidden in premium mode, no art).
 
 generated: 2026-07-04
-last_updated: 2026-07-05
+last_updated: 2026-07-07
 project: designMe
 project_key: NOKEY
 tracking_system: file-system
@@ -90,10 +103,10 @@ development_status:
   1-4-p1-p2-breadth-batch: in-progress
   epic-1-retrospective: optional
   epic-2: in-progress
-  2-1-full-slot-coverage-in-the-manifest: backlog
-  2-2-height-crop-and-tray-tile-behavior-in-png-mode: backlog
-  2-3-default-engine-flip: backlog
-  2-4-vector-svg-render-path: in-progress
+  2-1-full-slot-coverage-in-the-manifest: done # Phase 1: manifest 98→152, full svgRegistry coverage
+  2-2-height-crop-and-tray-tile-behavior-in-png-mode: done # Phase 1: delivered via svgparts (2.4), png variant moot
+  2-3-default-engine-flip: done # Phase 1: flipped to svgparts (supersedes PNG-default intent)
+  2-4-vector-svg-render-path: in-progress # now the product default; remaining polish tracked in premium overhaul
   epic-2-retrospective: optional
   epic-3: backlog
   3-1-this-or-that-end-to-end-flow: backlog
