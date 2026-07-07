@@ -347,3 +347,59 @@ export function shuffleAv(prev: Av): Av {
     carry: some(carries, 0.25),
   };
 }
+
+// Premium-safe shuffle: like shuffleAv, but every drawn part is filtered to what the
+// active engine can actually render. The predicate and the field->category map are
+// injected by the caller so dm.ts stays free of any parts/engine import (no cycle).
+// Colors, height, expression and pattern carry no art, so they draw exactly as
+// shuffleAv does. Guarantees the result renders fully in premium mode — no fallback.
+export function shufflePremiumAv(
+  prev: Av,
+  isRenderable: (category: string, id: string) => boolean,
+  folderMap: Record<string, string>,
+): Av {
+  const ok = (field: string, id: string) => isRenderable(folderMap[field] ?? field, id);
+  const pick = (field: string, arr: { id: string }[], fallback: string): string => {
+    const pool = arr.filter((x) => ok(field, x.id));
+    return (pool.length ? R(pool) : arr.find((x) => x.id === fallback) ?? arr[0]).id;
+  };
+  const someOk = (field: string, arr: { id: string }[], p: number): string => {
+    if (Math.random() >= p) return "none";
+    const pool = arr.filter((x) => x.id !== "none" && ok(field, x.id));
+    return pool.length ? R(pool).id : "none";
+  };
+  return {
+    ...prev,
+    skin: R(skins).v,
+    hair: pick("hair", hairStyles, "wavyM"),
+    hairColor: R(hairColors).v,
+    body: pick("body", bodyShapes, "balanced"),
+    height: R(heights).id,
+    expression: R(expressions).id,
+    faceShape: pick("faceShape", faceShapes, "oval"),
+    brow: pick("brow", brows, "soft"),
+    eye: pick("eye", eyes, "almond"),
+    eyeColor: R(eyeColors).v,
+    nose: pick("nose", noses, "rounded"),
+    lip: pick("lip", lips, "soft"),
+    makeup: someOk("makeup", makeups, 0.18),
+    makeupColor: R(makeupColors).v,
+    feature: someOk("feature", features, 0.22),
+    top: pick("top", tops, "hoodie"),
+    topColor: R(garmentColors).v,
+    bottom: pick("bottom", bottoms, "barrelJean"),
+    bottomColor: R(garmentColors).v,
+    layer: someOk("layer", layers, 0.35),
+    layerColor: R(garmentColors).v,
+    shoes: pick("shoes", shoes, "classicSneaker"),
+    pattern: "none",
+    glasses: someOk("glasses", glasses, 0.28),
+    hearing: someOk("hearing", hearing, 0.12),
+    headwear: someOk("headwear", headwear, 0.12),
+    jewelry: someOk("jewelry", jewelry, 0.3),
+    tool: someOk("tool", tools, 0.1),
+    aac: someOk("aac", aacs, 0.08),
+    mobility: someOk("mobility", mobilities, 0.07),
+    carry: someOk("carry", carries, 0.25),
+  };
+}

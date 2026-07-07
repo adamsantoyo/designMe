@@ -83,12 +83,17 @@ function fillSvg(svg: string) {
 }
 
 function useXml(av: Av, ov?: Partial<Av>, crop?: string) {
+  // Key on serialized state, not object identity: every tray tile passes a fresh `ov`
+  // literal with identical content, which would otherwise rebuild the whole figure on
+  // every parent render. Stringifying ~31 short fields is cheap next to an SVG build.
+  const key = `${JSON.stringify(av)}|${ov ? JSON.stringify(ov) : ""}|${crop ?? ""}`;
   return useMemo(() => {
     let svg = dmFigure(buildOpts(av, ov));
     svg = applyCrop(svg, crop);
     // ensure the <svg> fills its box in both dimensions
     return fillSvg(svg);
-  }, [av, ov, crop]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 }
 
 function SvgCanvas({ av, ov, crop, style }: { av: Av; ov?: Partial<Av>; crop?: string; style?: any }) {

@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import AvatarCanvas from "./AvatarCanvas";
+import AvatarCanvas, { type AvatarEngine } from "./AvatarCanvas";
 import UIPressable from "./ui/Pressable";
 import { Hairline, RadialMat } from "./ui/TopHighlight";
 import useReducedMotion from "./useReducedMotion";
@@ -48,11 +48,12 @@ function nextChallengerIndex(queue: DM.Vibe[], winner: DM.Vibe): number {
 }
 
 export default function ThisOrThat({
-  av, onWear, onClose,
+  av, onWear, onClose, engine = "svg",
 }: {
   av: Av;
   onWear: (vibe: DM.Vibe) => void;
   onClose: () => void;
+  engine?: AvatarEngine;
 }) {
   const initialPool = useMemo(() => balancedVibes(DM.vibes), []);
   const [champ, setChamp] = useState(initialPool[0]);
@@ -105,8 +106,8 @@ export default function ThisOrThat({
       {!done ? (
         <>
           <Animated.View style={[styles.pair, narrow && styles.pairNarrow, { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>
-            <VibeCard av={av} vibe={champ} w={cardW} h={cardH} onPress={() => pick(champ)} />
-            <VibeCard av={av} vibe={challenger} w={cardW} h={cardH} onPress={() => pick(challenger)} />
+            <VibeCard av={av} vibe={champ} w={cardW} h={cardH} engine={engine} onPress={() => pick(champ)} />
+            <VibeCard av={av} vibe={challenger} w={cardW} h={cardH} engine={engine} onPress={() => pick(challenger)} />
           </Animated.View>
           <View style={styles.dots} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             {Array.from({ length: totalRounds }, (_, i) => (
@@ -116,7 +117,7 @@ export default function ThisOrThat({
         </>
       ) : (
         <Animated.View style={[styles.result, { opacity: enter }]}>
-              <VibeCard av={av} vibe={champ} w={cardW} h={cardH} />
+              <VibeCard av={av} vibe={champ} w={cardW} h={cardH} engine={engine} />
           <View style={styles.resultBtns}>
             <UIPressable accessibilityRole="button" accessibilityLabel={`Wear ${champ.label}`}
               onPress={() => onWear(champ)} lift radius={theme.radius.pill}
@@ -137,11 +138,12 @@ export default function ThisOrThat({
 
 // Card mat tinted from the vibe's own garment colors — quiet coordinated variation
 // instead of uniform white tiles.
-function VibeCard({ av, vibe, w, h, onPress }: {
+function VibeCard({ av, vibe, w, h, engine = "svg", onPress }: {
   av: Av;
   vibe: DM.Vibe;
   w: number;
   h: number;
+  engine?: AvatarEngine;
   onPress?: () => void;
 }) {
   const tintA = mix(vibe.ov.topColor ?? av.topColor, "#ffffff", 0.76);
@@ -156,7 +158,7 @@ function VibeCard({ av, vibe, w, h, onPress }: {
         <Text style={styles.tagText}>{vibe.tag}</Text>
       </View>
       <View style={{ width: w - 22, height: h }} pointerEvents="none">
-        <AvatarCanvas av={av} ov={vibe.ov} engine="svg" />
+        <AvatarCanvas av={av} ov={vibe.ov} engine={engine} />
       </View>
       <Text style={styles.cardLabel}>{vibe.label}</Text>
       <Text style={styles.cardNote} numberOfLines={1}>{vibe.note}</Text>

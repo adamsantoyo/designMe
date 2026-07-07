@@ -16,6 +16,12 @@ export type PartSource = {
 
 export const pngSource: PartSource = { hasPart, partRef };
 
+// A slot the avatar leaves empty by choice: "none", or "bald" in the hair slot
+// (a valid, complete look — no hair, not a missing part). Treated exactly like an
+// unset slot so it never counts against coverage or forces the complete-fallback.
+const isEmptySlot = (slot: string, id: string): boolean =>
+  !id || id === "none" || (slot === "hair" && id === "bald");
+
 export type Layer = {
   slot: string;
   key: string; // "cat/id"
@@ -33,7 +39,7 @@ export function resolveLayers(av: Av, ov?: Partial<Av>, source: PartSource = png
   const out: Layer[] = [];
   for (const s of LAYER_SLOTS) {
     const id = String(a[s.idFrom] ?? "");
-    if (!id || id === "none") continue;
+    if (isEmptySlot(s.slot, id)) continue;
     const key = partKey(s.category, id);
     const item = manifestItem(key);
     if (!item || !source.hasPart(key)) continue;
@@ -60,7 +66,7 @@ export function coverage(av: Av, ov?: Partial<Av>, source: PartSource = pngSourc
   const missing: string[] = [];
   for (const s of LAYER_SLOTS) {
     const id = String(a[s.idFrom] ?? "");
-    if (!id || id === "none") continue;
+    if (isEmptySlot(s.slot, id)) continue;
     want++;
     const key = partKey(s.category, id);
     if (manifestItem(key) && source.hasPart(key)) have++;

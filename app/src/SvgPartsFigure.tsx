@@ -21,11 +21,16 @@ export const svgSource: PartSource = { hasPart: hasSvgPart, partRef: svgPartRef 
 type Props = { av: Av; ov?: Partial<Av>; crop?: string };
 
 export default function SvgPartsFigure({ av, ov, crop }: Props) {
+  // Key on serialized state, not object identity — a fresh `ov` literal per tray tile
+  // would otherwise re-resolve every visible tile's full layer stack on each render.
+  const stateKey = `${JSON.stringify(av)}|${ov ? JSON.stringify(ov) : ""}`;
   const layers = useMemo(
     () => resolveLayers(av, ov, svgSource).map((l) => ({ ...l, bbox: PARTS_SVG_BBOX[l.key] })),
-    [av, ov],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stateKey],
   );
-  const cov = useMemo(() => coverage(av, ov, svgSource), [av, ov]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const cov = useMemo(() => coverage(av, ov, svgSource), [stateKey]);
   // ov must win for height too — the body tray previews heights via ov.height.
   const hScale = heightScaleY(String(ov?.height ?? av.height));
   const xml = useMemo(

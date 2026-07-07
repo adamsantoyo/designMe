@@ -30,6 +30,7 @@ import ColorSwatch from "./ui/ColorSwatch";
 import useReducedMotion from "./useReducedMotion";
 import * as DM from "./dm";
 import { hasPart } from "./parts/registry";
+import { isPremiumRenderable } from "./parts/premium";
 import type { Av } from "./dm";
 
 type Region = "hair" | "face" | "body" | "top" | "bottom" | "shoes" | "extras";
@@ -245,7 +246,9 @@ const lookLabel = (t: number) => {
 };
 
 export default function AvatarStudio() {
-  const [av, setAv] = useState<Av>(() => DM.shuffleAv(DM.defaultAv));
+  // The default engine is premium (svgparts), so the first random look must draw only
+  // renderable parts — otherwise the stage opens on the complete-fallback placeholder.
+  const [av, setAv] = useState<Av>(() => DM.shufflePremiumAv(DM.defaultAv, isPremiumRenderable, PNG_DIM_CATEGORY));
   const [region, setRegion] = useState<Region | null>(null);
   const [extrasTab, setExtrasTab] = useState(EXTRA_GROUPS[0].key);
   const [faceTab, setFaceTab] = useState<FaceGroupKey>("skin");
@@ -429,7 +432,6 @@ export default function AvatarStudio() {
   const scrimOpacity = Animated.add(tray, lookbook).interpolate({ inputRange: [0, 1], outputRange: [0, 0.3], extrapolate: "clamp" });
   const breatheY = breathe.interpolate({ inputRange: [0, 1], outputRange: [0, -4] });
   const chipPulseOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 0.55] });
-  const pngMode = engineMode === "png";
   const activeExtraGroups = EXTRA_GROUPS;
   const activeHairGroups = HAIR_GROUPS;
   const activeTopGroups = TOP_GROUPS;
@@ -455,7 +457,10 @@ export default function AvatarStudio() {
   };
   const shuffle = () => {
     setHistory((h) => [...h, copyAv(av)].slice(-40));
-    setAv((a) => DM.shuffleAv(a));
+    setAv((a) =>
+      engineMode === "svgparts"
+        ? DM.shufflePremiumAv(a, isPremiumRenderable, PNG_DIM_CATEGORY)
+        : DM.shuffleAv(a));
     setBump((b) => b + 1);
   };
   const save = () => {
@@ -554,7 +559,15 @@ export default function AvatarStudio() {
   const tilesFor = (r: Region): Tile[] => {
     const T = (key: string, label: string, aria: string, ov: Partial<Av>, crop: string | undefined, sel: boolean, onTap: () => void): Tile =>
       ({ key, label, aria, ov, crop, sel, onTap });
-    const visible = (dim: keyof typeof PNG_DIM_CATEGORY, id: string) => !pngMode || pngHasArt(dim, id);
+    // Show an option only when the ACTIVE engine can actually render it: the premium
+    // (svgparts) path needs traced art + a manifest entry, PNG needs a registry ref,
+    // and the procedural svg fallback renders everything.
+    const visible = (dim: keyof typeof PNG_DIM_CATEGORY, id: string) =>
+      engineMode === "svgparts"
+        ? isPremiumRenderable(PNG_DIM_CATEGORY[dim], id)
+        : engineMode === "png"
+          ? pngHasArt(dim, id)
+          : true;
 
     if (r === "hair") {
       const group = HAIR_GROUPS.find((g) => g.key === hairTab) || HAIR_GROUPS[0];
@@ -592,8 +605,11 @@ export default function AvatarStudio() {
         .filter((x) => visible("makeup", x.id))
         .map((x) => T("mk_" + x.id, x.id === "none" ? "No makeup" : x.label, x.id === "none" ? "No makeup" : `Makeup ${x.label}`,
           { makeup: x.id }, CROP.FACE, av.makeup === x.id, () => apply({ makeup: x.id })));
-      const featureTiles = pngMode ? [] : DM.features.filter((f) => f.id !== "none").map((f) =>
-        T("f_" + f.id, f.label, f.label, { feature: f.id }, CROP.FACE, av.feature === f.id, () => apply({ feature: av.feature === f.id ? "none" : f.id })));
+      const featureTiles = DM.features
+        .filter((f) => f.id !== "none")
+        .filter((f) => visible("feature", f.id))
+        .map((f) =>
+          T("f_" + f.id, f.label, f.label, { feature: f.id }, CROP.FACE, av.feature === f.id, () => apply({ feature: av.feature === f.id ? "none" : f.id })));
       return [...makeupTiles, ...featureTiles];
     }
     if (r === "body") {
@@ -639,7 +655,7 @@ export default function AvatarStudio() {
     }
     const group = activeExtraGroups.find((g) => g.key === extrasTab) || activeExtraGroups[0] || EXTRA_GROUPS[0];
     return group.list.filter((x) => x.id !== "none").map((x) =>
-      !pngMode || pngHasArt(group.dim as keyof typeof PNG_DIM_CATEGORY, x.id) ? x : null).filter((x): x is DM.Item => !!x).map((x) =>
+      visible(group.dim as keyof typeof PNG_DIM_CATEGORY, x.id) ? x : null).filter((x): x is DM.Item => !!x).map((x) =>
       T(group.key + "_" + x.id, x.label, x.label, { [group.dim]: x.id } as Partial<Av>, group.crop,
         (av as any)[group.dim] === x.id,
         () => apply({ [group.dim]: (av as any)[group.dim] === x.id ? "none" : x.id } as Partial<Av>)));
@@ -815,6 +831,7 @@ export default function AvatarStudio() {
       {vibeOpen ? (
         <ThisOrThat
           av={av}
+          engine={engineMode}
           onWear={(vibe) => {
             apply(vibe.ov);
             setVibeOpen(false);
