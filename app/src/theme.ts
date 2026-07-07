@@ -12,14 +12,20 @@ export const theme = {
     surface3: "#efe7d9",
     ink: "#2f2823",
     inkSoft: "#6b5f53",
-    inkFaint: "#978a7b",
-    line: "#ddd0bd",
-    line2: "#cabfa9",
+    // AA-retuned 2026-07-07 (owner-approved). inkFaint is faint TEXT so it meets 4.5:1
+    // on bg (4.62:1); line/line2 are UI borders retuned to the 3:1 non-text target
+    // (3.5:1). Keep these in sync with the DESIGN.md frontmatter (the mirror).
+    inkFaint: "#6f655a",
+    line: "#8d8376",
+    line2: "#8c8373",
     sage: "#6f8f6a",
     sageDeep: "#3f5c3b",
     sageWash: "#eef3ea",
     terra: "#bd7a4f",
     terraDeep: "#8a5430",
+    // White on the mid-tone accents is AA for LARGE text only: terra 3.47:1, sage
+    // 3.61:1 (>=3:1). Fine for the Save pill / this-or-that buttons (>=18px bold) and
+    // icons; for small text on an accent use terraDeep (6.19:1) / sageDeep (7.49:1).
     onAccent: "#ffffff",
     selected: "#355c39",
     focus: "#1f4d2c",

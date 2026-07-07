@@ -15,9 +15,9 @@ colors:
   surface3: "#efe7d9"
   ink: "#2f2823"
   inkSoft: "#6b5f53"
-  inkFaint: "#978a7b"
-  line: "#ddd0bd"
-  line2: "#cabfa9"
+  inkFaint: "#6f655a" # AA-retuned 2026-07-07: faint text 4.62:1 on bg (was #978a7b, 2.73:1)
+  line: "#8d8376" # AA-retuned 2026-07-07: border 3.5:1 on surface (was #ddd0bd, 1.43:1)
+  line2: "#8c8373" # AA-retuned 2026-07-07: border 3.5:1 on surface (was #cabfa9, 1.72:1)
   sage: "#6f8f6a"
   sageDeep: "#3f5c3b"
   sageWash: "#eef3ea"
