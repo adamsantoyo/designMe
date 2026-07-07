@@ -2,10 +2,11 @@
 // gradient surface, 2px border, selected = sage border + soft glow wash + corner
 // check badge, hover lift. Label never truncates weirdly small (12px, one line).
 
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Path } from "react-native-svg";
 import UIPressable from "./Pressable";
+import Text from "./Text";
 import AvatarCanvas, { type AvatarEngine } from "../AvatarCanvas";
 import { theme } from "../theme";
 import type { Av } from "../dm";

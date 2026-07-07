@@ -5,10 +5,11 @@
 // Each card's mat is tinted from its own outfit colors (the VibeCard pattern).
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Easing, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated, Easing, StyleSheet, View, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import AvatarCanvas, { type AvatarEngine } from "./AvatarCanvas";
 import UIPressable from "./ui/Pressable";
+import Text from "./ui/Text";
 import { Hairline, RadialMat } from "./ui/TopHighlight";
 import useReducedMotion from "./useReducedMotion";
 import { theme, mix } from "./theme";

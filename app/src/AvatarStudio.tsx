@@ -13,7 +13,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
   useWindowDimensions,
 } from "react-native";
@@ -24,6 +23,7 @@ import { theme } from "./theme";
 import AvatarCanvas, { type AvatarEngine } from "./AvatarCanvas";
 import ThisOrThat from "./ThisOrThat";
 import UIPressable from "./ui/Pressable";
+import Text from "./ui/Text";
 import { Hairline, RadialMat } from "./ui/TopHighlight";
 import OptionTile from "./ui/OptionTile";
 import ColorSwatch from "./ui/ColorSwatch";
@@ -1089,7 +1089,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32, gap: 16, zIndex: 30 },
   headerNarrow: { flexDirection: "column", alignItems: "stretch", justifyContent: "flex-start", paddingHorizontal: 20, paddingTop: 16, gap: 10 },
   wordmark: { fontFamily: theme.font.serif, fontSize: theme.type.display, color: theme.color.ink, lineHeight: 34 },
-  wordmarkMe: { fontStyle: "italic", fontWeight: "600" },
+  // Nested inside the serif wordmark: DMText applies the sans base to every Text, so the
+  // family must be restated here or "Me" would fall back to Nunito (inheritance is lost).
+  wordmarkMe: { fontFamily: theme.font.serif, fontStyle: "italic", fontWeight: "600" },
   tagline: { fontSize: theme.type.md, fontWeight: "600", color: theme.color.inkSoft, marginTop: -2 },
   headerActions: { flexDirection: "row", alignItems: "center", gap: 12 },
   headerActionsNarrow: { alignSelf: "stretch", justifyContent: "flex-end", gap: 8 },

@@ -1,6 +1,8 @@
 // designMe design tokens — ported from design-system/tokens (the validated palette,
 // type scale, elevation, and motion system). Single source of truth; components
 // consume tokens, never ad-hoc values. Keep these exact.
+import { Platform } from "react-native";
+
 export const theme = {
   color: {
     bg: "#ece7dc",
@@ -29,9 +31,15 @@ export const theme = {
   tap: 48,
   tapLg: 66,
   font: {
-    // Nunito / Newsreader fall back to system until expo-font loads them (TODO).
+    // Web reads a CSS font stack (react-native-web -> CSS + fontWeight); native can't
+    // pick a weight off one custom family, so DMText (ui/Text) maps each weight to its
+    // own loaded Nunito family. The serif is a single editorial weight, so it resolves
+    // to the loaded Newsreader family directly on native.
     sans: 'Nunito, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif',
-    serif: 'Newsreader, Georgia, "Times New Roman", serif',
+    serif: Platform.select({
+      web: 'Newsreader, Georgia, "Times New Roman", serif',
+      default: "Newsreader_400Regular",
+    }) as string,
   },
   // Type scale from design-system/tokens/typography.css (px, rounded for RN).
   // Serif is wordmark/editorial ONLY — never body.
