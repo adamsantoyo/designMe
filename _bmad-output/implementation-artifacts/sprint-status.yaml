@@ -86,6 +86,20 @@
 # - Tray gating hides art-less options in premium mode; shufflePremiumAv keeps every random look
 #   fully renderable (node --test, 1000 iterations). eye/round, eye/monolid, hair/buzzCut,
 #   hair/shaved, top/meshLayer stay catalog-data-only (hidden in premium mode, no art).
+#
+# PREMIUM OVERHAUL — PHASE 2 DONE (2026-07-07): typography, tokens, a11y floor, brand.
+# - Brand fonts render for the first time: Nunito body (DMText / ui/Text, web CSS stack +
+#   native per-weight families) + Newsreader wordmark; useFonts + SplashScreen (no FOUT).
+# - Tokenized stray hexes (+ scrim token); touch targets to spec (chips 66, sub-tabs 48,
+#   pills 66); stage-size floors + 40%-of-stage tray height.
+# - AA contrast retune (OWNER-APPROVED, full AA): inkFaint 2.73->4.62:1, line/line2 to 3.5:1;
+#   mirrored into DESIGN.md frontmatter. Advances 5-2 (a11y audit) — VoiceOver/Dynamic Type
+#   still need the iPad pass.
+# - Keyboard focus management: focus into tray on open, back to chip on close, Esc dismiss,
+#   modality-gated (no stray ring for mouse). Scrim is focusable.
+# - App icon + splash: script-generated typographic mark (tools/gen-app-icon.mjs).
+# - Verified web + visual:matrix (12/12, 3 viewports). Native (fonts, splash/icon, VoiceOver,
+#   Dynamic Type, touch feel) flagged for iOS Simulator / physical iPad.
 
 generated: 2026-07-04
 last_updated: 2026-07-07
@@ -118,7 +132,7 @@ development_status:
   epic-4-retrospective: optional
   epic-5: backlog
   5-1-randomized-non-default-start-verified: backlog
-  5-2-full-accessibility-audit-pass: backlog
+  5-2-full-accessibility-audit-pass: in-progress # Phase 2: touch targets, focus mgmt, AA contrast done; VoiceOver/Dynamic Type pending iPad
   epic-5-retrospective: optional
   epic-6: backlog
   6-1-ipad-dev-build-runs-the-slice: backlog
